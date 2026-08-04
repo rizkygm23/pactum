@@ -1,0 +1,206 @@
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap");
+@import "tailwindcss";
+
+/* ──────────────────────────────────────────────────
+   Pactum Design Tokens
+   Theme: Notarial Ledger — presisi, berwibawa, tenang
+   ────────────────────────────────────────────────── */
+
+@theme inline {
+  /* Brand palette */
+  --color-ink-navy: #0E1526;
+  --color-graphite: #1B2333;
+  --color-brass: #C9A227;
+  --color-brass-dim: #A68420;
+  --color-brass-glow: #D4B13A;
+  --color-teal: #3FA796;
+  --color-teal-dim: #2E8A7B;
+  --color-parchment: #EDE8DC;
+  --color-parchment-dim: #D9D2C3;
+  --color-rust: #C2542C;
+  --color-rust-dim: #A04424;
+
+  /* Semantic */
+  --color-background: var(--color-ink-navy);
+  --color-surface: var(--color-graphite);
+  --color-foreground: var(--color-parchment);
+  --color-foreground-dim: #8B8FA0;
+  --color-accent: var(--color-brass);
+  --color-success: var(--color-teal);
+  --color-error: var(--color-rust);
+  --color-border: rgba(237, 232, 220, 0.08);
+  --color-border-strong: rgba(237, 232, 220, 0.15);
+
+  /* Fonts — registered for Tailwind utilities */
+  --font-display: "Fraunces", "Georgia", serif;
+  --font-sans: "Inter", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", "Consolas", monospace;
+
+  /* Radius — notarial, not consumer-rounded */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+}
+
+/* ── Base ─────────────────────────────────────── */
+html {
+  color-scheme: dark;
+}
+
+body {
+  background: var(--color-ink-navy);
+  color: var(--color-parchment);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── Scrollbar (Chromium) ─────────────────────── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(237, 232, 220, 0.12);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(237, 232, 220, 0.2);
+}
+
+/* ── Ledger row — hairline dividers ───────────── */
+.ledger-row {
+  border-bottom: 1px solid var(--color-border);
+  padding: 0.75rem 0;
+  transition: background 0.15s ease;
+}
+.ledger-row:hover {
+  background: rgba(27, 35, 51, 0.6);
+}
+
+/* ── Receipt stub — dashed tear line ──────────── */
+.receipt-stub {
+  border-bottom: 2px dashed var(--color-border-strong);
+  padding-bottom: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+/* ── Seal badge glow animation ────────────────── */
+@keyframes seal-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(201, 162, 39, 0.3); }
+  50% { box-shadow: 0 0 12px 4px rgba(201, 162, 39, 0.15); }
+}
+
+.seal-badge {
+  animation: seal-pulse 3s ease-in-out infinite;
+}
+
+/* ── Data label — monospace precision ─────────── */
+.data-mono {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+}
+
+/* ── Button base ──────────────────────────────── */
+.btn-primary {
+  background: var(--color-brass);
+  color: var(--color-ink-navy);
+  font-weight: 600;
+  padding: 0.5rem 1.25rem;
+  border-radius: var(--radius-md);
+  transition: all 0.2s ease;
+  cursor: pointer;
+  border: none;
+  font-size: 0.875rem;
+}
+.btn-primary:hover {
+  background: var(--color-brass-glow);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(201, 162, 39, 0.25);
+}
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--color-parchment);
+  font-weight: 500;
+  padding: 0.5rem 1.25rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border-strong);
+  transition: all 0.2s ease;
+  cursor: pointer;
+  font-size: 0.875rem;
+}
+.btn-ghost:hover {
+  background: rgba(237, 232, 220, 0.05);
+  border-color: rgba(237, 232, 220, 0.25);
+}
+
+/* ── Input ────────────────────────────────────── */
+.input-field {
+  background: var(--color-ink-navy);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  padding: 0.625rem 0.875rem;
+  color: var(--color-parchment);
+  font-size: 0.875rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  width: 100%;
+  outline: none;
+}
+.input-field::placeholder {
+  color: var(--color-foreground-dim);
+}
+.input-field:focus {
+  border-color: var(--color-brass);
+  box-shadow: 0 0 0 2px rgba(201, 162, 39, 0.15);
+}
+
+/* ── Status chips ─────────────────────────────── */
+.status-settled {
+  color: var(--color-teal);
+  background: rgba(63, 167, 150, 0.1);
+  border: 1px solid rgba(63, 167, 150, 0.2);
+  padding: 0.125rem 0.625rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.status-pending {
+  color: var(--color-brass);
+  background: rgba(201, 162, 39, 0.1);
+  border: 1px solid rgba(201, 162, 39, 0.2);
+  padding: 0.125rem 0.625rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.status-failed {
+  color: var(--color-rust);
+  background: rgba(194, 84, 44, 0.1);
+  border: 1px solid rgba(194, 84, 44, 0.2);
+  padding: 0.125rem 0.625rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* ── Card ─────────────────────────────────────── */
+.card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+}
