@@ -1,0 +1,61 @@
+/* Pactum — design tokens
+ * Hallmark · genre: modern-minimal · theme: custom (project-locked)
+ * vibe: "notarial ledger, precise, austere"
+ *
+ * Source of truth lives in app/globals.css (@theme inline) so Tailwind
+ * can generate utilities from it. This file mirrors those values as
+ * plain custom properties for reference and reuse.
+ */
+
+:root {
+  /* ── Palette ──────────────────────────────── */
+  --color-ink-navy: #0e1526;
+  --color-graphite: #1b2333;
+
+  --color-brass: #c9a227;
+  --color-brass-dim: #a68420;
+  --color-brass-glow: #d4b13a;
+
+  --color-teal: #3fa796;
+  --color-teal-dim: #2e8a7b;
+
+  --color-parchment: #ede8dc;
+  --color-parchment-dim: #d9d2c3;
+
+  --color-rust: #c2542c;
+  --color-rust-dim: #a04424;
+
+  /* ── Semantic ─────────────────────────────── */
+  --color-background: var(--color-ink-navy);
+  --color-surface: var(--color-graphite);
+  --color-foreground: var(--color-parchment);
+  --color-foreground-dim: #8b8fa0;
+  --color-accent: var(--color-brass);
+  --color-success: var(--color-teal);
+  --color-error: var(--color-rust);
+  --color-border: rgba(237, 232, 220, 0.08);
+  --color-border-strong: rgba(237, 232, 220, 0.15);
+
+  /* ── Type ─────────────────────────────────── */
+  --font-display: "Fraunces", "Georgia", serif;
+  --font-sans: "Inter", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", "Consolas", monospace;
+
+  /* ── Radius — notarial, not consumer-rounded ─ */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+
+  /* ── Motion ───────────────────────────────── */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in: cubic-bezier(0.55, 0, 1, 0.45);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur-short: 140ms;
+  --dur-mid: 320ms;
+  --dur-long: 640ms;
+
+  /* ── Rules + measure ──────────────────────── */
+  --rule-hairline: 1px;
+  --rule-heavy: 2px;
+  --measure: 62ch;
+}

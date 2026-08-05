@@ -37,7 +37,7 @@ export function WalletSettings({ initialWallet, projectId }: { initialWallet: st
         It must be an EVM-compatible address.
       </p>
 
-      <div className="max-w-md">
+      <div className="w-full max-w-md">
         <label htmlFor="wallet-address" className="sr-only">Wallet Address</label>
         <input
           id="wallet-address"
@@ -50,7 +50,7 @@ export function WalletSettings({ initialWallet, projectId }: { initialWallet: st
       </div>
 
       {message && (
-        <div className={`text-sm px-3 py-2 rounded-md inline-block ${
+        <div className={`text-sm px-3 py-2 rounded-md max-w-full break-words ${
           message.type === "success" 
             ? "text-teal bg-teal/10 border border-teal/20" 
             : "text-rust bg-rust/10 border border-rust/20"
@@ -63,7 +63,7 @@ export function WalletSettings({ initialWallet, projectId }: { initialWallet: st
         <button
           type="submit"
           disabled={saving}
-          className="btn-primary disabled:opacity-50 mt-2"
+          className="btn-primary disabled:opacity-50 mt-2 w-full sm:w-auto no-wrap"
         >
           {saving ? "Saving…" : "Save Wallet"}
         </button>

@@ -23,21 +23,26 @@ export function DataLabel({ value, label, copyable = false, truncate = false }: 
   }
 
   return (
-    <div className="inline-flex flex-col gap-0.5">
+    <div className="inline-flex min-w-0 max-w-full flex-col gap-0.5">
       {label && (
         <span className="text-[10px] text-foreground-dim uppercase tracking-wider font-medium">
           {label}
         </span>
       )}
-      <span
-        className={`data-mono text-sm text-parchment ${
-          copyable ? "cursor-pointer hover:text-brass transition-colors" : ""
-        }`}
-        onClick={handleCopy}
-        title={copyable ? `Click to copy: ${value}` : undefined}
-      >
-        {displayValue}
-      </span>
+      {copyable ? (
+        <button
+          type="button"
+          className="data-mono focus-ring max-w-full cursor-pointer text-left text-sm text-parchment transition-colors hover:text-brass"
+          onClick={handleCopy}
+          title={`Click to copy: ${value}`}
+        >
+          {displayValue}
+        </button>
+      ) : (
+        <span className="data-mono max-w-full text-sm text-parchment">
+          {displayValue}
+        </span>
+      )}
     </div>
   );
 }

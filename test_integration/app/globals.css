@@ -1,0 +1,26 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --color-ink-navy: #0E1526;
+    --color-graphite: #1B2333;
+    --color-brass: #C9A227;
+    --color-parchment: #EDE8DC;
+    --color-border-subtle: rgba(237, 232, 220, 0.08);
+  }
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+body {
+  background-color: var(--color-ink-navy);
+  color: var(--color-parchment);
+}

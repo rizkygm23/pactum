@@ -170,17 +170,17 @@ export default function WalletPage() {
   const availableBalance = Math.max(0, onChainBalance - pendingUsage);
 
   return (
-    <div className="min-h-screen bg-neutral-950 text-white flex flex-col items-center pt-20 px-4 font-sans">
-      <div className="max-w-md w-full bg-neutral-900 border border-neutral-800 rounded-2xl shadow-2xl p-8">
+    <div className="min-h-screen bg-neutral-950 text-white flex flex-col items-center px-4 py-12 sm:py-20 font-sans">
+      <div className="max-w-md w-full bg-neutral-900 border border-neutral-800 rounded-2xl shadow-2xl p-5 sm:p-8">
         
-        <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-blue-500/10 rounded-full flex items-center justify-center mx-auto mb-4 border border-blue-500/20">
-            <Wallet className="w-8 h-8 text-blue-400" />
+        <div className="text-center mb-6 sm:mb-8">
+          <div className="w-14 h-14 sm:w-16 sm:h-16 bg-blue-500/10 rounded-full flex items-center justify-center mx-auto mb-4 border border-blue-500/20">
+            <Wallet className="w-7 h-7 sm:w-8 sm:h-8 text-blue-400" />
           </div>
-          <h1 className="text-3xl font-bold text-white mb-2">Universal Wallet</h1>
-          <p className="text-neutral-400 max-w-md mx-auto text-sm">
-            Deposit USDC to pay for AI services across the Pactum ecosystem. 
-            <br/>Gas-free per-token billing via State Channels.
+          <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">Universal Wallet</h1>
+          <p className="text-neutral-400 text-sm text-balance">
+            Deposit USDC to pay for AI services across the Pactum ecosystem.
+            Gas-free per-token billing via State Channels.
           </p>
         </div>
 
@@ -197,26 +197,26 @@ export default function WalletPage() {
           </button>
         ) : (
           <div className="space-y-6">
-            <div className="bg-neutral-950 rounded-xl p-4 border border-neutral-800">
+            <div className="bg-neutral-950 rounded-xl p-3 sm:p-4 border border-neutral-800">
               <p className="text-xs text-neutral-500 mb-1">Connected Wallet</p>
-              <p className="text-sm font-mono break-all text-neutral-300">
+              <p className="text-xs sm:text-sm font-mono break-all text-neutral-300">
                 {address}
               </p>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div className="bg-neutral-800/50 rounded-xl p-4 border border-neutral-800">
+            <div className="grid grid-cols-2 gap-3 sm:gap-4">
+              <div className="min-w-0 bg-neutral-800/50 rounded-xl p-3 sm:p-4 border border-neutral-800">
                 <p className="text-xs text-neutral-500 mb-1 flex items-center gap-1">
-                  On-Chain Balance <Info className="w-3 h-3" />
+                  On-Chain Balance <Info className="w-3 h-3 shrink-0" />
                 </p>
-                <p className="text-2xl font-bold text-white">{onChainBalance.toFixed(4)}</p>
+                <p className="text-xl sm:text-2xl font-bold text-white break-all">{onChainBalance.toFixed(4)}</p>
                 <p className="text-xs text-neutral-500 mt-1">USDC</p>
               </div>
-              <div className="bg-neutral-800/50 rounded-xl p-4 border border-neutral-800">
+              <div className="min-w-0 bg-neutral-800/50 rounded-xl p-3 sm:p-4 border border-neutral-800">
                 <p className="text-xs text-neutral-500 mb-1 flex items-center gap-1">
                   Available Balance
                 </p>
-                <p className="text-2xl font-bold text-blue-400">{availableBalance.toFixed(4)}</p>
+                <p className="text-xl sm:text-2xl font-bold text-blue-400 break-all">{availableBalance.toFixed(4)}</p>
                 <p className="text-xs text-neutral-500 mt-1">USDC</p>
               </div>
             </div>
@@ -235,7 +235,7 @@ export default function WalletPage() {
                 Top up Balance (USDC)
               </label>
               <div className="flex gap-2">
-                <div className="relative flex-1">
+                <div className="relative min-w-0 flex-1">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <Coins className="w-4 h-4 text-neutral-500" />
                   </div>
@@ -250,14 +250,14 @@ export default function WalletPage() {
                 <button
                   onClick={handleDeposit}
                   disabled={loading || !depositAmount}
-                  className="bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-xl px-6 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  className="shrink-0 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-xl px-5 sm:px-6 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
                   {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <ArrowRight className="w-5 h-5" />}
                 </button>
               </div>
               
               {status && (
-                <p className="text-xs text-center mt-3 text-blue-400 animate-pulse">
+                <p className="text-xs text-center mt-3 text-blue-400 break-words animate-pulse">
                   {status}
                 </p>
               )}

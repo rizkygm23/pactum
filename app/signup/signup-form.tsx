@@ -32,7 +32,7 @@ export function SignupForm() {
         return;
       }
 
-      router.push("/");
+      router.push("/dashboard");
       router.refresh();
     } catch (err) {
       console.error(err);

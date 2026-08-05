@@ -18,13 +18,13 @@ export function StatCard({ label, value, unit, trend, trendValue }: StatCardProp
   };
 
   return (
-    <div className="card flex flex-col gap-2">
+    <div className="card flex min-w-0 flex-col gap-2">
       <span className="text-xs font-medium text-foreground-dim uppercase tracking-wider">
         {label}
       </span>
-      <div className="flex items-baseline gap-1.5">
+      <div className="flex flex-wrap items-baseline gap-x-1.5 gap-y-0">
         <span
-          className="text-3xl font-semibold text-parchment tabular-nums"
+          className="text-2xl sm:text-3xl font-semibold text-parchment tabular-nums break-all"
           style={{ fontFamily: "var(--font-display)" }}
         >
           {value}

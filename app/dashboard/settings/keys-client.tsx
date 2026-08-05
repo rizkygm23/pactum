@@ -64,14 +64,14 @@ export function KeysClient({ initialKeys }: { initialKeys: ApiKey[] }) {
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
         <p className="text-sm text-foreground-dim">
           Keys used to authenticate SDK and API requests.
         </p>
         <button
           onClick={generateKey}
           disabled={generating}
-          className="btn-primary"
+          className="btn-primary shrink-0 no-wrap"
         >
           {generating ? "Generating…" : "Generate New Key"}
         </button>
@@ -83,7 +83,7 @@ export function KeysClient({ initialKeys }: { initialKeys: ApiKey[] }) {
             Save your new API key! It will not be shown again.
           </p>
           <div className="flex items-center gap-2 bg-ink-navy p-3 rounded border border-border-strong">
-            <code className="data-mono text-parchment flex-1 select-all">
+            <code className="data-mono text-parchment min-w-0 flex-1 text-xs sm:text-sm select-all">
               {newKey}
             </code>
           </div>
@@ -95,29 +95,29 @@ export function KeysClient({ initialKeys }: { initialKeys: ApiKey[] }) {
           <p className="text-foreground-dim text-sm">No API keys found.</p>
         </div>
       ) : (
-        <div className="border-t border-border-strong">
-          <div className="grid grid-cols-12 gap-4 py-3 text-[10px] text-foreground-dim uppercase tracking-wider border-b border-border">
-            <div className="col-span-3">Name</div>
-            <div className="col-span-4">Key Prefix</div>
-            <div className="col-span-2">Created</div>
-            <div className="col-span-2">Status</div>
-            <div className="col-span-1 text-right">Actions</div>
-          </div>
-          
-          <div className="space-y-0">
+        <div className="border-t border-border-strong overflow-x-auto">
+          <div className="min-w-[40rem] md:min-w-0">
+            <div className="grid grid-cols-12 gap-4 py-3 text-[10px] text-foreground-dim uppercase tracking-wider border-b border-border">
+              <div className="col-span-3">Name</div>
+              <div className="col-span-4">Key Prefix</div>
+              <div className="col-span-2">Created</div>
+              <div className="col-span-2">Status</div>
+              <div className="col-span-1 text-right no-wrap">Actions</div>
+            </div>
+
             {keys.map((k) => (
               <div key={k.id} className="ledger-row grid grid-cols-12 gap-4 items-center">
-                <div className="col-span-3 text-sm text-parchment font-medium truncate">
+                <div className="col-span-3 min-w-0 text-sm text-parchment font-medium truncate">
                   {k.name}
                 </div>
-                <div className="col-span-4">
+                <div className="col-span-4 min-w-0">
                   <DataLabel value={k.key_prefix + "..."} />
                 </div>
-                <div className="col-span-2 text-xs text-foreground-dim">
+                <div className="col-span-2 min-w-0 text-xs text-foreground-dim no-wrap">
                   {new Date(k.created_at).toLocaleDateString()}
                 </div>
-                <div className="col-span-2">
-                  <span className={k.status === "active" ? "text-teal" : "text-rust"}>
+                <div className="col-span-2 min-w-0">
+                  <span className={`text-sm no-wrap ${k.status === "active" ? "text-teal" : "text-rust"}`}>
                     {k.status.charAt(0).toUpperCase() + k.status.slice(1)}
                   </span>
                 </div>
@@ -125,7 +125,7 @@ export function KeysClient({ initialKeys }: { initialKeys: ApiKey[] }) {
                   {k.status === "active" && (
                     <button
                       onClick={() => revokeKey(k.id)}
-                      className="text-xs text-rust hover:text-rust-dim transition-colors"
+                      className="text-xs text-rust hover:text-rust-dim transition-colors no-wrap"
                     >
                       Revoke
                     </button>

@@ -10,7 +10,7 @@ export default function SmartContractsPage() {
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
       <div className="space-y-3 border-b border-slate-800 pb-8">
-        <h1 className="text-3xl font-semibold tracking-tight text-slate-100">
+        <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-slate-100">
           Smart Contracts
         </h1>
         <p className="text-base text-slate-400 max-w-2xl">

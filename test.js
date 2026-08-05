@@ -1,106 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Premium AI Chat (Pactum Integration)</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    body {
-      background-color: #0A0D14;
-      color: #E2E8F0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    }
-    .chat-container {
-      height: calc(100vh - 160px);
-      overflow-y: auto;
-    }
-    .scrollbar-hide::-webkit-scrollbar {
-      display: none;
-    }
-    .scrollbar-hide {
-      -ms-overflow-style: none;
-      scrollbar-width: none;
-    }
-    .user-msg {
-      background: linear-gradient(135deg, #2563EB, #1D4ED8);
-      color: white;
-      border-radius: 20px 20px 0 20px;
-    }
-    .ai-msg {
-      background: #1E293B;
-      color: #F8FAFC;
-      border-radius: 20px 20px 20px 0;
-      border: 1px solid #334155;
-    }
-    .error-msg {
-      background: rgba(220, 38, 38, 0.1);
-      color: #F87171;
-      border-radius: 12px;
-      border: 1px solid rgba(220, 38, 38, 0.3);
-    }
-  </style>
-</head>
-<body class="flex flex-col h-screen antialiased selection:bg-blue-500/30">
 
-  <!-- Header -->
-  <header class="flex items-center justify-between px-6 py-4 border-b border-slate-800 bg-[#0A0D14]/80 backdrop-blur-md sticky top-0 z-10">
-    <div class="flex items-center gap-3">
-      <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-indigo-500 to-blue-500 flex items-center justify-center shadow-lg shadow-blue-500/20">
-        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-      </div>
-      <h1 class="text-xl font-semibold tracking-tight text-slate-200">Aura AI</h1>
-    </div>
-    
-    <div>
-      <button id="connectWalletBtn" class="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm font-medium px-4 py-2 rounded-full border border-slate-700 transition-all duration-200 hover:shadow-md">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
-        <span id="walletAddress">Connect Wallet</span>
-      </button>
-    </div>
-  </header>
-
-  <!-- Chat Area -->
-  <main class="flex-1 max-w-4xl w-full mx-auto p-4 flex flex-col justify-end chat-container scrollbar-hide relative" id="chatContainer">
-    
-    <div class="flex flex-col items-center justify-center h-full opacity-50" id="emptyState">
-      <svg class="w-16 h-16 mb-4 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg>
-      <p class="text-slate-400">Connect your wallet to start chatting with Aura AI.</p>
-    </div>
-
-    <div id="messages" class="space-y-6 pb-4 w-full"></div>
-  </main>
-
-  <!-- Input Area -->
-  <div class="p-4 border-t border-slate-800 bg-[#0A0D14]">
-    <div class="max-w-4xl mx-auto relative">
-      <form id="chatForm" class="flex items-end gap-2">
-        <div class="relative flex-1 bg-slate-900 border border-slate-700 rounded-2xl shadow-sm focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500 transition-all">
-          <textarea 
-            id="promptInput" 
-            rows="1" 
-            placeholder="Type your message here..." 
-            class="w-full bg-transparent text-slate-200 placeholder-slate-500 px-4 py-3 focus:outline-none resize-none scrollbar-hide"
-            style="min-height: 48px; max-height: 200px;"
-            disabled
-          ></textarea>
-        </div>
-        <button 
-          id="sendBtn" 
-          type="submit" 
-          disabled
-          class="bg-blue-600 hover:bg-blue-500 disabled:bg-slate-800 disabled:text-slate-500 text-white rounded-2xl w-12 h-12 flex items-center justify-center transition-colors flex-shrink-0"
-        >
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
-        </button>
-      </form>
-      <div class="text-center mt-3 text-xs text-slate-500">
-        Per-token micro-payments powered by <span class="font-medium text-slate-400">Pactum State Channel</span>
-      </div>
-    </div>
-  </div>
-
-  <script>
     let userAddress = null;
     let jwtToken = null;
 
@@ -123,16 +21,16 @@
     function createSiweMessage(address, statement, nonce) {
       const domain = window.location.host;
       const origin = window.location.origin;
-      const message = \`\${domain} wants you to sign in with your Ethereum account:
-\${address}
+      const message = `${domain} wants you to sign in with your Ethereum account:
+${address}
 
-\${statement}
+${statement}
 
-URI: \${origin}
+URI: ${origin}
 Version: 1
 Chain ID: 1
-Nonce: \${nonce}
-Issued At: \${new Date().toISOString()}\`;
+Nonce: ${nonce}
+Issued At: ${new Date().toISOString()}`;
       return message;
     }
 
@@ -177,7 +75,7 @@ Issued At: \${new Date().toISOString()}\`;
           jwtToken = token;
           userAddress = verifiedAddress;
           
-          connectWalletBtn.innerHTML = \`<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg> <span id="walletAddress">\${userAddress.slice(0,6) + '...' + userAddress.slice(-4)}</span>\`;
+          connectWalletBtn.innerHTML = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg> <span id="walletAddress">${userAddress.slice(0,6) + '...' + userAddress.slice(-4)}</span>`;
           connectWalletBtn.classList.add('bg-slate-800', 'border-blue-500/50', 'text-blue-400');
           
           promptInput.disabled = false;
@@ -268,7 +166,7 @@ Issued At: \${new Date().toISOString()}\`;
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': \`Bearer \${jwtToken}\`
+            'Authorization': `Bearer ${jwtToken}`
           },
           body: JSON.stringify({
             prompt: prompt
@@ -304,6 +202,4 @@ Issued At: \${new Date().toISOString()}\`;
         chatForm.dispatchEvent(new Event('submit'));
       }
     });
-  </script>
-</body>
-</html>
+  

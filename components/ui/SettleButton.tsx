@@ -34,7 +34,7 @@ export function SettleButton({ disabled }: { disabled: boolean }) {
     <button
       onClick={handleSettle}
       disabled={disabled || loading}
-      className="mt-3 flex items-center gap-2 bg-blue-600 hover:bg-blue-500 disabled:bg-slate-800 disabled:text-slate-500 text-white text-xs font-medium px-4 py-2 rounded-lg transition-colors"
+      className="mt-3 shrink-0 no-wrap flex items-center gap-2 btn-primary text-xs px-4 py-2"
     >
       {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Zap className="w-4 h-4" />}
       {loading ? "Settling..." : "Settle Now"}

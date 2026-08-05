@@ -1,3 +1,9 @@
+/* Hallmark · genre: modern-minimal · macrostructure: Narrative Workflow
+ * theme: custom (project-locked) · vibe: "notarial ledger, precise, austere"
+ * paper oklch(19.6% 0.031 265) dark · accent oklch(71.4% 0.126 87) warm · display roman-serif
+ * enrichment: none (typography only, Tier-A CSS rules) · nav: N9 · footer: Ft5
+ * pre-emit critique: P5 H5 E4 S5 R5 V4
+ */
 @import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap");
 @import "tailwindcss";
 
@@ -42,9 +48,23 @@
   --radius-lg: 8px;
 }
 
+/* ── Motion + rule tokens ─────────────────────── */
+:root {
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in: cubic-bezier(0.55, 0, 1, 0.45);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur-short: 140ms;
+  --dur-mid: 320ms;
+  --dur-long: 640ms;
+  --rule-hairline: 1px;
+  --rule-heavy: 2px;
+  --measure: 62ch;
+}
+
 /* ── Base ─────────────────────────────────────── */
 html {
   color-scheme: dark;
+  overflow-x: clip;
 }
 
 body {
@@ -53,6 +73,7 @@ body {
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow-x: clip;
 }
 
 /* ── Scrollbar (Chromium) ─────────────────────── */
@@ -103,27 +124,27 @@ body {
   font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
   letter-spacing: 0.02em;
+  /* Hashes, addresses and keys must never push a layout wider than
+     the viewport — they wrap instead. */
+  overflow-wrap: anywhere;
+  min-width: 0;
 }
 
-/* ── Button base ──────────────────────────────── */
-.btn-primary {
-  background: var(--color-brass);
-  color: var(--color-ink-navy);
-  font-weight: 600;
-  padding: 0.5rem 1.25rem;
-  border-radius: var(--radius-md);
-  transition: all 0.2s ease;
-  cursor: pointer;
-  border: none;
-  font-size: 0.875rem;
+/* ── Code blocks — always scroll, never overflow ─
+   `pre` is the only element allowed a horizontal scrollbar. Without
+   this, one long line of JSON widens every ancestor on mobile. */
+pre {
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
-.btn-primary:hover {
-  background: var(--color-brass-glow);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(201, 162, 39, 0.25);
+pre code {
+  white-space: pre;
 }
-.btn-primary:active {
-  transform: translateY(0);
+
+/* Grid/flex children collapse instead of forcing their track wider */
+main :where(pre, table) {
+  min-width: 0;
 }
 
 .btn-ghost {
@@ -198,9 +219,155 @@ body {
 }
 
 /* ── Card ─────────────────────────────────────── */
+/* `.card` is unlayered, so a `p-*` utility can never override it.
+   The mobile step-down has to live here. */
 .card {
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
-  padding: 1.5rem;
+  padding: 1rem;
+}
+@media (min-width: 40rem) {
+  .card {
+    padding: 1.5rem;
+  }
+}
+
+/* ══════════════════════════════════════════════════
+   Landing — Narrative Workflow
+   Three motion primitives only: rule-sweep, seal-strike,
+   ledger-tick. All transform/opacity. All reveal once.
+   ══════════════════════════════════════════════════ */
+
+/* Display headers must never overflow their track */
+.display-face {
+  font-family: var(--font-display);
+  overflow-wrap: anywhere;
+  min-width: 0;
+  letter-spacing: -0.02em;
+}
+
+/* Clickable affordances are one-line objects */
+.no-wrap {
+  white-space: nowrap;
+}
+
+/* ── Primitive 1 · stage rule sweep ───────────── */
+.rule-sweep {
+  height: var(--rule-heavy);
+  background: var(--color-brass);
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform var(--dur-long) var(--ease-out);
+}
+.is-revealed .rule-sweep {
+  transform: scaleX(1);
+}
+
+/* ── Primitive 2 · seal strike ────────────────── */
+.seal-strike {
+  opacity: 0;
+  transform: scale(0.94);
+  transition:
+    opacity var(--dur-mid) var(--ease-out),
+    transform var(--dur-mid) var(--ease-out);
+}
+.is-revealed .seal-strike {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* ── Primitive 3 · ledger tick ────────────────── */
+.ledger-tick {
+  opacity: 0;
+  transform: translateY(6px);
+  transition:
+    opacity var(--dur-mid) var(--ease-out),
+    transform var(--dur-mid) var(--ease-out);
+}
+.is-revealed .ledger-tick {
+  opacity: 1;
+  transform: translateY(0);
+}
+.is-revealed .ledger-tick:nth-child(1) { transition-delay: 0ms; }
+.is-revealed .ledger-tick:nth-child(2) { transition-delay: 70ms; }
+.is-revealed .ledger-tick:nth-child(3) { transition-delay: 140ms; }
+.is-revealed .ledger-tick:nth-child(4) { transition-delay: 210ms; }
+
+/* ── Stage ordinal ────────────────────────────── */
+.stage-ordinal {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-brass);
+}
+
+/* ── Typographic code frame (never fake chrome) ─ */
+.code-frame {
+  border-top: var(--rule-hairline) solid var(--color-border-strong);
+  border-bottom: var(--rule-hairline) solid var(--color-border-strong);
+  background: rgba(14, 21, 38, 0.6);
+}
+.code-frame__label {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-foreground-dim);
+  border-bottom: var(--rule-hairline) solid var(--color-border);
+  padding: 0.5rem 1rem;
+}
+.code-frame__body {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  line-height: 1.75;
+  padding: 1rem;
+  overflow-x: auto;
+  color: var(--color-parchment-dim);
+  tab-size: 2;
+}
+
+/* ── Spec table — hairline ledger rows ────────── */
+.spec-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.125rem;
+  padding: 0.875rem 0;
+  border-bottom: var(--rule-hairline) solid var(--color-border);
+}
+@media (min-width: 40rem) {
+  .spec-row {
+    grid-template-columns: 14rem minmax(0, 1fr);
+    gap: 1.5rem;
+    align-items: baseline;
+  }
+}
+
+/* ── Focus ring — instant, never animated ─────── */
+.focus-ring:focus-visible {
+  outline: 2px solid var(--color-brass-glow);
+  outline-offset: 3px;
+  border-radius: var(--radius-sm);
+}
+
+/* ── Reduced motion ───────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .rule-sweep,
+  .seal-strike,
+  .ledger-tick {
+    transition-duration: 150ms;
+    transition-property: opacity;
+    transform: none;
+  }
+  .is-revealed .rule-sweep,
+  .is-revealed .seal-strike,
+  .is-revealed .ledger-tick {
+    transform: none;
+  }
+  .seal-badge {
+    animation: none;
+  }
 }

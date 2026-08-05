@@ -1,0 +1,86 @@
+{
+  "version": "1.0.0",
+  "project": "pactum",
+  "runs": [
+    {
+      "timestamp": "2026-08-05T10:55:00.000Z",
+      "page": "/",
+      "genre": "modern-minimal",
+      "macrostructure": "14 · Narrative Workflow",
+      "theme": "custom (project-locked)",
+      "vibe": "notarial ledger, precise, austere",
+      "palette": {
+        "paper": "oklch(19.6% 0.031 265) dark",
+        "accent": "oklch(71.4% 0.126 87) warm brass",
+        "display": "roman-serif (Fraunces)"
+      },
+      "enrichment": "none (typography only, Tier-A CSS rules)",
+      "nav": "N9 · edge-aligned minimal",
+      "footer": "Ft5 · statement",
+      "motion": {
+        "primitives": 3,
+        "names": ["rule-sweep", "seal-strike", "ledger-tick"],
+        "trigger": "IntersectionObserver · reveal once"
+      },
+      "antiPatterns": [
+        "gradient headlines",
+        "aurora blobs",
+        "glassmorphism",
+        "emoji as feature icons",
+        "3-column icon-tile grid",
+        "full-viewport centred hero",
+        "eyebrow/tag two-column heads",
+        "fake browser chrome",
+        "invented metrics",
+        "fake customer logos"
+      ],
+      "components": [
+        "components/landing/LandingNav.tsx",
+        "components/landing/StageSection.tsx",
+        "components/landing/ReceiptStub.tsx",
+        "components/landing/RevealOnView.tsx"
+      ],
+      "pages": [
+        "app/page.tsx"
+      ],
+      "files": [
+        "app/globals.css",
+        "tokens.css"
+      ],
+      "narrative": "PRD-locked (metering + policy wallet + batch settlement)",
+      "audience": "AI SaaS developers integrating billing",
+      "tone": "austere, technical, declarative",
+      "realFacts": [
+        "Arc Testnet chain 5042002",
+        "USDC 6-decimal ERC-20",
+        "CCTP domain 26",
+        "Multicall3From batching",
+        "testnet.arcscan.app explorer",
+        "~$0.005 Arc gas (from PRD.MD)"
+      ],
+      "preEmitCritique": {
+        "precision": 5,
+        "hierarchy": 5,
+        "emptiness": 4,
+        "stillness": 5,
+        "restraint": 5,
+        "voice": 4
+      },
+      "buildVerified": true,
+      "buildRoutes": 27,
+      "lint": "0 errors in landing files",
+      "slopTest": "passed",
+      "slopTestNotes": [
+        "no gradient headline — solid parchment on ink navy",
+        "no aurora blob, orb, or glassmorphism",
+        "no emoji; only lucide CheckCircle2 inside the existing SealBadge",
+        "no 3-column icon-tile grid — stages are 2-column prose + ledger",
+        "hero is left-biased, not centred full-viewport",
+        "code sample is a typographic frame, not fake browser chrome",
+        "receipt figures explicitly labelled SPECIMEN",
+        "no invented metrics, logos, or testimonials",
+        "every colour and font resolves through a token"
+      ]
+    }
+  ]
+}

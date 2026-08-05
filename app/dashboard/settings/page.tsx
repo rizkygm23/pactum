@@ -28,9 +28,9 @@ export default async function SettingsPage() {
 
   return (
     <div>
-      <div className="mb-8">
+      <div className="mb-6 sm:mb-8">
         <h1
-          className="text-2xl font-semibold text-parchment"
+          className="text-xl sm:text-2xl font-semibold text-parchment"
           style={{ fontFamily: "var(--font-display)" }}
         >
           Settings
@@ -40,10 +40,10 @@ export default async function SettingsPage() {
         </p>
       </div>
 
-      <div className="space-y-8">
+      <div className="space-y-6 sm:space-y-8">
         {/* Merchant Wallet Settings */}
         <section className="card">
-          <h2 className="text-sm font-medium text-parchment uppercase tracking-wider mb-6">
+          <h2 className="text-sm font-medium text-parchment uppercase tracking-wider mb-4 sm:mb-6">
             Settlement Wallet
           </h2>
           <WalletSettings initialWallet={project?.merchant_wallet_address || ""} projectId={project?.id || ""} />
@@ -51,7 +51,7 @@ export default async function SettingsPage() {
 
         {/* API Keys */}
         <section className="card">
-          <h2 className="text-sm font-medium text-parchment uppercase tracking-wider mb-6">
+          <h2 className="text-sm font-medium text-parchment uppercase tracking-wider mb-4 sm:mb-6">
             API Keys
           </h2>
           <KeysClient initialKeys={keys || []} />

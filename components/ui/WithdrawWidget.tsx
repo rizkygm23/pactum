@@ -143,8 +143,8 @@ export function WithdrawWidget({ expectedMerchantAddress }: { expectedMerchantAd
 
   if (!expectedMerchantAddress) {
     return (
-      <div className="bg-ink-navy p-6 rounded-xl border border-border flex items-center justify-between">
-        <div>
+      <div className="bg-ink-navy p-4 sm:p-6 rounded-xl border border-border flex items-center justify-between">
+        <div className="min-w-0">
           <h3 className="text-sm font-semibold text-parchment">Withdraw to Wallet</h3>
           <p className="text-xs text-foreground-dim mt-1">You have not registered a Settlement Wallet in Settings.</p>
         </div>
@@ -153,14 +153,14 @@ export function WithdrawWidget({ expectedMerchantAddress }: { expectedMerchantAd
   }
 
   return (
-    <div className="bg-ink-navy p-6 rounded-xl border border-border mt-6 relative overflow-hidden">
+    <div className="bg-ink-navy p-4 sm:p-6 rounded-xl border border-border mt-6 relative overflow-hidden">
       {/* Decorative gradient */}
-      <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none"></div>
+      <div className="absolute top-0 right-0 w-32 h-32 bg-brass/10 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none"></div>
       
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
-        <div>
-          <h3 className="text-lg font-semibold text-parchment flex items-center gap-2">
-            <Wallet className="w-5 h-5 text-blue-400" />
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 sm:gap-6 relative z-10">
+        <div className="min-w-0">
+          <h3 className="text-base sm:text-lg font-semibold text-parchment flex items-center gap-2">
+            <Wallet className="w-5 h-5 text-brass shrink-0" />
             Withdraw to Wallet
           </h3>
           <p className="text-sm text-foreground-dim mt-1 max-w-md">
@@ -168,7 +168,7 @@ export function WithdrawWidget({ expectedMerchantAddress }: { expectedMerchantAd
           </p>
         </div>
 
-        <div className="flex flex-col md:items-end gap-3 min-w-[200px]">
+        <div className="flex w-full flex-col gap-3 md:w-auto md:min-w-[200px] md:items-end">
           {isInitializing ? (
              <div className="flex items-center gap-2 text-foreground-dim text-sm py-2.5">
                <Loader2 className="w-4 h-4 animate-spin" /> Checking wallet...
@@ -178,25 +178,25 @@ export function WithdrawWidget({ expectedMerchantAddress }: { expectedMerchantAd
               onClick={connectWallet}
               className="bg-slate-800 hover:bg-slate-700 text-parchment text-sm font-medium px-4 py-2.5 rounded-lg transition-colors flex items-center gap-2 border border-slate-700 w-full md:w-auto justify-center"
             >
-              <Wallet className="w-4 h-4 text-slate-400" /> Connect MetaMask
+              <Wallet className="w-4 h-4 text-slate-400" /> Connect Wallet
             </button>
           ) : (
             <div className="flex flex-col md:items-end w-full">
               <div className="flex items-center gap-2 mb-2 bg-slate-900/50 px-3 py-1.5 rounded-md border border-border">
                 <div className={`w-2 h-2 rounded-full ${address.toLowerCase() === expectedMerchantAddress.toLowerCase() ? 'bg-green-500' : 'bg-red-500'}`}></div>
-                <span className="text-xs font-mono text-foreground-dim">{address.slice(0, 6)}...{address.slice(-4)}</span>
+                <span className="text-xs font-mono text-foreground-dim no-wrap">{address.slice(0, 6)}...{address.slice(-4)}</span>
               </div>
               
-              <div className="flex items-center gap-4 w-full justify-between md:justify-end">
-                <div className="text-left md:text-right">
-                  <p className="text-xs text-foreground-dim mb-0.5">Ready to Withdraw</p>
-                  <p className="text-xl font-bold text-parchment">{withdrawableBalance.toFixed(6)} <span className="text-sm text-foreground-dim font-normal">USDC</span></p>
+              <div className="flex flex-wrap items-center gap-3 sm:gap-4 w-full justify-between md:justify-end">
+                <div className="min-w-0 text-left md:text-right">
+                  <p className="text-xs text-foreground-dim mb-0.5 no-wrap">Ready to Withdraw</p>
+                  <p className="text-lg sm:text-xl font-bold text-parchment break-all">{withdrawableBalance.toFixed(6)} <span className="text-sm text-foreground-dim font-normal">USDC</span></p>
                 </div>
                 
                 <button
                   onClick={handleWithdraw}
                   disabled={loading || withdrawableBalance <= 0 || address.toLowerCase() !== expectedMerchantAddress.toLowerCase()}
-                  className="bg-blue-600 hover:bg-blue-500 disabled:bg-slate-800 disabled:text-slate-500 text-white text-sm font-medium px-6 py-2.5 rounded-lg transition-colors flex items-center gap-2 shadow-lg shadow-blue-900/20"
+                  className="shrink-0 no-wrap btn-primary text-sm px-5 sm:px-6 py-2.5 flex items-center gap-2"
                 >
                   {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : (
                     <>Withdraw All <ArrowRight className="w-4 h-4" /></>
@@ -205,7 +205,7 @@ export function WithdrawWidget({ expectedMerchantAddress }: { expectedMerchantAd
               </div>
               
               {status && (
-                <p className={`text-xs mt-3 max-w-xs text-right ${status.includes('Gagal') ? 'text-red-400' : 'text-blue-400'}`}>
+                <p className={`text-xs mt-3 max-w-full break-words md:max-w-xs md:text-right ${status.includes('Gagal') || status.includes('Failed') ? 'text-rust' : 'text-teal'}`}>
                   {status}
                 </p>
               )}

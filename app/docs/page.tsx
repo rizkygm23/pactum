@@ -7,7 +7,7 @@ export default function DocsOverview() {
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
       <div className="space-y-3 border-b border-slate-800 pb-8">
-        <h1 className="text-3xl font-semibold tracking-tight text-slate-100">
+        <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-slate-100">
           Overview
         </h1>
         <p className="text-base text-slate-400 max-w-2xl">
@@ -24,22 +24,22 @@ export default function DocsOverview() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 my-8">
-        <div className="bg-slate-900 border border-slate-800 p-5 rounded-lg">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 my-8">
+        <div className="min-w-0 bg-slate-900 border border-slate-800 p-4 sm:p-5 rounded-lg">
           <div className="w-8 h-8 rounded flex items-center justify-center mb-4 bg-slate-800">
             <Zap className="w-4 h-4 text-slate-300" />
           </div>
           <h3 className="font-medium text-slate-100 mb-2">Zero-Gas Execution</h3>
           <p className="text-sm text-slate-400">Users avoid paying gas fees per request. Balances are incrementally deducted via off-chain ledgers.</p>
         </div>
-        <div className="bg-slate-900 border border-slate-800 p-5 rounded-lg">
+        <div className="min-w-0 bg-slate-900 border border-slate-800 p-4 sm:p-5 rounded-lg">
           <div className="w-8 h-8 rounded flex items-center justify-center mb-4 bg-slate-800">
             <Wallet className="w-4 h-4 text-slate-300" />
           </div>
           <h3 className="font-medium text-slate-100 mb-2">Batch Settlement</h3>
           <p className="text-sm text-slate-400">Pending usage events are batched and settled on-chain periodically to minimize network overhead.</p>
         </div>
-        <div className="bg-slate-900 border border-slate-800 p-5 rounded-lg">
+        <div className="min-w-0 bg-slate-900 border border-slate-800 p-4 sm:p-5 rounded-lg sm:col-span-2 md:col-span-1">
           <div className="w-8 h-8 rounded flex items-center justify-center mb-4 bg-slate-800">
             <ShieldCheck className="w-4 h-4 text-slate-300" />
           </div>
@@ -48,8 +48,8 @@ export default function DocsOverview() {
         </div>
       </div>
 
-      <div className="mt-12 bg-slate-900 border border-slate-800 p-6 rounded-lg relative overflow-hidden">
-        <h2 className="text-lg font-medium text-slate-100 mb-2">Ready to start?</h2>
+      <div className="mt-12 bg-slate-900 border border-slate-800 p-4 sm:p-6 rounded-lg relative overflow-hidden">
+        <h2 className="text-base sm:text-lg font-medium text-slate-100 mb-2">Ready to start?</h2>
         <p className="text-slate-400 mb-6 max-w-lg text-sm">
           Follow the Quickstart guide to register your AI service, obtain your API Key, and explore the architecture.
         </p>

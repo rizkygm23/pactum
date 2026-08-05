@@ -68,20 +68,20 @@ export default async function DashboardOverview() {
   return (
     <div>
       {/* Header */}
-      <div className="mb-8">
+      <div className="mb-6 sm:mb-8">
         <h1
-          className="text-2xl font-semibold text-parchment"
+          className="text-xl sm:text-2xl font-semibold text-parchment"
           style={{ fontFamily: "var(--font-display)" }}
         >
           Overview
         </h1>
-        <p className="text-sm text-foreground-dim mt-1">
+        <p className="text-sm text-foreground-dim mt-1 break-words">
           {project?.name || "Your project"} — real-time billing status
         </p>
       </div>
 
       {/* Stats row */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
         <StatCard
           label="Today's Usage"
           value={todaySpend.toFixed(4)}
@@ -118,12 +118,15 @@ export default async function DashboardOverview() {
         ) : (
           <div className="space-y-0">
             {recentTxs.map((tx) => (
-              <div key={tx.id} className="ledger-row flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className="w-16 h-16 rounded-full border border-border flex items-center justify-center bg-brass/10">
-                    <span className="text-brass text-lg">✓</span>
+              <div
+                key={tx.id}
+                className="ledger-row flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4"
+              >
+                <div className="flex min-w-0 items-center gap-3 sm:gap-4">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 shrink-0 rounded-full border border-border flex items-center justify-center bg-brass/10">
+                    <span className="text-brass text-base">✓</span>
                   </div>
-                  <div>
+                  <div className="min-w-0">
                     <DataLabel
                       value={tx.user_address || "Unknown User"}
                       truncate
@@ -139,19 +142,19 @@ export default async function DashboardOverview() {
                     </p>
                   </div>
                 </div>
-                <div className="text-right">
-                  <span
-                    className="data-mono text-lg text-parchment"
-                    style={{ fontFamily: "var(--font-display)" }}
-                  >
-                    {Number(tx.cost).toFixed(6)}
-                  </span>
-                  <span className="text-xs text-foreground-dim ml-1">USDC</span>
-                  <div className="mt-1">
-                    <span className="status-settled">
-                      {tx.status}
+                <div className="flex shrink-0 items-center justify-between gap-3 sm:flex-col sm:items-end sm:gap-1">
+                  <div className="no-wrap">
+                    <span
+                      className="data-mono text-base sm:text-lg text-parchment"
+                      style={{ fontFamily: "var(--font-display)" }}
+                    >
+                      {Number(tx.cost).toFixed(6)}
+                    </span>
+                    <span className="text-xs text-foreground-dim ml-1">
+                      USDC
                     </span>
                   </div>
+                  <span className="status-settled no-wrap">{tx.status}</span>
                 </div>
               </div>
             ))}
