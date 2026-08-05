@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Loader2, ArrowRight } from "lucide-react";
+import { Loader2, Zap } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 export function SettleButton({ disabled }: { disabled: boolean }) {
@@ -17,14 +17,14 @@ export function SettleButton({ disabled }: { disabled: boolean }) {
       const data = await res.json();
       
       if (!res.ok) {
-        alert(data.error || "Gagal melakukan settlement");
+        alert(data.error || "Failed to perform settlement");
       } else {
-        alert(`Settlement sukses! TX Hash: ${data.hash}`);
+        alert(`Success! TX: ${data.hash.slice(0, 10)}...`);
         router.refresh();
       }
     } catch (e) {
       console.error(e);
-      alert("Terjadi kesalahan jaringan.");
+      alert("A network error occurred.");
     } finally {
       setLoading(false);
     }
@@ -36,7 +36,8 @@ export function SettleButton({ disabled }: { disabled: boolean }) {
       disabled={disabled || loading}
       className="mt-3 flex items-center gap-2 bg-blue-600 hover:bg-blue-500 disabled:bg-slate-800 disabled:text-slate-500 text-white text-xs font-medium px-4 py-2 rounded-lg transition-colors"
     >
-      {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Settle Now"}
+      {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Zap className="w-4 h-4" />}
+      {loading ? "Settling..." : "Settle Now"}
     </button>
   );
 }

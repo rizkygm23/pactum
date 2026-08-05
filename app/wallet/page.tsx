@@ -72,7 +72,7 @@ export default function WalletPage() {
 
   const connectWallet = async () => {
     if (typeof window === "undefined" || !window.ethereum) {
-      alert("Silakan install MetaMask untuk melanjutkan.");
+      alert("Please install MetaMask to continue.");
       return;
     }
     
@@ -86,7 +86,7 @@ export default function WalletPage() {
       fetchBalances(account);
     } catch (e) {
       console.error(e);
-      alert("Gagal koneksi ke wallet.");
+      alert("Failed to connect to wallet.");
     }
   };
 
@@ -121,7 +121,7 @@ export default function WalletPage() {
     if (!address || !depositAmount || isNaN(Number(depositAmount))) return;
     
     setLoading(true);
-    setStatus("Meminta persetujuan (Approve) USDC...");
+    setStatus("Requesting USDC approval...");
     
     try {
       const publicClient = createPublicClient({ chain: arcTestnet, transport: custom(window.ethereum!) });
@@ -138,11 +138,11 @@ export default function WalletPage() {
         args: [PACTUM_CONTRACT_ADDRESS, amountWei],
       });
       
-      setStatus("Menunggu konfirmasi Approve di blockchain...");
+      setStatus("Waiting for approval confirmation on blockchain...");
       await publicClient.waitForTransactionReceipt({ hash: approveHash });
 
       // 2. Deposit to Pactum
-      setStatus("Mengeksekusi Deposit ke Pactum...");
+      setStatus("Processing deposit...");
       const depositHash = await walletClient.writeContract({
         account: address as `0x${string}`,
         address: PACTUM_CONTRACT_ADDRESS,
@@ -151,17 +151,17 @@ export default function WalletPage() {
         args: [amountWei],
       });
 
-      setStatus("Menunggu konfirmasi Deposit...");
+      setStatus("Waiting for deposit confirmation...");
       await publicClient.waitForTransactionReceipt({ hash: depositHash });
 
-      setStatus("Deposit Berhasil! Memperbarui saldo...");
+      setStatus("Deposit successful!");
       setDepositAmount("");
       await fetchBalances(address);
       
       setTimeout(() => setStatus(""), 3000);
     } catch (e: any) {
       console.error("Deposit Error:", e);
-      setStatus(`Gagal: ${e.shortMessage || e.message}`);
+      setStatus(`Failed: ${e.shortMessage || e.message}`);
     } finally {
       setLoading(false);
     }
@@ -177,9 +177,10 @@ export default function WalletPage() {
           <div className="w-16 h-16 bg-blue-500/10 rounded-full flex items-center justify-center mx-auto mb-4 border border-blue-500/20">
             <Wallet className="w-8 h-8 text-blue-400" />
           </div>
-          <h1 className="text-2xl font-bold tracking-tight mb-2">Pactum Universal Wallet</h1>
-          <p className="text-sm text-neutral-400">
-            Satu saldo untuk ratusan aplikasi AI. Deposit sekarang, nikmati AI tanpa batas.
+          <h1 className="text-3xl font-bold text-white mb-2">Universal Wallet</h1>
+          <p className="text-neutral-400 max-w-md mx-auto text-sm">
+            Deposit USDC to pay for AI services across the Pactum ecosystem. 
+            <br/>Gas-free per-token billing via State Channels.
           </p>
         </div>
 
@@ -224,7 +225,7 @@ export default function WalletPage() {
               <div className="bg-orange-500/10 border border-orange-500/20 rounded-xl p-3 flex items-start gap-3">
                 <Info className="w-5 h-5 text-orange-400 shrink-0 mt-0.5" />
                 <p className="text-xs text-orange-200 leading-relaxed">
-                  Anda memiliki tagihan sebesar <strong>{pendingUsage.toFixed(4)} USDC</strong> yang belum di-settle ke blockchain. Available balance Anda sudah disesuaikan.
+                  You have pending usage of <strong>{pendingUsage.toFixed(4)} USDC</strong> that has not been settled on-chain. Your available balance has been adjusted.
                 </p>
               </div>
             )}
@@ -242,7 +243,7 @@ export default function WalletPage() {
                     type="number"
                     value={depositAmount}
                     onChange={(e) => setDepositAmount(e.target.value)}
-                    placeholder="10.00"
+                    placeholder="Amount to deposit (USDC)"
                     className="w-full bg-neutral-950 border border-neutral-800 rounded-xl py-3 pl-10 pr-4 text-white placeholder-neutral-600 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
                   />
                 </div>

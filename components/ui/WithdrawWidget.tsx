@@ -52,7 +52,7 @@ export function WithdrawWidget({ expectedMerchantAddress }: { expectedMerchantAd
 
   const connectWallet = async () => {
     if (typeof window === "undefined" || !window.ethereum) {
-      alert("Silakan install MetaMask untuk melanjutkan.");
+      alert("Please install MetaMask to continue.");
       return;
     }
     
@@ -66,7 +66,7 @@ export function WithdrawWidget({ expectedMerchantAddress }: { expectedMerchantAd
       fetchBalance(account);
     } catch (e) {
       console.error(e);
-      alert("Gagal koneksi ke wallet.");
+      alert("Failed to connect to wallet.");
     }
   };
 
@@ -94,17 +94,17 @@ export function WithdrawWidget({ expectedMerchantAddress }: { expectedMerchantAd
     if (!address) return;
     
     if (expectedMerchantAddress && address.toLowerCase() !== expectedMerchantAddress.toLowerCase()) {
-      alert(`Alamat MetaMask Anda tidak cocok!\n\nDompet yang terhubung: ${address}\nDompet yang didaftarkan di Settings: ${expectedMerchantAddress}`);
+      alert(`Wallet mismatch!\n\nConnected wallet: ${address}\nRegistered wallet in Settings: ${expectedMerchantAddress}`);
       return;
     }
 
     if (withdrawableBalance <= 0) {
-      alert("Tidak ada saldo yang bisa ditarik.");
+      alert("No balance available to withdraw.");
       return;
     }
 
     setLoading(true);
-    setStatus("Meminta persetujuan penarikan (Withdraw)...");
+    setStatus("Requesting withdrawal approval...");
     
     try {
       const publicClient = createPublicClient({ chain: arcTestnet, transport: custom(window.ethereum!) });
@@ -126,16 +126,16 @@ export function WithdrawWidget({ expectedMerchantAddress }: { expectedMerchantAd
         args: [balanceWei], // Withdraw all
       });
 
-      setStatus("Menunggu konfirmasi blockchain...");
+      setStatus("Waiting for blockchain confirmation...");
       await publicClient.waitForTransactionReceipt({ hash: withdrawHash });
 
-      setStatus("Penarikan Berhasil! Cek dompet Anda.");
+      setStatus("Withdrawal Successful! Check your wallet.");
       await fetchBalance(address);
       
       setTimeout(() => setStatus(""), 5000);
     } catch (e: any) {
       console.error("Withdraw Error:", e);
-      setStatus(`Gagal: ${e.shortMessage || e.message}`);
+      setStatus(`Failed: ${e.shortMessage || e.message}`);
     } finally {
       setLoading(false);
     }
@@ -146,7 +146,7 @@ export function WithdrawWidget({ expectedMerchantAddress }: { expectedMerchantAd
       <div className="bg-ink-navy p-6 rounded-xl border border-border flex items-center justify-between">
         <div>
           <h3 className="text-sm font-semibold text-parchment">Withdraw to Wallet</h3>
-          <p className="text-xs text-foreground-dim mt-1">Anda belum mendaftarkan Settlement Wallet di menu Settings.</p>
+          <p className="text-xs text-foreground-dim mt-1">You have not registered a Settlement Wallet in Settings.</p>
         </div>
       </div>
     );
@@ -164,7 +164,7 @@ export function WithdrawWidget({ expectedMerchantAddress }: { expectedMerchantAd
             Withdraw to Wallet
           </h3>
           <p className="text-sm text-foreground-dim mt-1 max-w-md">
-            Pindahkan uang Anda dari brankas Smart Contract langsung ke dompet kripto MetaMask Anda secara *on-chain*.
+            Move your revenue from the smart contract directly to your MetaMask wallet via an on-chain transaction.
           </p>
         </div>
 
