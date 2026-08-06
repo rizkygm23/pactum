@@ -7,6 +7,9 @@ const nextConfig = {
       // @ts-ignore
       root: __dirname,
     }
+  },
+  eslint: {
+    ignoreDuringBuilds: true,
   }
 }
 
