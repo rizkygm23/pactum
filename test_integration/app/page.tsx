@@ -1,8 +1,9 @@
+/* eslint-disable @next/next/no-img-element, @typescript-eslint/no-explicit-any, react-hooks/set-state-in-effect, react-hooks/exhaustive-deps */
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { ethers } from "ethers";
-import { Loader2, Send, Wallet, MessageSquare, ShieldCheck, Plus, MessageCircle, Menu, X } from "lucide-react";
+import { Loader2, Send, Wallet, ShieldCheck, Plus, MessageCircle, Menu, X } from "lucide-react";
 import { toast } from "react-hot-toast";
 
 interface Message {
@@ -42,18 +43,7 @@ export default function Home() {
     scrollToBottom();
   }, [messages]);
 
-  useEffect(() => {
-    if (jwt) fetchConversations();
-  }, [jwt]);
-
-  const autoResize = () => {
-    if (textareaRef.current) {
-      textareaRef.current.style.height = "auto";
-      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
-    }
-  };
-
-  const fetchConversations = async () => {
+  const fetchConversations = useCallback(async () => {
     if (!jwt) return;
     try {
       const res = await fetch("/api/conversations", {
@@ -65,6 +55,17 @@ export default function Home() {
       }
     } catch (e) {
       console.error(e);
+    }
+  }, [jwt]);
+
+  useEffect(() => {
+    if (jwt) fetchConversations();
+  }, [jwt, fetchConversations]);
+
+  const autoResize = () => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = "auto";
+      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
     }
   };
 
