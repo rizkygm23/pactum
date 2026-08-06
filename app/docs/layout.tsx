@@ -9,9 +9,14 @@ export default function DocsLayout({ children }: { children: React.ReactNode }) 
 
   const navItems = [
     { name: "Overview", href: "/docs", icon: BookOpen },
-    { name: "Quickstart", href: "/docs/quickstart", icon: Rocket },
-    { name: "Integration & SIWE", href: "/docs/integration", icon: Code2 },
-    { name: "Smart Contracts", href: "/docs/smart-contracts", icon: LinkIcon },
+    { name: "Architecture", href: "/docs/architecture", icon: FileText },
+    { name: "Setup Guide", href: "/docs/setup", icon: Code2 },
+    { name: "Database Schema", href: "/docs/database", icon: FileText },
+    { name: "API Reference", href: "/docs/api-reference", icon: Code2 },
+    { name: "Smart Contract", href: "/docs/smart-contract", icon: LinkIcon },
+    { name: "Settlement Flow", href: "/docs/settlement", icon: Rocket },
+    { name: "Integration Guide", href: "/docs/integration-guide", icon: Code2 },
+    { name: "Deployment", href: "/docs/deployment", icon: Rocket },
   ];
 
   return (
