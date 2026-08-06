@@ -69,6 +69,7 @@ export async function POST(req: Request) {
 ---
 ${historyText}
 ---
+Be creative and varied! Ask about a different angle than what was just discussed.
 Respond ONLY with this exact JSON format:
 {"question": "your short question here"}`
       }
@@ -84,7 +85,7 @@ Respond ONLY with this exact JSON format:
         messages: aiMessages,
         model: "DeepSeek-V4-Pro",
         stream: false,
-        temperature: 0.1,
+        temperature: 0.9,
         max_tokens: 150,
         response_format: { type: "json_object" }
       })
