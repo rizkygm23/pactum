@@ -30,6 +30,7 @@ export default function Home() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [prompt, setPrompt] = useState("");
   const [loading, setLoading] = useState(false);
+  const [contextSuggestion, setContextSuggestion] = useState<string | null>(null);
   
   const [sidebarOpen, setSidebarOpen] = useState(false);
   
@@ -75,6 +76,7 @@ export default function Home() {
     setActiveConversationId(id);
     setSidebarOpen(false);
     setMessages([]);
+    setContextSuggestion(null);
     try {
       const res = await fetch(`/api/conversations/${id}`, {
         headers: { "Authorization": `Bearer ${jwt}` }
@@ -85,6 +87,7 @@ export default function Home() {
           role: m.role,
           text: m.content
         })));
+        fetchContextSuggestion(id);
       }
     } catch (e) {
       console.error(e);
@@ -94,6 +97,7 @@ export default function Home() {
   const startNewChat = () => {
     setActiveConversationId(null);
     setMessages([]);
+    setContextSuggestion(null);
     setSidebarOpen(false);
   };
 
@@ -143,7 +147,30 @@ export default function Home() {
     setAddress(null);
     setConversations([]);
     setMessages([]);
+    setContextSuggestion(null);
     setActiveConversationId(null);
+  };
+
+  const fetchContextSuggestion = async (convoId: string) => {
+    if (!jwt) return;
+    try {
+      const res = await fetch("/api/suggest", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${jwt}`,
+        },
+        body: JSON.stringify({ conversationId: convoId }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.suggestion) {
+          setContextSuggestion(data.suggestion);
+        }
+      }
+    } catch (e) {
+      // silently fail background fetch
+    }
   };
 
   const submitChat = async (e?: React.FormEvent, overridePrompt?: string) => {
@@ -179,10 +206,12 @@ export default function Home() {
         setMessages(prev => [...prev, { role: "error", text: "System error occurred. Please try again later." }]);
       } else {
         setMessages(prev => [...prev, { role: "ai", text: data.text, meta: { billedAmount: data.billedAmount } }]);
+        const convoId = data.conversationId || activeConversationId;
         if (!activeConversationId && data.conversationId) {
           setActiveConversationId(data.conversationId);
           fetchConversations();
         }
+        if (convoId) fetchContextSuggestion(convoId);
       }
     } catch (error) {
       console.error(error);
@@ -329,19 +358,28 @@ export default function Home() {
                   Ask me anything about the Arc Testnet or Pactum ecosystem. Every message is metered via state channels.
                 </p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full">
-                  {[
-                    "What is Arc Testnet?",
+                  {(contextSuggestion ? [
+                    contextSuggestion,
+                    "How do state channels reduce gas fees?",
+                    "Is every API call recorded on Arc?",
+                    "How does batch settlement work in Pactum?"
+                  ] : [
                     "How does Pactum handle micropayments?",
-                    "Why use USDC for gas fees?",
-                    "Can you explain state channels?"
-                  ].map((suggestion, idx) => (
+                    "How do state channels reduce gas fees?",
+                    "Is every API call recorded on Arc?",
+                    "How does batch settlement work in Pactum?"
+                  ]).map((suggestion, idx) => (
                     <button
-                      key={idx}
+                      key={suggestion}
                       onClick={() => submitChat(undefined, suggestion)}
-                      className="bg-graphite hover:bg-[#252F45] border border-border-subtle hover:border-brass/50 text-left px-4 py-3 rounded-lg text-sm text-parchment transition-colors flex items-center justify-between group"
+                      className={`bg-graphite hover:bg-[#252F45] border hover:border-brass/50 text-left px-4 py-3 rounded-lg text-sm text-parchment transition-all flex items-center justify-between group ${
+                        idx === 0 && contextSuggestion ? "border-brass/30 animate-in fade-in slide-in-from-bottom-2 duration-700" : "border-border-subtle"
+                      }`}
                     >
                       <span className="truncate pr-4">{suggestion}</span>
-                      <MessageCircle className="w-4 h-4 text-[#8B8FA0] group-hover:text-brass shrink-0 opacity-50 group-hover:opacity-100 transition-opacity" />
+                      <MessageCircle className={`w-4 h-4 shrink-0 transition-opacity ${
+                        idx === 0 && contextSuggestion ? "text-brass opacity-80 group-hover:opacity-100" : "text-[#8B8FA0] group-hover:text-brass opacity-50 group-hover:opacity-100"
+                      }`} />
                     </button>
                   ))}
                 </div>
@@ -408,7 +446,32 @@ export default function Home() {
         </main>
 
         <div className="p-4 border-t border-border-subtle bg-ink-navy shrink-0">
-          <div className="max-w-4xl mx-auto relative">
+          <div className="max-w-4xl mx-auto relative flex flex-col gap-3">
+            {address && (
+              <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide pb-1">
+                {(contextSuggestion ? [
+                  contextSuggestion,
+                  "How do state channels reduce gas fees?",
+                  "Is every API call recorded on Arc?",
+                  "How does batch settlement work in Pactum?"
+                ] : [
+                  "How does Pactum handle micropayments?",
+                  "How do state channels reduce gas fees?",
+                  "Is every API call recorded on Arc?",
+                  "How does batch settlement work in Pactum?"
+                ]).map((suggestion, idx) => (
+                  <button
+                    key={suggestion}
+                    onClick={() => submitChat(undefined, suggestion)}
+                    className={`whitespace-nowrap shrink-0 hover:bg-[#252F45] border hover:border-brass/50 px-3 py-1.5 rounded-full text-xs text-parchment transition-all ${
+                      idx === 0 && contextSuggestion ? "bg-brass/10 border-brass/30 animate-in fade-in slide-in-from-right-4 duration-700" : "bg-graphite border-border-subtle"
+                    }`}
+                  >
+                    {suggestion}
+                  </button>
+                ))}
+              </div>
+            )}
             <form onSubmit={submitChat} className="flex items-end gap-2">
               <div className="relative flex-1 bg-graphite border border-border-subtle rounded-md shadow-sm focus-within:border-brass focus-within:ring-1 focus-within:ring-brass transition-all">
                 <textarea 
