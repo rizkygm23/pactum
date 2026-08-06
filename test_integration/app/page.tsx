@@ -30,7 +30,7 @@ export default function Home() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [prompt, setPrompt] = useState("");
   const [loading, setLoading] = useState(false);
-  const [contextSuggestion, setContextSuggestion] = useState<string | null>(null);
+  const [contextSuggestion, setContextSuggestion] = useState<{text: string, id: number} | null>(null);
   
   const [sidebarOpen, setSidebarOpen] = useState(false);
   
@@ -165,11 +165,13 @@ export default function Home() {
       if (res.ok) {
         const data = await res.json();
         if (data.suggestion) {
-          setContextSuggestion(data.suggestion);
+          setContextSuggestion({ text: data.suggestion, id: Date.now() });
         }
+      } else {
+        console.warn("Suggest API failed:", await res.text());
       }
     } catch (e) {
-      // silently fail background fetch
+      console.error("Failed to fetch context suggestion:", e);
     }
   };
 
@@ -359,7 +361,7 @@ export default function Home() {
                 </p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full">
                   {(contextSuggestion ? [
-                    contextSuggestion,
+                    contextSuggestion.text,
                     "How do state channels reduce gas fees?",
                     "Is every API call recorded on Arc?",
                     "How does batch settlement work in Pactum?"
@@ -370,7 +372,7 @@ export default function Home() {
                     "How does batch settlement work in Pactum?"
                   ]).map((suggestion, idx) => (
                     <button
-                      key={suggestion}
+                      key={idx === 0 && contextSuggestion ? contextSuggestion.id : suggestion}
                       onClick={() => submitChat(undefined, suggestion)}
                       className={`bg-graphite hover:bg-[#252F45] border hover:border-brass/50 text-left px-4 py-3 rounded-lg text-sm text-parchment transition-all flex items-center justify-between group ${
                         idx === 0 && contextSuggestion ? "border-brass/30 animate-in fade-in slide-in-from-bottom-2 duration-700" : "border-border-subtle"
@@ -450,7 +452,7 @@ export default function Home() {
             {address && (
               <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide pb-1">
                 {(contextSuggestion ? [
-                  contextSuggestion,
+                  contextSuggestion.text,
                   "How do state channels reduce gas fees?",
                   "Is every API call recorded on Arc?",
                   "How does batch settlement work in Pactum?"
@@ -461,7 +463,7 @@ export default function Home() {
                   "How does batch settlement work in Pactum?"
                 ]).map((suggestion, idx) => (
                   <button
-                    key={suggestion}
+                    key={idx === 0 && contextSuggestion ? contextSuggestion.id : suggestion}
                     onClick={() => submitChat(undefined, suggestion)}
                     className={`whitespace-nowrap shrink-0 hover:bg-[#252F45] border hover:border-brass/50 px-3 py-1.5 rounded-full text-xs text-parchment transition-all ${
                       idx === 0 && contextSuggestion ? "bg-brass/10 border-brass/30 animate-in fade-in slide-in-from-right-4 duration-700" : "bg-graphite border-border-subtle"

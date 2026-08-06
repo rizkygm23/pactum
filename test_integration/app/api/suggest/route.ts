@@ -56,15 +56,18 @@ export async function POST(req: Request) {
       content: msg.content
     }));
 
-    // System prompt for suggestion generation
+    const historyText = contextMessages.map((m: any) => `${m.role.toUpperCase()}: ${m.content}`).join("\\n\\n");
+    
     const aiMessages = [
       { 
-        role: "system", 
-        content: `You are an AI assistant analyzing a conversation about Arc Testnet and Pactum. 
-Based on the conversation history, generate exactly ONE short follow-up question (max 8 words) that the user might want to ask next.
-Output ONLY the question itself without quotes, labels, or introductory text. Do not answer the question.`
-      },
-      ...contextMessages
+        role: "user", 
+        content: `Review the following conversation history about Arc Testnet and Pactum:
+---
+${historyText}
+---
+Based on this history, suggest exactly ONE short follow-up question (maximum 8 words) that the user could ask next to learn more.
+CRITICAL INSTRUCTION: Output ONLY the raw question string. Do not include quotes, prefixes, labels, or any reasoning. Just the question.`
+      }
     ];
 
     const aiRes = await fetch("https://api.hcnsec.cn/v1/chat/completions", {
