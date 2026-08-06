@@ -5,6 +5,8 @@ import { createWalletClient, custom, createPublicClient, http, formatUnits } fro
 import { arcTestnet } from "viem/chains";
 import { Wallet, Loader2, ArrowRight, CheckCircle2 } from "lucide-react";
 
+import { toast } from "react-hot-toast";
+
 const PACTUM_CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_PACTUM_CONTRACT_ADDRESS as `0x${string}`;
 
 const PACTUM_ABI = [
@@ -52,7 +54,7 @@ export function WithdrawWidget({ expectedMerchantAddress }: { expectedMerchantAd
 
   const connectWallet = async () => {
     if (typeof window === "undefined" || !window.ethereum) {
-      alert("Please install MetaMask to continue.");
+      toast.error("Please install MetaMask to continue.");
       return;
     }
     
@@ -66,7 +68,7 @@ export function WithdrawWidget({ expectedMerchantAddress }: { expectedMerchantAd
       fetchBalance(account);
     } catch (e) {
       console.error(e);
-      alert("Failed to connect to wallet.");
+      toast.error("Failed to connect to wallet.");
     }
   };
 
@@ -90,16 +92,33 @@ export function WithdrawWidget({ expectedMerchantAddress }: { expectedMerchantAd
     }
   };
 
+  const switchWallet = async () => {
+    if (typeof window === "undefined" || !window.ethereum) return;
+    try {
+      await window.ethereum.request({
+        method: "wallet_requestPermissions",
+        params: [{ eth_accounts: {} }]
+      });
+      const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+      if (accounts && accounts.length > 0) {
+        setAddress(accounts[0]);
+        fetchBalance(accounts[0]);
+      }
+    } catch (e) {
+      console.error("Switch wallet failed:", e);
+    }
+  };
+
   const handleWithdraw = async () => {
     if (!address) return;
     
     if (expectedMerchantAddress && address.toLowerCase() !== expectedMerchantAddress.toLowerCase()) {
-      alert(`Wallet mismatch!\n\nConnected wallet: ${address}\nRegistered wallet in Settings: ${expectedMerchantAddress}`);
+      toast.error(`Wallet mismatch!\n\nConnected wallet: ${address}\nRegistered wallet in Settings: ${expectedMerchantAddress}`);
       return;
     }
 
     if (withdrawableBalance <= 0) {
-      alert("No balance available to withdraw.");
+      toast.error("No balance available to withdraw.");
       return;
     }
 
@@ -185,6 +204,7 @@ export function WithdrawWidget({ expectedMerchantAddress }: { expectedMerchantAd
               <div className="flex items-center gap-2 mb-2 bg-slate-900/50 px-3 py-1.5 rounded-md border border-border">
                 <div className={`w-2 h-2 rounded-full ${address.toLowerCase() === expectedMerchantAddress.toLowerCase() ? 'bg-green-500' : 'bg-red-500'}`}></div>
                 <span className="text-xs font-mono text-foreground-dim no-wrap">{address.slice(0, 6)}...{address.slice(-4)}</span>
+                <button onClick={switchWallet} className="text-xs text-brass hover:text-brass/80 ml-auto underline decoration-brass/30 underline-offset-2">Switch</button>
               </div>
               
               <div className="flex flex-wrap items-center gap-3 sm:gap-4 w-full justify-between md:justify-end">
@@ -195,8 +215,10 @@ export function WithdrawWidget({ expectedMerchantAddress }: { expectedMerchantAd
                 
                 <button
                   onClick={handleWithdraw}
-                  disabled={loading || withdrawableBalance <= 0 || address.toLowerCase() !== expectedMerchantAddress.toLowerCase()}
-                  className="shrink-0 no-wrap btn-primary text-sm px-5 sm:px-6 py-2.5 flex items-center gap-2"
+                  disabled={loading}
+                  className={`shrink-0 no-wrap btn-primary text-sm px-5 sm:px-6 py-2.5 flex items-center gap-2 ${
+                    (withdrawableBalance <= 0 || address.toLowerCase() !== expectedMerchantAddress.toLowerCase()) ? 'opacity-50' : ''
+                  }`}
                 >
                   {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : (
                     <>Withdraw All <ArrowRight className="w-4 h-4" /></>

@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
+import { toast } from "react-hot-toast";
+
 export function GenerateInvoiceButton() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -13,12 +15,13 @@ export function GenerateInvoiceButton() {
       const res = await fetch("/api/v1/invoices", { method: "POST" });
       if (!res.ok) {
         const data = await res.json();
-        alert(data.error || "Failed to generate invoice");
+        toast.error(data.error || "Failed to generate invoice");
       } else {
+        toast.success("Invoice generated successfully");
         router.refresh();
       }
     } catch (e) {
-      alert("Error generating invoice");
+      toast.error("Error generating invoice");
     } finally {
       setLoading(false);
     }

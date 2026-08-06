@@ -1,3 +1,11 @@
 node_modules/
 .env
 .env.*
+
+# Next.js
+/.next/
+/out/
+build/
+.vercel
+*.tsbuildinfo
+next-env.d.ts

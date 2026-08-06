@@ -34,7 +34,8 @@ export function DashboardShell({
   const rail = (
     <>
       {/* Brand */}
-      <div className="p-5 border-b border-border">
+      <div className="p-5 border-b border-border flex items-center gap-2">
+        <img src="/pactum-logo.png" alt="Pactum" className="w-7 h-7 object-contain" />
         <h1
           className="text-xl font-semibold text-parchment tracking-tight"
           style={{ fontFamily: "var(--font-display)" }}
@@ -135,12 +136,15 @@ export function DashboardShell({
               ☰
             </span>
           </button>
-          <span
-            className="text-base font-semibold text-parchment tracking-tight truncate"
-            style={{ fontFamily: "var(--font-display)" }}
-          >
-            Pactum
-          </span>
+          <div className="flex items-center gap-2">
+            <img src="/pactum-logo.png" alt="Pactum" className="w-6 h-6 object-contain" />
+            <span
+              className="text-base font-semibold text-parchment tracking-tight truncate"
+              style={{ fontFamily: "var(--font-display)" }}
+            >
+              Pactum
+            </span>
+          </div>
         </header>
 
         <main className="flex-1 overflow-y-auto bg-ink-navy">

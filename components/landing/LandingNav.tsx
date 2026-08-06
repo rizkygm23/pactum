@@ -11,8 +11,9 @@ export function LandingNav({ signedIn }: { signedIn: boolean }) {
       <nav className="flex items-center justify-between px-5 py-4 sm:px-8">
         <Link
           href="/"
-          className="focus-ring display-face text-lg font-semibold text-parchment no-wrap"
+          className="focus-ring display-face text-lg font-semibold text-parchment flex items-center gap-2 no-wrap"
         >
+          <img src="/pactum-logo.png" alt="Pactum" className="w-6 h-6 object-contain" />
           Pactum
         </Link>
 

@@ -5,6 +5,8 @@ import { createWalletClient, custom, createPublicClient, http, parseUnits, forma
 import { arcTestnet } from "viem/chains";
 import { Wallet, Coins, ArrowRight, Loader2, Info } from "lucide-react";
 
+import { toast } from "react-hot-toast";
+
 // Pactum Contract config
 const PACTUM_CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_PACTUM_CONTRACT_ADDRESS as `0x${string}`;
 const USDC_ADDRESS = "0x3600000000000000000000000000000000000000";
@@ -72,7 +74,7 @@ export default function WalletPage() {
 
   const connectWallet = async () => {
     if (typeof window === "undefined" || !window.ethereum) {
-      alert("Please install MetaMask to continue.");
+      toast.error("Please install MetaMask to continue.");
       return;
     }
     
@@ -86,7 +88,7 @@ export default function WalletPage() {
       fetchBalances(account);
     } catch (e) {
       console.error(e);
-      alert("Failed to connect to wallet.");
+      toast.error("Failed to connect to wallet.");
     }
   };
 
@@ -114,6 +116,23 @@ export default function WalletPage() {
       }
     } catch (e) {
       console.error("Error fetching balances:", e);
+    }
+  };
+
+  const switchWallet = async () => {
+    if (typeof window === "undefined" || !window.ethereum) return;
+    try {
+      await window.ethereum.request({
+        method: "wallet_requestPermissions",
+        params: [{ eth_accounts: {} }]
+      });
+      const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+      if (accounts && accounts.length > 0) {
+        setAddress(accounts[0]);
+        fetchBalances(accounts[0]);
+      }
+    } catch (e) {
+      console.error("Switch wallet failed:", e);
     }
   };
 
@@ -174,8 +193,8 @@ export default function WalletPage() {
       <div className="max-w-md w-full bg-neutral-900 border border-neutral-800 rounded-2xl shadow-2xl p-5 sm:p-8">
         
         <div className="text-center mb-6 sm:mb-8">
-          <div className="w-14 h-14 sm:w-16 sm:h-16 bg-blue-500/10 rounded-full flex items-center justify-center mx-auto mb-4 border border-blue-500/20">
-            <Wallet className="w-7 h-7 sm:w-8 sm:h-8 text-blue-400" />
+          <div className="w-14 h-14 sm:w-16 h-16 bg-blue-500/10 rounded-full flex items-center justify-center mx-auto mb-4 border border-blue-500/20">
+            <Wallet className="w-7 h-7 sm:w-8 h-8 text-blue-400" />
           </div>
           <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">Universal Wallet</h1>
           <p className="text-neutral-400 text-sm text-balance">
@@ -197,11 +216,16 @@ export default function WalletPage() {
           </button>
         ) : (
           <div className="space-y-6">
-            <div className="bg-neutral-950 rounded-xl p-3 sm:p-4 border border-neutral-800">
-              <p className="text-xs text-neutral-500 mb-1">Connected Wallet</p>
-              <p className="text-xs sm:text-sm font-mono break-all text-neutral-300">
-                {address}
-              </p>
+            <div className="bg-neutral-950 rounded-xl p-3 sm:p-4 border border-neutral-800 flex items-center justify-between">
+              <div>
+                <p className="text-xs text-neutral-500 mb-1">Connected Wallet</p>
+                <p className="text-xs sm:text-sm font-mono break-all text-neutral-300">
+                  {address}
+                </p>
+              </div>
+              <button onClick={switchWallet} className="text-xs text-blue-400 hover:text-blue-300 underline underline-offset-2 shrink-0 ml-4">
+                Switch
+              </button>
             </div>
 
             <div className="grid grid-cols-2 gap-3 sm:gap-4">

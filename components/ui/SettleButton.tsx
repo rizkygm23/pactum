@@ -4,6 +4,8 @@ import { useState } from "react";
 import { Loader2, Zap } from "lucide-react";
 import { useRouter } from "next/navigation";
 
+import { toast } from "react-hot-toast";
+
 export function SettleButton({ disabled }: { disabled: boolean }) {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -17,14 +19,14 @@ export function SettleButton({ disabled }: { disabled: boolean }) {
       const data = await res.json();
       
       if (!res.ok) {
-        alert(data.error || "Failed to perform settlement");
+        toast.error(data.error || "Failed to perform settlement");
       } else {
-        alert(`Success! TX: ${data.hash.slice(0, 10)}...`);
+        toast.success(`Success! TX: ${data.hash.slice(0, 10)}...`);
         router.refresh();
       }
     } catch (e) {
       console.error(e);
-      alert("A network error occurred.");
+      toast.error("A network error occurred.");
     } finally {
       setLoading(false);
     }
