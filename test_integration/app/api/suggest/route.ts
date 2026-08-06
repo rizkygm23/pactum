@@ -59,14 +59,18 @@ export async function POST(req: Request) {
     const historyText = contextMessages.map((m: any) => `${m.role.toUpperCase()}: ${m.content}`).join("\\n\\n");
     
     const aiMessages = [
+      {
+        role: "system",
+        content: "You are a strict code API. You output ONLY a single question string. No preamble, no explanation, no meta-text."
+      },
       { 
         role: "user", 
-        content: `Review the following conversation history about Arc Testnet and Pactum:
+        content: `Generate ONE short follow-up question (max 8 words) based on this conversation:
 ---
 ${historyText}
 ---
-Based on this history, suggest exactly ONE short follow-up question (maximum 8 words) that the user could ask next to learn more.
-CRITICAL INSTRUCTION: Output ONLY the raw question string. Do not include quotes, prefixes, labels, or any reasoning. Just the question.`
+Example output: "How do state channels work?"
+Now generate the question:`
       }
     ];
 
