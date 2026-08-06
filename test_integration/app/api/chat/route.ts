@@ -108,7 +108,21 @@ export async function POST(req: Request) {
         provider
       );
       const balanceWei = await contract.userBalances(user_address);
-      if (balanceWei === 0n) {
+      const onChainBalance = Number(balanceWei) / 1000000;
+
+      // Fetch pending usage from Pactum
+      let pendingUsage = 0;
+      try {
+        const usageRes = await fetch(`${PACTUM_API_URL}/wallet/balance?address=${user_address}`);
+        if (usageRes.ok) {
+          const usageData = await usageRes.json();
+          pendingUsage = usageData.pendingUsage || 0;
+        }
+      } catch (e) {
+        console.warn("Failed to fetch pending usage", e);
+      }
+
+      if (onChainBalance - pendingUsage <= 0) {
         return NextResponse.json({
           error: "Insufficient funds in your Pactum Smart Contract balance. Please deposit USDC to continue chatting."
         }, { status: 402 });
@@ -145,11 +159,11 @@ export async function POST(req: Request) {
         completionTokens = aiData.usage?.completion_tokens || Math.ceil(aiResponseText.length / 4);
       } else {
         console.error("DeepSeek API Error:", aiData);
-        return NextResponse.json({ error: "Gagal menghubungi layanan DeepSeek." }, { status: 500 });
+        return NextResponse.json({ error: `Gagal menghubungi layanan DeepSeek. Response: ${JSON.stringify(aiData)}` }, { status: 500 });
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("DeepSeek Fetch Error:", error);
-      return NextResponse.json({ error: "Gagal menghubungi layanan DeepSeek." }, { status: 500 });
+      return NextResponse.json({ error: `Gagal menghubungi layanan DeepSeek. Error: ${error.message || error}` }, { status: 500 });
     }
 
     // 5. Report usage to Pactum BEFORE saving AI response
@@ -161,7 +175,7 @@ export async function POST(req: Request) {
           "X-API-Key": PACTUM_API_KEY || "",
         },
         body: JSON.stringify({
-          model: "deepseek-chat",
+          model: "DeepSeek-V4-Pro",
           prompt_tokens: promptTokens,
           completion_tokens: completionTokens,
           prompt_price_per_token: 0.000005,
@@ -207,11 +221,11 @@ export async function POST(req: Request) {
         conversationId: currentConversationId
       });
 
-    } catch (error) {
+    } catch (error: any) {
       console.error("Server Error:", error);
-      return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+      return NextResponse.json({ error: `Internal server error: ${error.message || error}` }, { status: 500 });
     }
-  } catch (err) {
-    return NextResponse.json({ error: "Invalid request payload" }, { status: 400 });
+  } catch (err: any) {
+    return NextResponse.json({ error: `Invalid request payload: ${err.message || err}` }, { status: 400 });
   }
 }
