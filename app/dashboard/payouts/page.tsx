@@ -22,23 +22,25 @@ export default async function PayoutsPage() {
     .limit(1)
     .single();
 
-  // Get Pending Payouts (Unsettled usage)
-  const { data: pendingEvents } = await supabase
-    .from("usage_events_pactum")
-    .select("cost, api_keys_pactum!inner(project_id)")
-    .eq("api_keys_pactum.project_id", project?.id ?? "")
-    .eq("status", "pending_settlement");
+  const [
+    { data: pendingEvents },
+    { data: settledEvents }
+  ] = await Promise.all([
+    supabase
+      .from("usage_events_pactum")
+      .select("cost, api_keys_pactum!inner(project_id)")
+      .eq("api_keys_pactum.project_id", project?.id ?? "")
+      .eq("status", "pending_settlement"),
+    supabase
+      .from("usage_events_pactum")
+      .select("id, cost, user_address, created_at, endpoint, api_keys_pactum!inner(project_id)")
+      .eq("api_keys_pactum.project_id", project?.id ?? "")
+      .eq("status", "settled")
+      .order("created_at", { ascending: false })
+      .limit(50)
+  ]);
 
   const totalPending = (pendingEvents || []).reduce((sum, e) => sum + Number(e.cost), 0);
-
-  // Get Settled Payouts (History)
-  const { data: settledEvents } = await supabase
-    .from("usage_events_pactum")
-    .select("id, cost, user_address, created_at, endpoint, api_keys_pactum!inner(project_id)")
-    .eq("api_keys_pactum.project_id", project?.id ?? "")
-    .eq("status", "settled")
-    .order("created_at", { ascending: false })
-    .limit(50);
 
   return (
     <div>

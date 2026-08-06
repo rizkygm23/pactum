@@ -24,19 +24,20 @@ export default async function InvoiceDetailPage(props: { params: Promise<{ id: s
 
   if (!invoice) return notFound();
 
-  // Get transaction if settled
-  const { data: tx } = await supabase
-    .from("transactions_pactum")
-    .select("*")
-    .eq("invoice_id", id)
-    .single();
-
-  // Get usage events (via admin client since we need to bypass RLS for usage events tied to api keys)
-  // Or simpler: get the project API keys, then usage events.
-  const { data: keys } = await supabase
-    .from("api_keys_pactum")
-    .select("id, key_prefix")
-    .eq("project_id", invoice.project_id);
+  const [
+    { data: tx },
+    { data: keys }
+  ] = await Promise.all([
+    supabase
+      .from("transactions_pactum")
+      .select("*")
+      .eq("invoice_id", id)
+      .single(),
+    supabase
+      .from("api_keys_pactum")
+      .select("id, key_prefix")
+      .eq("project_id", invoice.project_id)
+  ]);
 
   const keyIds = (keys || []).map((k) => k.id);
   const keyMap = Object.fromEntries((keys || []).map((k) => [k.id, k.key_prefix]));

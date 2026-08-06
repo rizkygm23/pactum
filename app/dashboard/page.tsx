@@ -23,42 +23,39 @@ export default async function DashboardOverview() {
     .limit(1)
     .single();
 
-  // Get API keys count
-  const { count: activeKeys } = await supabase
-    .from("api_keys_pactum")
-    .select("id", { count: "exact", head: true })
-    .eq("project_id", project?.id ?? "")
-    .eq("status", "active");
-
-  // Today's usage
+  // Today's usage start date
   const todayStart = new Date();
   todayStart.setUTCHours(0, 0, 0, 0);
 
-  const { data: todayEvents } = await supabase
-    .from("usage_events_pactum")
-    .select("cost, api_keys_pactum!inner(project_id)")
-    .eq("api_keys_pactum.project_id", project?.id ?? "")
-    .gte("created_at", todayStart.toISOString());
-
-  const todaySpend = (todayEvents || []).reduce(
-    (sum, e) => sum + Number(e.cost),
-    0
-  );
-  // Recent Settlements
-  const { data: recentTxs } = await supabase
-    .from("usage_events_pactum")
-    .select("id, cost, user_address, created_at, status, api_keys_pactum!inner(project_id)")
-    .eq("api_keys_pactum.project_id", project?.id ?? "")
-    .eq("status", "settled")
-    .order("created_at", { ascending: false })
-    .limit(5);
-
-  // Total settled
-  const { data: allSettled } = await supabase
-    .from("usage_events_pactum")
-    .select("cost, api_keys_pactum!inner(project_id)")
-    .eq("api_keys_pactum.project_id", project?.id ?? "")
-    .eq("status", "settled");
+  const [
+    { count: activeKeys },
+    { data: todayEvents },
+    { data: recentTxs },
+    { data: allSettled }
+  ] = await Promise.all([
+    supabase
+      .from("api_keys_pactum")
+      .select("id", { count: "exact", head: true })
+      .eq("project_id", project?.id ?? "")
+      .eq("status", "active"),
+    supabase
+      .from("usage_events_pactum")
+      .select("cost, api_keys_pactum!inner(project_id)")
+      .eq("api_keys_pactum.project_id", project?.id ?? "")
+      .gte("created_at", todayStart.toISOString()),
+    supabase
+      .from("usage_events_pactum")
+      .select("id, cost, user_address, created_at, status, api_keys_pactum!inner(project_id)")
+      .eq("api_keys_pactum.project_id", project?.id ?? "")
+      .eq("status", "settled")
+      .order("created_at", { ascending: false })
+      .limit(5),
+    supabase
+      .from("usage_events_pactum")
+      .select("cost, api_keys_pactum!inner(project_id)")
+      .eq("api_keys_pactum.project_id", project?.id ?? "")
+      .eq("status", "settled")
+  ]);
 
   const totalSettled = (allSettled || []).reduce(
     (sum, event) => sum + Number(event.cost),

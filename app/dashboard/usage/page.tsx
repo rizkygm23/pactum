@@ -19,10 +19,21 @@ export default async function UsagePage() {
     .limit(1)
     .single();
 
-  const { data: keys } = await supabase
-    .from("api_keys_pactum")
-    .select("id, key_prefix")
-    .eq("project_id", project?.id ?? "");
+  const [
+    { data: keys },
+    { data: policy }
+  ] = await Promise.all([
+    supabase
+      .from("api_keys_pactum")
+      .select("id, key_prefix")
+      .eq("project_id", project?.id ?? ""),
+    supabase
+      .from("policies_pactum")
+      .select("spend_limit_daily, spend_limit_monthly")
+      .eq("project_id", project?.id ?? "")
+      .eq("status", "active")
+      .single()
+  ]);
 
   const keyIds = (keys || []).map((k) => k.id);
   const keyMap = Object.fromEntries((keys || []).map((k) => [k.id, k.key_prefix]));
@@ -34,14 +45,6 @@ export default async function UsagePage() {
     .in("api_key_id", keyIds.length > 0 ? keyIds : ["none"])
     .order("created_at", { ascending: false })
     .limit(100);
-
-  // Get policy for limits display
-  const { data: policy } = await supabase
-    .from("policies_pactum")
-    .select("spend_limit_daily, spend_limit_monthly")
-    .eq("project_id", project?.id ?? "")
-    .eq("status", "active")
-    .single();
 
   // Calculate today's and monthly spend
   const todayStart = new Date();
