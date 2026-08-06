@@ -8,7 +8,7 @@ Deployment guide for the Pactum platform on Vercel.
 
 - A [Vercel](https://vercel.com) account
 - The repository pushed to GitHub
-- A configured Supabase project with all migrations applied
+- A configured Database project with all migrations applied
 - A deployed PactumBilling smart contract on Arc Testnet
 
 ---
@@ -20,7 +20,7 @@ Deployment guide for the Pactum platform on Vercel.
 1. Go to [Vercel Dashboard](https://vercel.com/new).
 2. Select **Import Git Repository** and choose the `pactum` repository.
 3. Keep the default Root Directory (`./`).
-4. Framework Preset should auto-detect **Next.js**.
+4. Framework Preset should auto-detect **Web Application**.
 5. Click **Deploy**.
 
 ### 2. Configure Environment Variables
@@ -29,17 +29,14 @@ Add the following environment variables in **Vercel → Project → Settings →
 
 | Variable | Required | Description |
 |---|---|---|
-| `NEXT_PUBLIC_SUPABASE_URL` | Yes | Supabase project URL |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Yes | Supabase public (anon) key |
-| `SUPABASE_SERVICE_ROLE_KEY` | Yes | Supabase service role key |
+| `NEXT_PUBLIC_SUPABASE_URL` | Yes | Database project URL |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Yes | Database public (anon) key |
 | `PACTUM_CONTRACT_ADDRESS` | Yes | PactumBilling contract address |
 | `NEXT_PUBLIC_PACTUM_CONTRACT_ADDRESS` | Yes | Same contract address (client-side) |
-| `SERVICE_WALLET_PRIVATE_KEY` | Yes | Platform operator wallet private key |
-| `CRON_SECRET` | Yes | Secret for settlement cron authentication |
 | `ARC_TESTNET_RPC_URL` | No | Arc Testnet RPC (defaults to public RPC) |
 
 > [!CAUTION]
-> `SERVICE_WALLET_PRIVATE_KEY` and `SUPABASE_SERVICE_ROLE_KEY` are highly sensitive. Ensure they are set as **Sensitive** environment variables in Vercel (hidden after save).
+> Ensure that your internal production secrets (such as Database Service Keys and Operator Wallet Keys) are set as **Sensitive** environment variables in Vercel (hidden after save).
 
 ### 3. Redeploy
 
@@ -85,7 +82,7 @@ The project uses the following build settings (auto-detected by Vercel):
 
 | Setting | Value |
 |---|---|
-| Framework | Next.js |
+| Framework | Web Application |
 | Build Command | `npm run build` |
 | Output Directory | `.next` |
 | Install Command | `npm install` |
@@ -115,7 +112,7 @@ After deployment, verify the following:
      -H "X-API-Key: your_api_key" \
      -d '{"model":"test","user_address":"0x...","idempotency_key":"deploy-test-1"}'
    ```
-3. **Database connection** — Login and check that the dashboard loads usage data from Supabase.
+3. **Database connection** — Login and check that the dashboard loads usage data from Database.
 4. **Settlement** — Manually trigger a settlement and verify the on-chain transaction on [Arc Explorer](https://testnet.arcscan.app).
 
 ---
@@ -126,6 +123,6 @@ After deployment, verify the following:
 |---|---|---|
 | Build fails with TypeScript errors | `test_integration/` included in build | Ensure `tsconfig.json` excludes `test_integration` |
 | 500 errors on API routes | Missing environment variables | Check all required env vars are set in Vercel |
-| Settlement fails | Missing `SERVICE_WALLET_PRIVATE_KEY` or `PACTUM_CONTRACT_ADDRESS` | Set both variables in Vercel environment settings |
-| Dashboard shows no data | `SUPABASE_SERVICE_ROLE_KEY` not set | Set the service role key (not the anon key) |
-| CORS errors from external apps | Default Next.js CORS policy | Add appropriate CORS headers if needed |
+| Settlement fails | Missing operator configuration | Ensure operator keys and `PACTUM_CONTRACT_ADDRESS` are set in Vercel |
+| Dashboard shows no data | Missing database configuration | Ensure internal database service keys are properly configured |
+| CORS errors from external apps | Default Web Application CORS policy | Add appropriate CORS headers if needed |

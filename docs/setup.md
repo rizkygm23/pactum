@@ -11,7 +11,7 @@ Local development setup guide for the Pactum platform.
 | Node.js | ≥ 18 | Runtime |
 | npm | ≥ 9 | Package manager |
 | MetaMask | Latest | Wallet interaction (for testing settlement/deposit) |
-| Supabase account | — | Database hosting |
+| Database account | — | Database hosting |
 | Arc Testnet USDC | — | Obtained from [Circle Faucet](https://faucet.circle.com) |
 
 ---
@@ -38,14 +38,14 @@ Fill in the following variables:
 
 | Variable | Description | How to Obtain |
 |---|---|---|
-| `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL | Supabase Dashboard → Settings → API |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anonymous (public) key | Supabase Dashboard → Settings → API |
-| `SUPABASE_SERVICE_ROLE_KEY` | Supabase service role key (server-side only) | Supabase Dashboard → Settings → API |
+| `NEXT_PUBLIC_SUPABASE_URL` | Database project URL | Database Dashboard → Settings → API |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Database anonymous (public) key | Database Dashboard → Settings → API |
 | `PACTUM_CONTRACT_ADDRESS` | Deployed PactumBilling contract address | From contract deployment output |
 | `NEXT_PUBLIC_PACTUM_CONTRACT_ADDRESS` | Same as above, exposed to client | Same as `PACTUM_CONTRACT_ADDRESS` |
-| `SERVICE_WALLET_PRIVATE_KEY` | Private key of the platform operator wallet | The wallet that deployed the contract |
-| `CRON_SECRET` | Secret token for settlement cron auth | Any secure random string |
 | `ARC_TESTNET_RPC_URL` | Arc Testnet RPC endpoint (optional) | Defaults to `https://rpc.testnet.arc.network` |
+
+> [!NOTE]
+> For full production deployment, the backend requires additional operator credentials. Refer to internal engineering guidelines for production deployment secrets.
 
 > [!CAUTION]
 > Never commit `.env.local` to version control. The `.gitignore` already excludes it.
@@ -54,12 +54,12 @@ Fill in the following variables:
 
 ## 3. Set Up the Database
 
-Run the SQL migration files **in order** in the Supabase SQL Editor (Dashboard → SQL Editor):
+Run the SQL migration files **in order** in the Database SQL Editor (Dashboard → SQL Editor):
 
-1. `supabase/migrations/001_initial_schema.sql` — Core tables and initial RLS
-2. `supabase/migrations/002_custom_auth.sql` — Custom auth migration (decouples from Supabase Auth)
-3. `supabase/migrations/003_state_channel.sql` — Adds status and address columns for state channel billing
-4. `supabase/migrations/004_enable_rls.sql` — Re-enables RLS on all tables
+1. `database/migrations/001_initial_schema.sql` — Core tables and initial RLS
+2. `database/migrations/002_custom_auth.sql` — Custom auth migration (decouples from Database Auth)
+3. `database/migrations/003_state_channel.sql` — Adds status and address columns for state channel billing
+4. `database/migrations/004_enable_rls.sql` — Re-enables RLS on all tables
 
 > [!IMPORTANT]
 > Migrations must be executed in numerical order. Each migration depends on the previous one.
@@ -120,7 +120,7 @@ The application starts at [http://localhost:3000](http://localhost:3000).
 
 | Issue | Solution |
 |---|---|
-| `SUPABASE_SERVICE_ROLE_KEY` not set | Backend operations will fail. Ensure the service role key is set in `.env.local`. |
+| Database connection fails | Ensure all Database environment variables are properly configured in `.env.local`. |
 | Contract address missing | Settlement and balance checks will be skipped. Set `PACTUM_CONTRACT_ADDRESS`. |
 | MetaMask not on Arc Testnet | Add Arc Testnet to MetaMask: Chain ID `5042002`, RPC `https://rpc.testnet.arc.network`. |
 | No test USDC | Visit [Circle Faucet](https://faucet.circle.com) to get Arc Testnet USDC. |

@@ -12,23 +12,37 @@ export default function MarkdownRenderer({ content }: { content: string }) {
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         components={{
-          code({ node, inline, className, children, ...props }: any) {
+          pre({ children, ...props }: any) {
+            const childArray = React.Children.toArray(children);
+            if (childArray.length === 1 && React.isValidElement(childArray[0])) {
+              const child = childArray[0] as React.ReactElement;
+              if (child.props.className?.includes("language-mermaid")) {
+                return <>{children}</>;
+              }
+            }
+            return (
+              <div className="relative my-6">
+                <pre className="bg-[#0D1117] p-4 rounded-lg overflow-x-auto border border-slate-800" {...props}>
+                  {children}
+                </pre>
+              </div>
+            );
+          },
+          code({ className, children, ...props }: any) {
             const match = /language-(\w+)/.exec(className || "");
             const language = match ? match[1] : "";
             
-            if (!inline && language === "mermaid") {
+            if (language === "mermaid") {
               return <Mermaid chart={String(children).replace(/\n$/, "")} />;
             }
             
-            return !inline ? (
-              <div className="relative my-6">
-                <pre className="bg-[#0D1117] p-4 rounded-lg overflow-x-auto border border-slate-800">
-                  <code className={className} {...props}>
-                    {children}
-                  </code>
-                </pre>
-              </div>
-            ) : (
+            const isBlock = match || String(children).includes("\n");
+            
+            if (isBlock) {
+              return <code className={className} {...props}>{children}</code>;
+            }
+            
+            return (
               <code className="bg-slate-800 text-slate-300 px-1.5 py-0.5 rounded text-sm font-mono border border-slate-700" {...props}>
                 {children}
               </code>

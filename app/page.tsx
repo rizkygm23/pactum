@@ -89,11 +89,19 @@ export default async function LandingPage() {
                 >
                   Get an API key
                 </Link>
+                <a
+                  href="https://aura-ai.rizzgm.xyz"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="focus-ring no-wrap inline-block px-4 py-2 bg-slate-800 text-slate-200 hover:bg-slate-700 rounded-sm font-medium transition-colors border border-slate-700 text-sm"
+                >
+                  Try Live Demo
+                </a>
                 <Link
                   href="/docs"
-                  className="focus-ring no-wrap text-sm font-medium text-parchment border-b border-border-strong pb-0.5 transition-colors hover:border-brass hover:text-brass"
+                  className="focus-ring no-wrap text-sm font-medium text-parchment border-b border-border-strong pb-0.5 transition-colors hover:border-brass hover:text-brass ml-2"
                 >
-                  Read the protocol
+                  Read Documentation
                 </Link>
               </div>
 
@@ -354,11 +362,19 @@ export default async function LandingPage() {
                 >
                   Get an API key
                 </Link>
+                <a
+                  href="https://aura-ai.rizzgm.xyz"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="focus-ring no-wrap text-sm text-parchment-dim transition-colors hover:text-brass"
+                >
+                  Try Live Demo
+                </a>
                 <Link
                   href="/docs"
                   className="focus-ring no-wrap text-sm text-parchment-dim transition-colors hover:text-brass"
                 >
-                  Documentation
+                  Read Documentation
                 </Link>
                 <Link
                   href="/login"

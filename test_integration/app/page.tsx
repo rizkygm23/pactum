@@ -5,6 +5,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { ethers } from "ethers";
 import { Loader2, Send, Wallet, ShieldCheck, Plus, MessageCircle, Menu, X } from "lucide-react";
 import { toast } from "react-hot-toast";
+import ReactMarkdown from "react-markdown";
 
 interface Message {
   role: "user" | "ai" | "error";
@@ -346,7 +347,26 @@ export default function Home() {
                       </div>
                     ) : (
                       <div className="max-w-[85%] sm:max-w-[80%] bg-ink-navy text-parchment border border-border-subtle rounded-md px-4 sm:px-5 py-3 shadow-sm">
-                        <p className="leading-relaxed text-[15px] whitespace-pre-wrap">{msg.text}</p>
+                        <ReactMarkdown
+                          components={{
+                            p: ({children}) => <p className="leading-relaxed text-[15px] mb-3 last:mb-0">{children}</p>,
+                            strong: ({children}) => <strong className="font-semibold text-white">{children}</strong>,
+                            code: ({className, children, ...props}: any) => {
+                              const match = /language-(\w+)/.exec(className || "");
+                              return match ? (
+                                <div className="my-3"><pre className="bg-[#0D1117] p-3 rounded overflow-x-auto border border-border-subtle text-sm"><code className={className} {...props}>{children}</code></pre></div>
+                              ) : (
+                                <code className="bg-graphite px-1.5 py-0.5 rounded text-[13px]" {...props}>{children}</code>
+                              );
+                            },
+                            pre: ({children}) => <>{children}</>,
+                            ul: ({children}) => <ul className="list-disc pl-5 mb-3 text-[15px]">{children}</ul>,
+                            ol: ({children}) => <ol className="list-decimal pl-5 mb-3 text-[15px]">{children}</ol>,
+                            li: ({children}) => <li className="mb-1">{children}</li>
+                          }}
+                        >
+                          {msg.text}
+                        </ReactMarkdown>
                         {msg.meta && (
                           <div className="mt-3 pt-3 border-t border-border-subtle flex items-center justify-between text-[11px] text-[#8B8FA0]">
                             <span className="flex items-center gap-1">

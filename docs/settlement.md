@@ -20,7 +20,7 @@ This design keeps per-request latency low (no blockchain calls during API usage)
 sequenceDiagram
     participant App as Third-Party App
     participant API as Pactum API
-    participant DB as Supabase
+    participant DB as Database
     participant SC as PactumBilling
     participant Chain as Arc Testnet
 

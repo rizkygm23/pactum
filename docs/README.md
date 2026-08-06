@@ -29,13 +29,13 @@ flowchart LR
         C[Wallet UI]
     end
 
-    subgraph Pactum["Pactum (Next.js)"]
+    subgraph Pactum["Pactum (Web Application)"]
         D[API Routes]
         E[Auth Layer]
     end
 
     subgraph Storage
-        F[(Supabase PostgreSQL)]
+        F[(Database PostgreSQL)]
     end
 
     subgraph Blockchain

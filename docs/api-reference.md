@@ -12,7 +12,7 @@ The API uses two authentication methods depending on the context:
 |---|---|---|---|
 | **Session Cookie** | `pactum_session` (HTTP-only cookie) | Dashboard UI | Keys, Policies, Invoices, Settings |
 | **API Key** | `X-API-Key: pactum_<hex>` | Third-party apps | `/usage/track` |
-| **Bearer Token** | `Authorization: Bearer <secret>` | Settlement cron | `/settlement/cron` |
+| **Bearer Token** | `Authorization: Bearer <operator_token>` | Settlement cron | `/settlement/cron` |
 
 ---
 
@@ -277,7 +277,7 @@ Generate a new invoice by aggregating usage events within a time period.
 
 Triggers a batch settlement of all pending usage events. Aggregates costs per (user, merchant) pair and executes a single `batchSettleUsage` call on the PactumBilling smart contract.
 
-**Auth:** `Authorization: Bearer <CRON_SECRET>`
+**Auth:** `Authorization: Bearer <operator_token>`
 
 **Response (200):**
 
@@ -294,7 +294,7 @@ Triggers a batch settlement of all pending usage events. Aggregates costs per (u
 
 | Status | Condition |
 |---|---|
-| `401` | Invalid or missing `CRON_SECRET` |
+| `401` | Invalid or missing operator token |
 | `500` | Contract call failed or missing configuration |
 
 ---

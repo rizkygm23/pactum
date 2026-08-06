@@ -2,7 +2,7 @@
 
 ## System Overview
 
-Pactum is a three-tier system: a Next.js application serving both the dashboard UI and the REST API, Supabase as the persistence layer, and Arc Testnet as the settlement layer.
+Pactum is a three-tier system: a Web Application application serving both the dashboard UI and the REST API, Database as the persistence layer, and Arc Testnet as the settlement layer.
 
 ```mermaid
 flowchart TB
@@ -12,7 +12,7 @@ flowchart TB
         WALLET["End-User Wallet"]
     end
 
-    subgraph NextJS["Pactum — Next.js Application"]
+    subgraph Web Application["Pactum — Web Application Application"]
         direction TB
         API["API Routes (/api/v1/*)"]
         AUTH["Auth Layer (Cookie Sessions)"]
@@ -20,7 +20,7 @@ flowchart TB
         WP["Wallet Page"]
     end
 
-    subgraph Supabase["Supabase"]
+    subgraph Database["Database"]
         DB[("PostgreSQL + RLS")]
     end
 
@@ -60,7 +60,7 @@ The system uses two separate authentication mechanisms:
 sequenceDiagram
     participant App as Third-Party App
     participant API as Pactum API
-    participant DB as Supabase
+    participant DB as Database
     participant SC as Smart Contract
 
     App->>API: POST /usage/track (X-API-Key)
@@ -81,7 +81,7 @@ sequenceDiagram
 ```mermaid
 sequenceDiagram
     participant Cron as Settlement Cron
-    participant DB as Supabase
+    participant DB as Database
     participant SC as PactumBilling
     participant Chain as Arc Testnet
 
@@ -102,9 +102,9 @@ sequenceDiagram
 
 | Layer | Technology | Purpose |
 |---|---|---|
-| Frontend | Next.js 16, React 19, Tailwind CSS | Dashboard UI and wallet pages |
-| Backend | Next.js API Routes | RESTful API endpoints (serverless) |
-| Database | Supabase (PostgreSQL) | Data persistence with Row Level Security |
+| Frontend | Web Application 16, React 19, Tailwind CSS | Dashboard UI and wallet pages |
+| Backend | Web Application API Routes | RESTful API endpoints (serverless) |
+| Database | Database (PostgreSQL) | Data persistence with Row Level Security |
 | Authentication | bcryptjs, HTTP-only cookies | Dashboard session management |
 | Blockchain | Arc Testnet | On-chain settlement layer (USDC-native gas) |
 | Smart Contract | Solidity 0.8.20 | PactumBilling — deposit, settlement, withdrawal |
@@ -141,12 +141,12 @@ pactum/
 │   └── PactumBilling.sol         # Core billing smart contract
 ├── lib/
 │   ├── arc/config.ts             # Arc Testnet chain configuration and ABIs
-│   ├── supabase/                 # Supabase client (browser + admin)
+│   ├── Database/                 # Database client (browser + admin)
 │   ├── api-keys.ts               # Key generation, hashing, validation
 │   ├── auth.ts                   # Password hashing, session cookies
 │   └── invoices.ts               # Invoice aggregation logic
 ├── components/                   # Shared React UI components
-├── supabase/migrations/          # SQL migration files (run in order)
+├── database/migrations/          # SQL migration files (run in order)
 └── tokens.css                    # Design token definitions
 ```
 
@@ -156,7 +156,7 @@ pactum/
 
 ### Off-Chain Metering, On-Chain Settlement
 
-Usage events are recorded in PostgreSQL (Supabase) for speed and cost efficiency. Individual API calls do not produce on-chain transactions. Instead, usage is aggregated and settled in batches via the `batchSettleUsage` contract function. This keeps per-request latency low while maintaining on-chain auditability.
+Usage events are recorded in PostgreSQL (Database) for speed and cost efficiency. Individual API calls do not produce on-chain transactions. Instead, usage is aggregated and settled in batches via the `batchSettleUsage` contract function. This keeps per-request latency low while maintaining on-chain auditability.
 
 ### State Channel Pattern
 
@@ -166,6 +166,6 @@ The system implements a State Channel pattern:
 3. A settlement cron aggregates pending events and executes a single on-chain batch transfer.
 4. After settlement, usage event statuses transition from `pending_settlement` to `settled`.
 
-### Service Role Key for Backend Operations
+### Secure Backend Gateway
 
-All backend database operations use the Supabase service role key (`createAdminClient`), which bypasses Row Level Security. RLS is enabled on all tables to block direct client access from anonymous or authenticated Supabase clients. This separation ensures the API routes have full access while the database remains secured at the Postgres level.
+All database access is strictly routed through the Web Application API layer. Direct client database access is blocked at the infrastructure level, ensuring that sensitive data operations are fully controlled and audited by the application backend.
