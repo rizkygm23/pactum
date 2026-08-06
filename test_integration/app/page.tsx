@@ -146,14 +146,16 @@ export default function Home() {
     setActiveConversationId(null);
   };
 
-  const submitChat = async (e?: React.FormEvent) => {
+  const submitChat = async (e?: React.FormEvent, overridePrompt?: string) => {
     e?.preventDefault();
-    if (!prompt.trim() || !address || !jwt) return;
+    const currentPrompt = (overridePrompt || prompt).trim();
+    if (!currentPrompt || !address || !jwt) return;
 
-    const currentPrompt = prompt.trim();
     setMessages(prev => [...prev, { role: "user", text: currentPrompt }]);
-    setPrompt("");
-    if (textareaRef.current) textareaRef.current.style.height = "auto";
+    if (!overridePrompt) {
+      setPrompt("");
+      if (textareaRef.current) textareaRef.current.style.height = "auto";
+    }
     setLoading(true);
 
     try {
@@ -320,9 +322,29 @@ export default function Home() {
                 <p className="text-[#8B8FA0] text-center">Connect your wallet to start chatting with Aura AI.</p>
               </div>
             ) : messages.length === 0 ? (
-               <div className="flex flex-col items-center justify-center h-full opacity-50 flex-1">
-                <img src="/aura-logo.png" className="w-16 h-16 mb-6 opacity-30 grayscale" alt="" />
-                <p className="text-[#8B8FA0] text-center max-w-sm">Start a conversation. Every message is metered via Pactum State Channels.</p>
+               <div className="flex flex-col items-center justify-center h-full flex-1 max-w-2xl mx-auto w-full px-4">
+                <img src="/aura-logo.png" className="w-16 h-16 mb-4 opacity-70" alt="" />
+                <h2 className="text-xl font-medium text-parchment mb-2">Welcome to Aura AI</h2>
+                <p className="text-[#8B8FA0] text-center max-w-md mb-8">
+                  Ask me anything about the Arc Testnet or Pactum ecosystem. Every message is metered via state channels.
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full">
+                  {[
+                    "What is Arc Testnet?",
+                    "How does Pactum handle micropayments?",
+                    "Why use USDC for gas fees?",
+                    "Can you explain state channels?"
+                  ].map((suggestion, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => submitChat(undefined, suggestion)}
+                      className="bg-graphite hover:bg-[#252F45] border border-border-subtle hover:border-brass/50 text-left px-4 py-3 rounded-lg text-sm text-parchment transition-colors flex items-center justify-between group"
+                    >
+                      <span className="truncate pr-4">{suggestion}</span>
+                      <MessageCircle className="w-4 h-4 text-[#8B8FA0] group-hover:text-brass shrink-0 opacity-50 group-hover:opacity-100 transition-opacity" />
+                    </button>
+                  ))}
+                </div>
               </div>
             ) : (
               <div className="space-y-6 pb-4 w-full mt-auto">
