@@ -15,7 +15,7 @@ export async function GET(request: Request) {
   const { data: pendingUsageData, error } = await supabase
     .from("usage_events_pactum")
     .select("cost")
-    .eq("user_address", userAddress)
+    .ilike("user_address", userAddress)
     .eq("status", "pending_settlement");
 
   if (error) {

@@ -117,7 +117,7 @@ export async function POST(request: Request) {
       const { data: pendingUsageData } = await supabase
         .from("usage_events_pactum")
         .select("cost")
-        .eq("user_address", body.user_address)
+        .ilike("user_address", body.user_address)
         .eq("status", "pending_settlement");
 
       const pendingUsage = (pendingUsageData || []).reduce((sum, e) => sum + Number(e.cost), 0);
