@@ -51,7 +51,7 @@ export default async function PayoutsPage() {
             Payouts
           </h1>
           <p className="text-sm text-foreground-dim mt-1">
-            Riwayat pencairan dana (settlement) dari Smart Contract ke wallet Anda.
+            Settlement history from the Smart Contract to your wallet.
           </p>
         </div>
         <div className="bg-graphite px-4 py-3 rounded-lg border border-border flex flex-col items-start gap-1 lg:items-end lg:shrink-0">
@@ -70,7 +70,7 @@ export default async function PayoutsPage() {
         {(!settledEvents || settledEvents.length === 0) ? (
           <div className="text-center py-12 px-4">
             <p className="text-foreground-dim text-sm">
-              Belum ada riwayat pencairan dana.
+              No settlement history yet.
             </p>
           </div>
         ) : (

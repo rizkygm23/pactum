@@ -61,16 +61,16 @@ export async function POST(req: Request) {
     const aiMessages = [
       {
         role: "system",
-        content: "You are a strict code API. You output ONLY a single question string. No preamble, no explanation, no meta-text."
+        content: "You are a JSON API. You MUST respond with ONLY a JSON object containing a 'question' key. Do not output any other text or explanations."
       },
       { 
         role: "user", 
-        content: `Generate ONE short follow-up question (max 8 words) based on this conversation:
+        content: `Based on the following conversation history about Arc Testnet and Pactum, generate ONE short follow-up question (max 8 words) that the user could ask next.
 ---
 ${historyText}
 ---
-Example output: "How do state channels work?"
-Now generate the question:`
+Respond ONLY with this exact JSON format:
+{"question": "your short question here"}`
       }
     ];
 
@@ -82,18 +82,37 @@ Now generate the question:`
       },
       body: JSON.stringify({
         messages: aiMessages,
-        model: "DeepSeek-V4-Pro", // Using the same model, or we could use a faster one if available
+        model: "DeepSeek-V4-Pro",
         stream: false,
-        temperature: 0.7,
-        max_tokens: 30
+        temperature: 0.1,
+        max_tokens: 150,
+        response_format: { type: "json_object" }
       })
     });
 
     if (aiRes.ok) {
       const aiData = await aiRes.json();
-      let suggestion = aiData.choices?.[0]?.message?.content?.trim() || "";
-      // Strip quotes if any
-      suggestion = suggestion.replace(/^["']|["']$/g, '');
+      let responseText = aiData.choices?.[0]?.message?.content?.trim() || "";
+      
+      let suggestion = "";
+      try {
+        // Force extract JSON object from the response text, ignoring any preamble or postamble
+        const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          const parsed = JSON.parse(jsonMatch[0]);
+          suggestion = parsed.question || "";
+        } else {
+          suggestion = responseText;
+        }
+      } catch (e) {
+        suggestion = responseText;
+      }
+      
+      // Final sanitization in case the fallback was used and it contains meta-text
+      if (suggestion.length > 100 || suggestion.toLowerCase().includes("the user wants")) {
+         suggestion = "How does this work on Arc Testnet?"; // Safe fallback
+      }
+      
       return NextResponse.json({ suggestion });
     }
 

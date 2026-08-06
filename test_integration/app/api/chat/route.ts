@@ -142,7 +142,7 @@ CRITICAL RULES:
     }
 
     // 4. Calling DeepSeek API
-    let aiResponseText = "Maaf, terjadi kesalahan saat menghubungi AI.";
+    let aiResponseText = "Sorry, an error occurred while contacting the AI.";
     let promptTokens = 0;
     let completionTokens = 0;
 
@@ -169,11 +169,11 @@ CRITICAL RULES:
         completionTokens = aiData.usage?.completion_tokens || Math.ceil(aiResponseText.length / 4);
       } else {
         console.error("DeepSeek API Error:", aiData);
-        return NextResponse.json({ error: `Gagal menghubungi layanan DeepSeek. Response: ${JSON.stringify(aiData)}` }, { status: 500 });
+        return NextResponse.json({ error: `Failed to contact DeepSeek service. Response: ${JSON.stringify(aiData)}` }, { status: 500 });
       }
     } catch (error: any) {
       console.error("DeepSeek Fetch Error:", error);
-      return NextResponse.json({ error: `Gagal menghubungi layanan DeepSeek. Error: ${error.message || error}` }, { status: 500 });
+      return NextResponse.json({ error: `Failed to contact DeepSeek service. Error: ${error.message || error}` }, { status: 500 });
     }
 
     // 5. Report usage to Pactum BEFORE saving AI response

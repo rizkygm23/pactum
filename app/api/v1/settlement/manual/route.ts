@@ -2,10 +2,10 @@ import { NextResponse } from "next/server";
 import { getSessionCookie } from "@/lib/auth";
 
 export async function POST(request: Request) {
-  // Hanya user yang login yang bisa men-trigger ini secara manual dari dashboard
+  // Only logged-in users can trigger this manually from the dashboard
   const userId = await getSessionCookie();
   if (!userId) {
-    return NextResponse.json({ error: "Unauthorized. Harap login." }, { status: 401 });
+    return NextResponse.json({ error: "Unauthorized. Please log in." }, { status: 401 });
   }
 
   try {
@@ -25,6 +25,6 @@ export async function POST(request: Request) {
     return NextResponse.json(data, { status: res.status });
   } catch (e: any) {
     console.error("Manual settlement error:", e);
-    return NextResponse.json({ error: "Gagal mengeksekusi settlement" }, { status: 500 });
+    return NextResponse.json({ error: "Failed to execute settlement" }, { status: 500 });
   }
 }
