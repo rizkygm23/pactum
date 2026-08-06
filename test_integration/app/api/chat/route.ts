@@ -5,7 +5,7 @@ import { ethers } from 'ethers';
 import { supabase } from '@/lib/supabase';
 
 const JWT_SECRET = process.env.JWT_SECRET || crypto.randomBytes(32).toString("hex");
-const PACTUM_API_URL = process.env.PACTUM_API_URL || "http://localhost:3000/api/v1";
+const PACTUM_API_URL = process.env.PACTUM_API_URL || "https://pactum-ruddy.vercel.app/api/v1";
 const PACTUM_API_KEY = process.env.PACTUM_API_KEY;
 const XAI_API_KEY = process.env.XAI_API_KEY;
 

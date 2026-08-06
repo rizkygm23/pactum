@@ -337,7 +337,7 @@ export default function Home() {
                           <p className="font-medium text-[15px] mb-1">Processing Failed</p>
                           <p className="text-sm opacity-90 leading-relaxed">{msg.text}</p>
                           <div className="mt-3">
-                            <a href="http://localhost:3000/wallet" target="_blank" rel="noreferrer" className="inline-block text-xs bg-red-500/20 hover:bg-red-500/30 text-red-400 px-3 py-1.5 rounded-lg border border-red-500/20 transition-colors">
+                            <a href="https://pactum-ruddy.vercel.app/wallet" target="_blank" rel="noreferrer" className="inline-block text-xs bg-red-500/20 hover:bg-red-500/30 text-red-400 px-3 py-1.5 rounded-lg border border-red-500/20 transition-colors">
                               Deposit to Pactum Wallet ↗
                             </a>
                           </div>
