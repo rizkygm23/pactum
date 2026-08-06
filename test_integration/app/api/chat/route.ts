@@ -39,7 +39,7 @@ export async function POST(req: Request) {
     if (!currentConversationId) {
       currentConversationId = crypto.randomUUID();
       const title = prompt.length > 30 ? prompt.substring(0, 30) + '...' : prompt;
-      
+
       const { error: insertError } = await supabase
         .from('conversations_aura')
         .insert({
@@ -47,7 +47,7 @@ export async function POST(req: Request) {
           wallet_address: user_address,
           title: title
         });
-        
+
       if (insertError) {
         console.error("Failed to create conversation:", insertError);
         return NextResponse.json({ error: "Database error" }, { status: 500 });
@@ -59,7 +59,7 @@ export async function POST(req: Request) {
         .select('wallet_address')
         .eq('id', currentConversationId)
         .single();
-        
+
       if (convoError || !convo || convo.wallet_address.toLowerCase() !== user_address.toLowerCase()) {
         return NextResponse.json({ error: "Conversation not found or unauthorized" }, { status: 403 });
       }
@@ -103,13 +103,13 @@ export async function POST(req: Request) {
     try {
       const provider = new ethers.JsonRpcProvider("https://rpc.testnet.arc.network");
       const contract = new ethers.Contract(
-        "0x84b739c9B1484EB4fc8C095f7a1dC396669EAeE3", 
-        ["function userBalances(address) view returns (uint256)"], 
+        "0x84b739c9B1484EB4fc8C095f7a1dC396669EAeE3",
+        ["function userBalances(address) view returns (uint256)"],
         provider
       );
       const balanceWei = await contract.userBalances(user_address);
       if (balanceWei === 0n) {
-        return NextResponse.json({ 
+        return NextResponse.json({
           error: "Insufficient funds in your Pactum Smart Contract balance. Please deposit USDC to continue chatting."
         }, { status: 402 });
       }
@@ -131,7 +131,7 @@ export async function POST(req: Request) {
         },
         body: JSON.stringify({
           messages: aiMessages,
-          model: "deepseek-chat",
+          model: "DeepSeek-V4-Pro",
           stream: false,
           temperature: 0
         })
@@ -164,7 +164,7 @@ export async function POST(req: Request) {
           model: "deepseek-chat",
           prompt_tokens: promptTokens,
           completion_tokens: completionTokens,
-          prompt_price_per_token: 0.000005, 
+          prompt_price_per_token: 0.000005,
           completion_price_per_token: 0.000015,
           user_address: user_address,
           idempotency_key: `chat-${Date.now()}-${crypto.randomBytes(4).toString("hex")}`,
@@ -177,7 +177,7 @@ export async function POST(req: Request) {
       if (!pactumRes.ok) {
         if (pactumRes.status === 402) {
           // If 402, we don't save the AI response to the DB to prevent free usage
-          return NextResponse.json({ 
+          return NextResponse.json({
             error: "Insufficient funds in your Pactum Smart Contract balance. Please deposit USDC to continue chatting.",
             details: pactumData
           }, { status: 402 });
