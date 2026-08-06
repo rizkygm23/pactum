@@ -14,9 +14,9 @@ export default function MarkdownRenderer({ content }: { content: string }) {
         components={{
           pre({ children, ...props }: any) {
             const childArray = React.Children.toArray(children);
-            if (childArray.length === 1 && React.isValidElement(childArray[0])) {
-              const child = childArray[0] as React.ReactElement;
-              if (child.props.className?.includes("language-mermaid")) {
+          if (childArray.length === 1 && React.isValidElement(childArray[0])) {
+            const child = childArray[0] as React.ReactElement<any>;
+            if (child.props.className?.includes("language-mermaid")) {
                 return <>{children}</>;
               }
             }

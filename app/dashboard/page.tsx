@@ -57,6 +57,11 @@ export default async function DashboardOverview() {
       .eq("status", "settled")
   ]);
 
+  const todaySpend = (todayEvents || []).reduce(
+    (sum, e) => sum + Number(e.cost),
+    0
+  );
+
   const totalSettled = (allSettled || []).reduce(
     (sum, event) => sum + Number(event.cost),
     0
