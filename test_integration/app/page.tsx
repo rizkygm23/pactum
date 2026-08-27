@@ -118,7 +118,7 @@ export default function Home() {
 
       const domain = window.location.host;
       const origin = window.location.origin;
-      const statement = "Sign this message to prove you own this wallet and authorize micro-payments to Aura AI via Pactum.";
+      const statement = "Sign this message to prove you own this wallet and authorize micro-payments to Auto via Pactum.";
       const message = `${domain} wants you to sign in with your Ethereum account:\n${userAddress}\n\n${statement}\n\nURI: ${origin}\nVersion: 1\nChain ID: 1\nNonce: ${nonce}\nIssued At: ${new Date().toISOString()}`;
 
       const signature = await signer.signMessage(message);
@@ -308,9 +308,9 @@ export default function Home() {
                 <Menu className="w-5 h-5" />
               </button>
             )}
-            <img src="/aura-logo.png" alt="Aura AI Logo" className="w-9 h-9 rounded-md border border-border-subtle object-cover bg-graphite" />
+            <img src="/aura-logo.png" alt="Auto Logo" className="w-9 h-9 rounded-md border border-border-subtle object-cover bg-graphite" />
             <div className="flex flex-col">
-              <h1 className="text-xl font-semibold tracking-tight text-parchment font-[family-name:var(--font-fraunces)] leading-tight">Aura AI</h1>
+              <h1 className="text-xl font-semibold tracking-tight text-parchment font-[family-name:var(--font-fraunces)] leading-tight">Auto</h1>
               <div className="flex items-center gap-1.5 mt-0.5 opacity-70">
                 <span className="text-[9px] uppercase tracking-wider font-semibold text-[#8B8FA0]">by</span>
                 <img src="/pactum-logo.png" alt="Pactum" className="w-3 h-3 object-cover rounded-sm" />
@@ -350,12 +350,12 @@ export default function Home() {
             {!address ? (
               <div className="flex flex-col items-center justify-center h-full opacity-50 flex-1">
                 <Wallet className="w-16 h-16 mb-4 text-[#8B8FA0]" />
-                <p className="text-[#8B8FA0] text-center">Connect your wallet to start chatting with Aura AI.</p>
+                <p className="text-[#8B8FA0] text-center">Connect your wallet to start chatting with Auto.</p>
               </div>
             ) : messages.length === 0 ? (
                <div className="flex flex-col items-center justify-center h-full flex-1 max-w-2xl mx-auto w-full px-4">
                 <img src="/aura-logo.png" className="w-16 h-16 mb-4 opacity-70" alt="" />
-                <h2 className="text-xl font-medium text-parchment mb-2">Welcome to Aura AI</h2>
+                <h2 className="text-xl font-medium text-parchment mb-2">Welcome to Auto</h2>
                 <p className="text-[#8B8FA0] text-center max-w-md mb-8">
                   Ask me anything about the Arc Testnet or Pactum ecosystem. Every message is metered via state channels.
                 </p>
@@ -490,7 +490,7 @@ export default function Home() {
                     }
                   }}
                   rows={1}
-                  placeholder={address ? "Ask Aura AI anything..." : "Connect wallet to type..."}
+                  placeholder={address ? "Ask Auto anything..." : "Connect wallet to type..."}
                   disabled={!address || loading}
                   className="w-full bg-transparent text-parchment placeholder-[#8B8FA0] px-4 py-3 focus:outline-none resize-none scrollbar-hide"
                   style={{ minHeight: "48px", maxHeight: "200px" }}

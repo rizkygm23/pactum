@@ -155,7 +155,7 @@ CRITICAL RULES:
         },
         body: JSON.stringify({
           messages: aiMessages,
-          model: "DeepSeek-V4-Pro",
+          model: "auto",
           stream: false,
           temperature: 0
         })
@@ -185,7 +185,7 @@ CRITICAL RULES:
           "X-API-Key": PACTUM_API_KEY || "",
         },
         body: JSON.stringify({
-          model: "DeepSeek-V4-Pro",
+          model: "auto",
           prompt_tokens: promptTokens,
           completion_tokens: completionTokens,
           prompt_price_per_token: 0.000005,
