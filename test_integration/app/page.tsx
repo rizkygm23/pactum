@@ -19,6 +19,15 @@ interface Conversation {
   created_at: string;
 }
 
+interface Transaction {
+  id: string;
+  endpoint: string;
+  cost: number;
+  status: string;
+  created_at: string;
+  idempotency_key: string;
+}
+
 export default function Home() {
   const [address, setAddress] = useState<string | null>(null);
   const [jwt, setJwt] = useState<string | null>(null);
@@ -33,6 +42,10 @@ export default function Home() {
   const [contextSuggestion, setContextSuggestion] = useState<{text: string, id: number} | null>(null);
   
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
+  const [loadingHistory, setLoadingHistory] = useState(false);
   
   const chatEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -63,6 +76,30 @@ export default function Home() {
   useEffect(() => {
     if (jwt) fetchConversations();
   }, [jwt, fetchConversations]);
+
+  const fetchHistory = useCallback(async () => {
+    if (!jwt) return;
+    setLoadingHistory(true);
+    try {
+      const res = await fetch("/api/history", {
+        headers: { "Authorization": `Bearer ${jwt}` }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setTransactions(data.transactions);
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoadingHistory(false);
+    }
+  }, [jwt]);
+
+  useEffect(() => {
+    if (isHistoryModalOpen && jwt) {
+      fetchHistory();
+    }
+  }, [isHistoryModalOpen, jwt, fetchHistory]);
 
   const autoResize = () => {
     if (textareaRef.current) {
@@ -246,6 +283,17 @@ export default function Home() {
                 <span className="text-sm font-medium tracking-wide">New Chat</span>
               </button>
             </div>
+            <div className="px-2 mb-2">
+              <button
+                onClick={() => setIsHistoryModalOpen(true)}
+                className="w-full group flex items-center justify-center gap-2 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/10 text-emerald-400 py-3 rounded-[1.5rem] transition-all duration-500 active:scale-[0.98]"
+              >
+                <div className="w-6 h-6 rounded-full bg-emerald-500/20 flex items-center justify-center group-hover:bg-emerald-500/30 transition-colors">
+                  <ShieldCheck className="w-3.5 h-3.5" strokeWidth={1.5} />
+                </div>
+                <span className="text-sm font-medium tracking-wide">Transaction History</span>
+              </button>
+            </div>
             <div className="flex-1 overflow-y-auto px-2 space-y-1.5 scrollbar-hide">
               {conversations.map(c => (
                 <button
@@ -277,7 +325,7 @@ export default function Home() {
                 <X className="w-4 h-4" strokeWidth={1.5} />
               </button>
             </div>
-            <div className="p-4">
+            <div className="p-4 flex flex-col gap-2">
               <button 
                 onClick={startNewChat}
                 className="w-full group flex items-center justify-center gap-2 bg-white/5 hover:bg-white/10 border border-white/5 text-white py-3.5 rounded-[1.5rem] transition-all duration-500 active:scale-[0.98]"
@@ -286,6 +334,18 @@ export default function Home() {
                   <Plus className="w-3.5 h-3.5" strokeWidth={1.5} />
                 </div>
                 <span className="text-sm font-medium tracking-wide">New Chat</span>
+              </button>
+              <button
+                onClick={() => {
+                  setSidebarOpen(false);
+                  setIsHistoryModalOpen(true);
+                }}
+                className="w-full group flex items-center justify-center gap-2 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/10 text-emerald-400 py-3.5 rounded-[1.5rem] transition-all duration-500 active:scale-[0.98]"
+              >
+                <div className="w-6 h-6 rounded-full bg-emerald-500/20 flex items-center justify-center group-hover:bg-emerald-500/30 transition-colors">
+                  <ShieldCheck className="w-3.5 h-3.5" strokeWidth={1.5} />
+                </div>
+                <span className="text-sm font-medium tracking-wide">Transaction History</span>
               </button>
             </div>
             <div className="flex-1 overflow-y-auto p-3 space-y-1.5 scrollbar-hide">
@@ -545,6 +605,77 @@ export default function Home() {
           </div>
         </div>
       </div>
+
+      {/* Transaction History Modal */}
+      {isHistoryModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
+          <div className="absolute inset-0 bg-black/80 backdrop-blur-3xl transition-opacity duration-700" onClick={() => setIsHistoryModalOpen(false)} />
+          <div className="relative w-full max-w-2xl max-h-[85vh] bg-[#0a0a0a] ring-1 ring-white/10 shadow-2xl rounded-[2rem] flex flex-col overflow-hidden animate-in zoom-in-95 duration-500">
+            <div className="p-6 border-b border-white/5 flex items-center justify-between shrink-0">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-emerald-500/10 flex items-center justify-center ring-1 ring-emerald-500/20">
+                  <ShieldCheck className="w-5 h-5 text-emerald-400" strokeWidth={1.5} />
+                </div>
+                <div>
+                  <h2 className="font-semibold text-lg text-white tracking-wide leading-tight">Transaction History</h2>
+                  <p className="text-xs text-white/40 tracking-wide mt-0.5">Off-chain and on-chain records</p>
+                </div>
+              </div>
+              <button onClick={() => setIsHistoryModalOpen(false)} className="text-white/50 hover:text-white transition-colors w-8 h-8 flex items-center justify-center rounded-full bg-white/5 hover:bg-white/10">
+                <X className="w-4 h-4" strokeWidth={1.5} />
+              </button>
+            </div>
+            
+            <div className="flex-1 overflow-y-auto p-4 sm:p-6 scrollbar-hide">
+              {loadingHistory ? (
+                <div className="flex flex-col items-center justify-center py-12">
+                  <Loader2 className="w-8 h-8 text-white/30 animate-spin mb-4" />
+                  <p className="text-sm text-white/40">Loading history...</p>
+                </div>
+              ) : transactions.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-12 text-center">
+                  <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-4 ring-1 ring-white/10">
+                    <ShieldCheck className="w-8 h-8 text-white/20" strokeWidth={1} />
+                  </div>
+                  <p className="text-white/60 font-medium">No transactions found</p>
+                  <p className="text-xs text-white/40 mt-1">Start chatting to see your usage.</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {transactions.map((tx) => (
+                    <div key={tx.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-[1.25rem] bg-white/[0.02] ring-1 ring-white/5 hover:ring-white/10 transition-colors">
+                      <div className="flex items-start sm:items-center gap-3">
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
+                          tx.status === 'settled' ? 'bg-purple-500/20 text-purple-400' : 'bg-emerald-500/20 text-emerald-400'
+                        }`}>
+                          <Wallet className="w-4 h-4" strokeWidth={1.5} />
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm font-medium text-white/90">AI Chat Usage</span>
+                            <span className={`text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider font-semibold ${
+                              tx.status === 'settled' ? 'bg-purple-500/10 text-purple-400 ring-1 ring-purple-500/20' : 'bg-emerald-500/10 text-emerald-400 ring-1 ring-emerald-500/20'
+                            }`}>
+                              {tx.status === 'settled' ? 'On-Chain' : 'Off-Chain'}
+                            </span>
+                          </div>
+                          <div className="text-xs text-white/40 mt-1 font-mono tracking-tight">
+                            {new Date(tx.created_at).toLocaleString()}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center mt-2 sm:mt-0 pl-11 sm:pl-0">
+                        <span className="text-sm font-mono font-medium text-white">{Number(tx.cost).toFixed(6)} USDC</span>
+                        <span className="text-[10px] text-white/30 font-mono" title={tx.idempotency_key}>ID: {tx.idempotency_key.substring(0, 12)}...</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
