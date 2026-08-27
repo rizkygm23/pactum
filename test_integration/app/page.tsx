@@ -224,34 +224,44 @@ export default function Home() {
   };
 
   return (
-    <div className="flex h-screen overflow-hidden bg-ink-navy">
+    <div className="flex h-[100dvh] overflow-hidden bg-[#050505] relative selection:bg-white/10">
+      {/* Radial Mesh Gradient Background */}
+      <div className="absolute inset-0 z-0 pointer-events-none flex items-center justify-center overflow-hidden">
+        <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] rounded-full bg-emerald-500/10 blur-[120px]" />
+        <div className="absolute bottom-[-20%] right-[-10%] w-[60%] h-[60%] rounded-full bg-purple-500/10 blur-[140px]" />
+      </div>
+
       {/* Sidebar (Desktop) */}
       {address && (
-        <aside className="hidden md:flex w-64 flex-col border-r border-border-subtle bg-graphite/50 shrink-0">
-          <div className="p-4">
-            <button 
-              onClick={startNewChat}
-              className="w-full flex items-center justify-center gap-2 bg-ink-navy hover:bg-ink-navy/80 border border-border-subtle text-parchment py-2.5 rounded-md transition-colors"
-            >
-              <Plus className="w-4 h-4" />
-              <span className="text-sm font-medium">New Chat</span>
-            </button>
-          </div>
-          <div className="flex-1 overflow-y-auto p-2 space-y-1 scrollbar-hide">
-            {conversations.map(c => (
-              <button
-                key={c.id}
-                onClick={() => loadConversation(c.id)}
-                className={`w-full flex items-center gap-3 px-3 py-3 rounded-md text-sm transition-colors text-left ${
-                  activeConversationId === c.id 
-                    ? "bg-brass/10 text-brass border border-brass/20" 
-                    : "text-[#8B8FA0] hover:bg-ink-navy hover:text-parchment border border-transparent"
-                }`}
+        <aside className="hidden md:flex w-72 flex-col shrink-0 z-10 p-4">
+          <div className="flex flex-col h-full bg-white/5 backdrop-blur-2xl rounded-[2rem] ring-1 ring-white/10 p-2 shadow-2xl">
+            <div className="p-2 mb-2">
+              <button 
+                onClick={startNewChat}
+                className="w-full group flex items-center justify-center gap-2 bg-white/5 hover:bg-white/10 border border-white/5 text-white/90 py-3 rounded-[1.5rem] transition-all duration-500 active:scale-[0.98]"
               >
-                <MessageCircle className="w-4 h-4 shrink-0" />
-                <span className="truncate flex-1">{c.title}</span>
+                <div className="w-6 h-6 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-white/10 transition-colors">
+                  <Plus className="w-3.5 h-3.5" strokeWidth={1.5} />
+                </div>
+                <span className="text-sm font-medium tracking-wide">New Chat</span>
               </button>
-            ))}
+            </div>
+            <div className="flex-1 overflow-y-auto px-2 space-y-1.5 scrollbar-hide">
+              {conversations.map(c => (
+                <button
+                  key={c.id}
+                  onClick={() => loadConversation(c.id)}
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-[1.25rem] text-[13px] transition-all duration-500 text-left group ${
+                    activeConversationId === c.id 
+                      ? "bg-white/10 text-white shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)]" 
+                      : "text-white/50 hover:bg-white/5 hover:text-white/80"
+                  }`}
+                >
+                  <MessageCircle className="w-4 h-4 shrink-0 opacity-70 group-hover:opacity-100" strokeWidth={1.5} />
+                  <span className="truncate flex-1 tracking-wide">{c.title}</span>
+                </button>
+              ))}
+            </div>
           </div>
         </aside>
       )}
@@ -259,36 +269,38 @@ export default function Home() {
       {/* Sidebar (Mobile Overlay) */}
       {address && sidebarOpen && (
         <div className="fixed inset-0 z-50 flex md:hidden">
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setSidebarOpen(false)} />
-          <aside className="relative flex w-[260px] max-w-[85vw] flex-col bg-graphite border-r border-border-subtle h-full shadow-2xl">
-            <div className="p-4 border-b border-border-subtle flex items-center justify-between">
-              <span className="font-semibold text-parchment">History</span>
-              <button onClick={() => setSidebarOpen(false)} className="text-[#8B8FA0] hover:text-parchment">
-                <X className="w-5 h-5" />
+          <div className="absolute inset-0 bg-black/80 backdrop-blur-3xl transition-opacity duration-700" onClick={() => setSidebarOpen(false)} />
+          <aside className="relative flex w-[85vw] max-w-[320px] flex-col h-full bg-[#050505] ring-1 ring-white/10 shadow-2xl animate-in slide-in-from-left duration-700 ease-[cubic-bezier(0.32,0.72,0,1)]">
+            <div className="p-6 border-b border-white/5 flex items-center justify-between">
+              <span className="font-semibold text-white tracking-wide">History</span>
+              <button onClick={() => setSidebarOpen(false)} className="text-white/50 hover:text-white transition-colors w-8 h-8 flex items-center justify-center rounded-full bg-white/5">
+                <X className="w-4 h-4" strokeWidth={1.5} />
               </button>
             </div>
             <div className="p-4">
               <button 
                 onClick={startNewChat}
-                className="w-full flex items-center justify-center gap-2 bg-ink-navy hover:bg-ink-navy/80 border border-border-subtle text-parchment py-2.5 rounded-md transition-colors"
+                className="w-full group flex items-center justify-center gap-2 bg-white/5 hover:bg-white/10 border border-white/5 text-white py-3.5 rounded-[1.5rem] transition-all duration-500 active:scale-[0.98]"
               >
-                <Plus className="w-4 h-4" />
-                <span className="text-sm font-medium">New Chat</span>
+                <div className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center group-hover:bg-white/20 transition-colors">
+                  <Plus className="w-3.5 h-3.5" strokeWidth={1.5} />
+                </div>
+                <span className="text-sm font-medium tracking-wide">New Chat</span>
               </button>
             </div>
-            <div className="flex-1 overflow-y-auto p-2 space-y-1 scrollbar-hide">
+            <div className="flex-1 overflow-y-auto p-3 space-y-1.5 scrollbar-hide">
               {conversations.map(c => (
                 <button
                   key={c.id}
                   onClick={() => loadConversation(c.id)}
-                  className={`w-full flex items-center gap-3 px-3 py-3 rounded-md text-sm transition-colors text-left ${
+                  className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-[1.25rem] text-[13px] transition-all duration-500 text-left ${
                     activeConversationId === c.id 
-                      ? "bg-brass/10 text-brass border border-brass/20" 
-                      : "text-[#8B8FA0] hover:bg-ink-navy hover:text-parchment border border-transparent"
+                      ? "bg-white/10 text-white shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)]" 
+                      : "text-white/50 hover:bg-white/5 hover:text-white/90"
                   }`}
                 >
-                  <MessageCircle className="w-4 h-4 shrink-0" />
-                  <span className="truncate flex-1">{c.title}</span>
+                  <MessageCircle className="w-4 h-4 shrink-0 opacity-70" strokeWidth={1.5} />
+                  <span className="truncate flex-1 tracking-wide">{c.title}</span>
                 </button>
               ))}
             </div>
@@ -297,23 +309,26 @@ export default function Home() {
       )}
 
       {/* Main Chat Area */}
-      <div className="flex-1 flex flex-col h-full min-w-0">
-        <header className="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-border-subtle bg-ink-navy/80 backdrop-blur-md sticky top-0 z-10 shrink-0">
-          <div className="flex items-center gap-3">
+      <div className="flex-1 flex flex-col h-full min-w-0 relative z-10">
+        <header className="flex items-center justify-between px-6 py-5 shrink-0">
+          <div className="flex items-center gap-4">
             {address && (
               <button 
                 onClick={() => setSidebarOpen(true)}
-                className="md:hidden mr-1 text-[#8B8FA0] hover:text-parchment transition-colors"
+                className="md:hidden mr-1 w-10 h-10 rounded-full bg-white/5 ring-1 ring-white/10 flex items-center justify-center text-white/70 hover:text-white transition-colors active:scale-[0.98]"
               >
-                <Menu className="w-5 h-5" />
+                <Menu className="w-4 h-4" strokeWidth={1.5} />
               </button>
             )}
-            <img src="/aura-logo.png" alt="Auto Logo" className="w-9 h-9 rounded-md border border-border-subtle object-cover bg-graphite" />
+            <div className="relative group">
+              <div className="absolute inset-0 bg-white/20 blur-xl opacity-0 group-hover:opacity-50 transition-opacity duration-700 rounded-full" />
+              <img src="/aura-logo.png" alt="Auto Logo" className="w-10 h-10 rounded-xl ring-1 ring-white/10 object-cover bg-black relative z-10 shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)]" />
+            </div>
             <div className="flex flex-col">
-              <h1 className="text-xl font-semibold tracking-tight text-parchment font-[family-name:var(--font-fraunces)] leading-tight">Auto</h1>
-              <div className="flex items-center gap-1.5 mt-0.5 opacity-70">
-                <span className="text-[9px] uppercase tracking-wider font-semibold text-[#8B8FA0]">by</span>
-                <img src="/pactum-logo.png" alt="Pactum" className="w-3 h-3 object-cover rounded-sm" />
+              <h1 className="text-xl font-medium tracking-tight text-white font-[family-name:var(--font-fraunces)] leading-tight">Auto</h1>
+              <div className="flex items-center gap-1.5 mt-0.5 opacity-60">
+                <span className="text-[9px] uppercase tracking-[0.2em] font-semibold text-white/50">by</span>
+                <img src="/pactum-logo.png" alt="Pactum" className="w-3.5 h-3.5 object-cover rounded-sm ring-1 ring-white/10" />
                 <span className="text-[11px] font-medium tracking-wide leading-none">Pactum</span>
               </div>
             </div>
@@ -323,21 +338,23 @@ export default function Home() {
             <button 
               onClick={!address ? connectWallet : disconnectWallet}
               disabled={connecting}
-              className={`flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-md border transition-all duration-200 shadow-sm ${
+              className={`group flex items-center gap-2.5 text-[13px] tracking-wide font-medium px-5 py-2.5 rounded-full transition-all duration-500 active:scale-[0.98] ${
                 address 
-                  ? "bg-graphite hover:bg-red-900/20 hover:text-red-400 hover:border-red-900/50 border-border-subtle text-parchment group" 
-                  : "bg-graphite hover:bg-[#252F45] text-parchment border-border-subtle"
+                  ? "bg-white/5 hover:bg-red-500/10 ring-1 ring-white/10 hover:ring-red-500/30 text-white/80 hover:text-red-400" 
+                  : "bg-white/10 hover:bg-white/20 text-white ring-1 ring-white/20 shadow-[inset_0_1px_1px_rgba(255,255,255,0.2)]"
               }`}
               title={address ? "Disconnect Wallet" : "Connect Wallet"}
             >
               {connecting ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
               ) : address ? (
-                <ShieldCheck className="w-4 h-4 group-hover:hidden" />
+                <ShieldCheck className="w-3.5 h-3.5 group-hover:hidden opacity-70" strokeWidth={1.5} />
               ) : (
-                <Wallet className="w-4 h-4" />
+                <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center -ml-2 group-hover:scale-105 transition-transform duration-500">
+                  <Wallet className="w-3 h-3" strokeWidth={1.5} />
+                </div>
               )}
-              {address && <X className="w-4 h-4 hidden group-hover:block" />}
+              {address && <X className="w-3.5 h-3.5 hidden group-hover:block" strokeWidth={1.5} />}
               <span className="hidden sm:inline">
                 {connecting ? "Verifying..." : address ? <><span className="group-hover:hidden">{address.slice(0,6)}...{address.slice(-4)}</span><span className="hidden group-hover:inline">Disconnect</span></> : "Connect Wallet"}
               </span>
@@ -345,21 +362,28 @@ export default function Home() {
           </div>
         </header>
 
-        <main className="flex-1 w-full flex flex-col overflow-y-auto scrollbar-hide relative">
+        <main className="flex-1 w-full flex flex-col overflow-y-auto scrollbar-hide relative animate-in fade-in duration-1000">
           <div className="max-w-4xl w-full mx-auto p-4 flex-1 flex flex-col">
             {!address ? (
-              <div className="flex flex-col items-center justify-center h-full opacity-50 flex-1">
-                <Wallet className="w-16 h-16 mb-4 text-[#8B8FA0]" />
-                <p className="text-[#8B8FA0] text-center">Connect your wallet to start chatting with Auto.</p>
+              <div className="flex flex-col items-center justify-center h-full flex-1">
+                <div className="w-24 h-24 rounded-full bg-white/5 ring-1 ring-white/10 flex items-center justify-center mb-6 relative">
+                  <div className="absolute inset-0 rounded-full bg-white/5 blur-xl animate-pulse" />
+                  <Wallet className="w-8 h-8 text-white/30 relative z-10" strokeWidth={1} />
+                </div>
+                <h2 className="text-2xl font-medium tracking-tight text-white mb-2">Wallet Required</h2>
+                <p className="text-white/40 text-center text-sm">Connect your wallet to start chatting with Auto.</p>
               </div>
             ) : messages.length === 0 ? (
-               <div className="flex flex-col items-center justify-center h-full flex-1 max-w-2xl mx-auto w-full px-4">
-                <img src="/aura-logo.png" className="w-16 h-16 mb-4 opacity-70" alt="" />
-                <h2 className="text-xl font-medium text-parchment mb-2">Welcome to Auto</h2>
-                <p className="text-[#8B8FA0] text-center max-w-md mb-8">
+               <div className="flex flex-col items-center justify-center h-full flex-1 max-w-2xl mx-auto w-full px-4 pt-10 pb-20">
+                <div className="relative group mb-8">
+                  <div className="absolute inset-0 bg-emerald-500/20 blur-3xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
+                  <img src="/aura-logo.png" className="w-20 h-20 rounded-2xl ring-1 ring-white/10 shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)] relative z-10 object-cover bg-black" alt="" />
+                </div>
+                <h2 className="text-3xl font-medium tracking-tight text-white mb-3">Welcome to Auto</h2>
+                <p className="text-white/40 text-center max-w-md mb-12 text-[15px] leading-relaxed">
                   Ask me anything about the Arc Testnet or Pactum ecosystem. Every message is metered via state channels.
                 </p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
                   {(contextSuggestion ? [
                     contextSuggestion.text,
                     "How do state channels reduce gas fees?",
@@ -374,81 +398,88 @@ export default function Home() {
                     <button
                       key={idx === 0 && contextSuggestion ? contextSuggestion.id : suggestion}
                       onClick={() => submitChat(undefined, suggestion)}
-                      className={`bg-graphite hover:bg-[#252F45] border hover:border-brass/50 text-left px-4 py-3 rounded-lg text-sm text-parchment transition-all flex items-center justify-between group ${
-                        idx === 0 && contextSuggestion ? "border-brass/30 animate-in fade-in slide-in-from-bottom-2 duration-700" : "border-border-subtle"
+                      className={`group relative overflow-hidden bg-white/5 hover:bg-white/10 ring-1 hover:ring-white/20 text-left px-5 py-4 rounded-[1.5rem] text-[13px] text-white/80 transition-all duration-500 flex items-center justify-between active:scale-[0.98] ${
+                        idx === 0 && contextSuggestion ? "ring-white/15 animate-in fade-in slide-in-from-bottom-4 duration-1000 ease-[cubic-bezier(0.32,0.72,0,1)]" : "ring-white/5"
                       }`}
                     >
-                      <span className="truncate pr-4">{suggestion}</span>
-                      <MessageCircle className={`w-4 h-4 shrink-0 transition-opacity ${
-                        idx === 0 && contextSuggestion ? "text-brass opacity-80 group-hover:opacity-100" : "text-[#8B8FA0] group-hover:text-brass opacity-50 group-hover:opacity-100"
-                      }`} />
+                      <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/5 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 ease-in-out" />
+                      <span className="truncate pr-4 relative z-10">{suggestion}</span>
+                      <div className="w-8 h-8 rounded-full bg-black/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-500 relative z-10 shrink-0">
+                        <MessageCircle className={`w-3.5 h-3.5 ${
+                          idx === 0 && contextSuggestion ? "text-emerald-400" : "text-white/50 group-hover:text-white"
+                        }`} strokeWidth={1.5} />
+                      </div>
                     </button>
                   ))}
                 </div>
               </div>
             ) : (
-              <div className="space-y-6 pb-4 w-full mt-auto">
+              <div className="space-y-8 pb-8 w-full mt-auto">
                 {messages.map((msg, i) => (
-                  <div key={i} className={`flex w-full ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                  <div key={i} className={`flex w-full animate-in fade-in slide-in-from-bottom-4 duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                     {msg.role === 'user' ? (
-                      <div className="max-w-[85%] sm:max-w-[80%] bg-graphite text-parchment border border-border-subtle rounded-md px-4 sm:px-5 py-3 shadow-sm">
-                        <p className="leading-relaxed text-[15px]">{msg.text}</p>
+                      <div className="max-w-[85%] sm:max-w-[75%] bg-white text-[#050505] rounded-[1.5rem] rounded-br-sm px-6 py-4 shadow-xl">
+                        <p className="leading-relaxed text-[15px] font-medium tracking-tight">{msg.text}</p>
                       </div>
                     ) : msg.role === 'error' ? (
-                      <div className="max-w-[85%] sm:max-w-[80%] bg-red-900/10 text-red-400 border border-red-900/30 rounded-md px-4 sm:px-5 py-3 flex gap-3 items-start">
-                        <div className="mt-0.5">⚠️</div>
+                      <div className="max-w-[85%] sm:max-w-[75%] bg-red-950/20 text-red-400 ring-1 ring-red-900/30 rounded-[1.5rem] rounded-bl-sm px-6 py-5 flex gap-4 items-start shadow-xl backdrop-blur-xl">
+                        <div className="mt-0.5 w-6 h-6 rounded-full bg-red-900/20 flex items-center justify-center shrink-0">⚠️</div>
                         <div>
-                          <p className="font-medium text-[15px] mb-1">Processing Failed</p>
-                          <p className="text-sm opacity-90 leading-relaxed">{msg.text}</p>
-                          <div className="mt-3">
-                            <a href="https://pactum-ruddy.vercel.app/wallet" target="_blank" rel="noreferrer" className="inline-block text-xs bg-red-500/20 hover:bg-red-500/30 text-red-400 px-3 py-1.5 rounded-lg border border-red-500/20 transition-colors">
-                              Deposit to Pactum Wallet ↗
+                          <p className="font-semibold tracking-tight text-[15px] mb-1 text-red-300">Processing Failed</p>
+                          <p className="text-[14px] opacity-80 leading-relaxed font-light">{msg.text}</p>
+                          <div className="mt-4">
+                            <a href="https://pactum-ruddy.vercel.app/wallet" target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 text-xs bg-red-500/10 hover:bg-red-500/20 text-red-300 px-4 py-2 rounded-full ring-1 ring-red-500/20 transition-all duration-300">
+                              Deposit to Pactum Wallet <span className="text-red-400/50">↗</span>
                             </a>
                           </div>
                         </div>
                       </div>
                     ) : (
-                      <div className="max-w-[85%] sm:max-w-[80%] bg-ink-navy text-parchment border border-border-subtle rounded-md px-4 sm:px-5 py-3 shadow-sm">
-                        <ReactMarkdown
-                          components={{
-                            p: ({children}) => <p className="leading-relaxed text-[15px] mb-3 last:mb-0">{children}</p>,
-                            strong: ({children}) => <strong className="font-semibold text-white">{children}</strong>,
-                            code: ({className, children, ...props}: any) => {
-                              const match = /language-(\w+)/.exec(className || "");
-                              return match ? (
-                                <div className="my-3"><pre className="bg-[#0D1117] p-3 rounded overflow-x-auto border border-border-subtle text-sm"><code className={className} {...props}>{children}</code></pre></div>
-                              ) : (
-                                <code className="bg-graphite px-1.5 py-0.5 rounded text-[13px]" {...props}>{children}</code>
-                              );
-                            },
-                            pre: ({children}) => <>{children}</>,
-                            ul: ({children}) => <ul className="list-disc pl-5 mb-3 text-[15px]">{children}</ul>,
-                            ol: ({children}) => <ol className="list-decimal pl-5 mb-3 text-[15px]">{children}</ol>,
-                            li: ({children}) => <li className="mb-1">{children}</li>
-                          }}
-                        >
-                          {msg.text}
-                        </ReactMarkdown>
-                        {msg.meta && (
-                          <div className="mt-3 pt-3 border-t border-border-subtle flex items-center justify-between text-[11px] text-[#8B8FA0]">
-                            <span className="flex items-center gap-1">
-                              <ShieldCheck className="w-3 h-3 text-brass" /> Pactum Billed
-                            </span>
-                            <span className="font-mono">{msg.meta.billedAmount} USDC</span>
+                      <div className="max-w-[90%] sm:max-w-[80%]">
+                        <div className="p-1 rounded-[1.75rem] rounded-bl-sm ring-1 ring-white/5 bg-white/[0.02] shadow-2xl backdrop-blur-3xl">
+                          <div className="bg-white/5 rounded-[calc(1.75rem-4px)] rounded-bl-none px-6 py-5 shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)] text-white/90">
+                            <ReactMarkdown
+                              components={{
+                                p: ({children}) => <p className="leading-relaxed text-[15px] font-light mb-4 last:mb-0 tracking-wide">{children}</p>,
+                                strong: ({children}) => <strong className="font-semibold text-white tracking-normal">{children}</strong>,
+                                code: ({className, children, ...props}: any) => {
+                                  const match = /language-(\w+)/.exec(className || "");
+                                  return match ? (
+                                    <div className="my-4 p-1 rounded-xl bg-black/60 ring-1 ring-white/5"><pre className="p-4 rounded-lg overflow-x-auto text-[13px] text-white/80 font-mono tracking-tight"><code className={className} {...props}>{children}</code></pre></div>
+                                  ) : (
+                                    <code className="bg-white/10 px-1.5 py-0.5 rounded-[4px] text-[13px] font-mono tracking-tight" {...props}>{children}</code>
+                                  );
+                                },
+                                pre: ({children}) => <>{children}</>,
+                                ul: ({children}) => <ul className="list-disc pl-5 mb-4 text-[15px] font-light tracking-wide space-y-1">{children}</ul>,
+                                ol: ({children}) => <ol className="list-decimal pl-5 mb-4 text-[15px] font-light tracking-wide space-y-1">{children}</ol>,
+                                li: ({children}) => <li>{children}</li>
+                              }}
+                            >
+                              {msg.text}
+                            </ReactMarkdown>
+                            {msg.meta && (
+                              <div className="mt-5 pt-4 border-t border-white/5 flex items-center justify-between text-[11px] text-white/40 uppercase tracking-[0.15em]">
+                                <span className="flex items-center gap-1.5 font-medium">
+                                  <ShieldCheck className="w-3.5 h-3.5 text-white/60" strokeWidth={1.5} /> Pactum Billed
+                                </span>
+                                <span className="font-mono text-[10px] tracking-widest">{msg.meta.billedAmount} USDC</span>
+                              </div>
+                            )}
                           </div>
-                        )}
+                        </div>
                       </div>
                     )}
                   </div>
                 ))}
-                <div ref={chatEndRef} />
+                <div ref={chatEndRef} className="h-4" />
               </div>
             )}
           </div>
         </main>
 
-        <div className="p-4 border-t border-border-subtle bg-ink-navy shrink-0">
-          <div className="max-w-4xl mx-auto relative flex flex-col gap-3">
+        <div className="px-4 pb-6 pt-2 shrink-0 relative z-20">
+          <div className="max-w-4xl mx-auto relative flex flex-col gap-4">
             {address && (
               <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide pb-1">
                 {(contextSuggestion ? [
@@ -465,8 +496,8 @@ export default function Home() {
                   <button
                     key={idx === 0 && contextSuggestion ? contextSuggestion.id : suggestion}
                     onClick={() => submitChat(undefined, suggestion)}
-                    className={`whitespace-nowrap shrink-0 hover:bg-[#252F45] border hover:border-brass/50 px-3 py-1.5 rounded-full text-xs text-parchment transition-all ${
-                      idx === 0 && contextSuggestion ? "bg-brass/10 border-brass/30 animate-in fade-in slide-in-from-right-4 duration-700" : "bg-graphite border-border-subtle"
+                    className={`whitespace-nowrap shrink-0 px-4 py-2 rounded-full text-[12px] tracking-wide font-medium transition-all duration-500 active:scale-95 ${
+                      idx === 0 && contextSuggestion ? "bg-white/10 ring-1 ring-white/20 text-white animate-in fade-in slide-in-from-right-8 duration-1000 ease-[cubic-bezier(0.32,0.72,0,1)]" : "bg-white/5 hover:bg-white/10 ring-1 ring-white/5 hover:ring-white/10 text-white/60 hover:text-white"
                     }`}
                   >
                     {suggestion}
@@ -474,8 +505,9 @@ export default function Home() {
                 ))}
               </div>
             )}
-            <form onSubmit={submitChat} className="flex items-end gap-2">
-              <div className="relative flex-1 bg-graphite border border-border-subtle rounded-md shadow-sm focus-within:border-brass focus-within:ring-1 focus-within:ring-brass transition-all">
+            
+            <form onSubmit={submitChat} className="flex items-end gap-3 p-1.5 rounded-[2.5rem] ring-1 ring-white/10 bg-white/[0.03] shadow-2xl backdrop-blur-3xl focus-within:ring-white/20 transition-all duration-700">
+              <div className="relative flex-1 bg-black/40 rounded-[calc(2.5rem-6px)] shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)] transition-all overflow-hidden flex">
                 <textarea 
                   ref={textareaRef}
                   value={prompt}
@@ -492,20 +524,23 @@ export default function Home() {
                   rows={1}
                   placeholder={address ? "Ask Auto anything..." : "Connect wallet to type..."}
                   disabled={!address || loading}
-                  className="w-full bg-transparent text-parchment placeholder-[#8B8FA0] px-4 py-3 focus:outline-none resize-none scrollbar-hide"
-                  style={{ minHeight: "48px", maxHeight: "200px" }}
+                  className="w-full bg-transparent text-white placeholder-white/30 px-6 py-4 focus:outline-none resize-none scrollbar-hide text-[15px] tracking-wide"
+                  style={{ minHeight: "56px", maxHeight: "200px" }}
                 />
               </div>
               <button 
                 type="submit" 
                 disabled={!address || !prompt.trim() || loading}
-                className="bg-parchment hover:bg-[#D9D2C3] disabled:bg-graphite disabled:text-[#8B8FA0] text-ink-navy rounded-md w-12 h-12 flex items-center justify-center transition-colors flex-shrink-0"
+                className="group relative h-14 px-6 rounded-full bg-white hover:bg-[#e0e0e0] disabled:bg-white/5 disabled:text-white/20 text-black flex items-center justify-center transition-all duration-500 active:scale-95 flex-shrink-0 font-medium tracking-wide shadow-[0_0_20px_rgba(255,255,255,0.1)]"
               >
-                {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
+                <span className={`mr-2 hidden sm:block ${(!address || !prompt.trim() || loading) ? 'opacity-50' : ''}`}>Send</span>
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors duration-500 ${(!address || !prompt.trim() || loading) ? 'bg-transparent text-white/30' : 'bg-black/10 text-black group-hover:bg-black/20'}`}>
+                  {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4 translate-x-px translate-y-px group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform duration-500" strokeWidth={2} />}
+                </div>
               </button>
             </form>
-            <div className="text-center mt-3 text-xs text-[#8B8FA0]">
-              Per-token micro-payments powered by <span className="font-medium text-parchment">Pactum State Channel</span>
+            <div className="text-center text-[10px] uppercase tracking-[0.2em] font-semibold text-white/30 mt-2">
+              Powered by <span className="text-white/70">Pactum State Channel</span>
             </div>
           </div>
         </div>

@@ -1,14 +1,14 @@
 import type { Metadata } from 'next'
-import { Inter, Fraunces } from 'next/font/google'
+import { Plus_Jakarta_Sans, Fraunces } from 'next/font/google'
 import './globals.css'
 import { Toaster } from 'react-hot-toast'
 
-const inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
+const jakarta = Plus_Jakarta_Sans({ subsets: ['latin'], variable: '--font-jakarta' })
 const fraunces = Fraunces({ subsets: ['latin'], variable: '--font-fraunces' })
 
 export const metadata: Metadata = {
-  title: 'Premium AI Chat (Pactum Integration)',
-  description: 'AI Chat integration using Pactum for micropayments',
+  title: 'Auto AI Chat | Vanguard Experience',
+  description: 'High-end AI Chat integration using Pactum',
 }
 
 export default function RootLayout({
@@ -17,16 +17,17 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
-      <body suppressHydrationWarning className={`${inter.variable} ${fraunces.variable} font-sans flex flex-col h-screen antialiased selection:bg-brass/20 bg-ink-navy text-parchment`}>
+    <html lang="en" className="dark">
+      <body suppressHydrationWarning className={`${jakarta.variable} ${fraunces.variable} font-sans flex flex-col h-screen antialiased selection:bg-white/20 bg-[#050505] text-white/90`}>
         {children}
         <Toaster 
           position="bottom-right"
           toastOptions={{
             style: {
-              background: '#1D2538',
-              color: '#F4F1E1',
-              border: '1px solid #364259',
+              background: '#0a0a0a',
+              color: '#ffffff',
+              border: '1px solid rgba(255,255,255,0.1)',
+              borderRadius: '1rem',
             },
           }}
         />
