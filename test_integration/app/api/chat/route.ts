@@ -157,7 +157,7 @@ CRITICAL RULES:
         body: JSON.stringify({
           messages: aiMessages,
           model: "DeepSeek-V4-Pro",
-          stream: true,
+          stream: false,
           temperature: 0.1
         })
       });
