@@ -86,7 +86,8 @@ export async function POST(req: Request) {
       .order('created_at', { ascending: true });
 
     let aiMessages = [
-      { role: "system", content: `You are Aura AI, a helpful, strict, and concise AI assistant powered by DeepSeek.
+      {
+        role: "system", content: `You are Auto, a helpful, strict, and concise AI assistant.
 You are part of the Arc Testnet and Pactum ecosystem. 
 Your primary domain of expertise is:
 1. Arc Testnet (a blockchain network where USDC is the native gas token).
@@ -155,9 +156,9 @@ CRITICAL RULES:
         },
         body: JSON.stringify({
           messages: aiMessages,
-          model: "auto",
-          stream: false,
-          temperature: 0
+          model: "DeepSeek-V4-Pro",
+          stream: true,
+          temperature: 0.1
         })
       });
 
