@@ -1,0 +1,92 @@
+{
+  "name": "Pactum",
+  "description_en": "Usage-based billing infrastructure for AI services, settled on-chain with USDC on Arc Testnet.",
+  "description_id": "Infrastruktur billing berbasis penggunaan untuk layanan AI, dengan penyelesaian on-chain menggunakan USDC di Arc Testnet.",
+  "long_description_en": "Pactum is a billing platform that enables AI SaaS providers to track per-token usage, enforce spend policies, and settle payments on-chain using USDC on Arc Testnet. It combines off-chain metering for performance with on-chain batch settlement for auditability. Features include usage metering, state channel billing, spend policies, smart contract settlement, a merchant dashboard, and API key management.",
+  "long_description_id": "Pactum adalah platform billing yang memungkinkan penyedia AI SaaS melacak penggunaan per-token, menerapkan kebijakan pengeluaran, dan menyelesaikan pembayaran on-chain menggunakan USDC di Arc Testnet. Platform ini menggabugkan metering off-chain untuk performa dengan penyelesaian batch on-chain untuk auditabilitas. Fitur meliputi metering penggunaan, billing state channel, kebijakan pengeluaran, penyelesaian kontrak pintar, dashboard merchant, dan manajemen API key.",
+  "gradient": "linear-gradient(to right, #C9A227, #3FA796)",
+  "accent_color": "#C9A227",
+  "featured": true,
+  "images": [
+    "https://example.com/pactum-dashboard.png",
+    "https://example.com/pactum-settlement.png"
+  ],
+  "tags": [
+    "Next.js",
+    "React",
+    "TypeScript",
+    "Tailwind CSS",
+    "Supabase",
+    "Solidity",
+    "Arc Testnet",
+    "USDC",
+    "Blockchain",
+    "Fintech"
+  ],
+  "github": "https://github.com/rizkygm23/pactum",
+  "demo": "",
+  "problems": [
+    {
+      "title": {
+        "EN": "Billing Card-Based is Slow and Expensive for Microtransactions",
+        "ID": "Billing Berbasis Kartu Lambat dan Mahal untuk Mikrotransaksi"
+      },
+      "description": {
+        "EN": "Traditional card-based billing like Stripe is too slow, has high fees, and fails for microtransactions. Charging $0.001 per API call doesn't make sense through conventional payment rails.",
+        "ID": "Billing berbasis kartu tradisional seperti Stripe terlalu lambat, memiliki biaya tinggi, dan gagal untuk mikrotransaksi. Membebankan $0.001 per panggilan API tidak masuk akal melalui jalur pembayaran konvensional."
+      }
+    },
+    {
+      "title": {
+        "EN": "No Native Spend Limit Mechanism for AI Agents",
+        "ID": "Tidak Ada Mekanisme Batas Pengeluaran Native untuk AI Agent"
+      },
+      "description": {
+        "EN": "There's no native way to set spend limits for autonomous agents. When an agent auto-spends, who manages the budget? Without guardrails, agents can incur unexpected costs.",
+        "ID": "Tidak ada cara native untuk mengatur batas pengeluaran untuk agent otonom. Ketika agent menghabiskan uang secara otomatis, siapa yang mengelola anggaran? Tanpa pengaman, agent dapat menimbulkan biaya yang tidak terduga."
+      }
+    },
+    {
+      "title": {
+        "EN": "Manual Reconciliation Between Usage Logs and Payments",
+        "ID": "Rekonsiliasi Manual Antara Log Penggunaan dan Pembayaran"
+      },
+      "description": {
+        "EN": "Reconciling usage logs with actual payments is tedious, error-prone, and lacks a solid audit trail for compliance. There's no on-chain proof of who paid what, when, and how much.",
+        "ID": "Merekonsiliasi log penggunaan dengan pembayaran aktual itu membosankan, rentan error, dan tidak memiliki jejak audit yang solid untuk kepatuhan. Tidak ada bukti on-chain tentang siapa membayar apa, kapan, dan berapa."
+      }
+    }
+  ],
+  "solutions": [
+    {
+      "title": {
+        "EN": "Drop-in SDK for Usage Tracking and On-Chain Settlement",
+        "ID": "SDK Drop-in untuk Pelacakan Penggunaan dan Penyelesaian On-Chain"
+      },
+      "description": {
+        "EN": "Pactum provides a simple SDK that developers can integrate in under 15 minutes. Every API usage event is tracked in real-time, with off-chain metering for performance and batch on-chain settlement for auditability.",
+        "ID": "Pactum menyediakan SDK sederhana yang dapat diintegrasikan developer dalam waktu kurang dari 15 menit. Setiap event penggunaan API dilacak secara real-time, dengan metering off-chain untuk performa dan penyelesaian batch on-chain untuk auditabilitas."
+      }
+    },
+    {
+      "title": {
+        "EN": "Programmable Spend Policies with Real-Time Enforcement",
+        "ID": "Kebijakan Pengeluaran yang Dapat Diprogram dengan Penegakan Real-Time"
+      },
+      "description": {
+        "EN": "Set daily and monthly spend limits per API key. The system enforces limits in real-time — blocking requests when limits are exceeded and triggering policy events. No more surprise bills.",
+        "ID": "Atur batas pengeluaran harian dan bulanan per API key. Sistem menerapkan batas secara real-time — memblokir permintaan ketika batas terlampaui dan memicu event kebijakan. Tidak lagi ada tagihan yang mengejutkan."
+      }
+    },
+    {
+      "title": {
+        "EN": "Auditable On-Chain Receipts with USDC on Arc",
+        "ID": "Bukti On-Chain yang Dapat Diaudit dengan USDC di Arc"
+      },
+      "description": {
+        "EN": "Every settlement produces a verifiable on-chain transaction hash as proof. USDC on Arc Testnet enables near-zero gas fees and sub-second finality, making micro-payments economically viable with full audit trails.",
+        "ID": "Setiap penyelesaian menghasilkan hash transaksi on-chain yang dapat diverifikasi sebagai bukti. USDC di Arc Testnet memungkinkan biaya gas hampir nol dan finalitas sub-detik, membuat pembayaran mikro layak secara ekonomi dengan jejak audit penuh."
+      }
+    }
+  ]
+}
