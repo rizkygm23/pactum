@@ -6,7 +6,7 @@ import { DataLabel } from "@/components/ui/DataLabel";
 interface ApiKey {
   id: string;
   key_prefix: string;
-  name: string;
+  name: string | null;
   status: string;
   created_at: string;
 }
@@ -65,7 +65,7 @@ export function KeysClient({ initialKeys }: { initialKeys: ApiKey[] }) {
   return (
     <div>
       <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
-        <p className="text-sm text-foreground-dim">
+        <p className="text-sm text-slate">
           Keys used to authenticate SDK and API requests.
         </p>
         <button
@@ -78,12 +78,12 @@ export function KeysClient({ initialKeys }: { initialKeys: ApiKey[] }) {
       </div>
 
       {newKey && (
-        <div className="mb-6 p-4 bg-brass/10 border border-brass/30 rounded-md">
-          <p className="text-sm text-brass font-medium mb-2">
+        <div className="mb-6 p-4 bg-hairline border border-hairline-soft rounded-md">
+          <p className="text-sm text-ink font-medium mb-2">
             Save your new API key! It will not be shown again.
           </p>
-          <div className="flex items-center gap-2 bg-ink-navy p-3 rounded border border-border-strong">
-            <code className="data-mono text-parchment min-w-0 flex-1 text-xs sm:text-sm select-all">
+          <div className="flex items-center gap-2 bg-canvas p-3 rounded border border-hairline-soft">
+            <code className="data-mono text-ink min-w-0 flex-1 text-xs sm:text-sm select-all">
               {newKey}
             </code>
           </div>
@@ -91,13 +91,13 @@ export function KeysClient({ initialKeys }: { initialKeys: ApiKey[] }) {
       )}
 
       {keys.length === 0 ? (
-        <div className="text-center py-8 border-t border-border-strong">
-          <p className="text-foreground-dim text-sm">No API keys found.</p>
+        <div className="text-center py-8 border-t border-hairline-soft">
+          <p className="text-slate text-sm">No API keys found.</p>
         </div>
       ) : (
-        <div className="border-t border-border-strong overflow-x-auto">
+        <div className="border-t border-hairline-soft overflow-x-auto">
           <div className="min-w-[40rem] md:min-w-0">
-            <div className="grid grid-cols-12 gap-4 py-3 text-[10px] text-foreground-dim uppercase tracking-wider border-b border-border">
+            <div className="grid grid-cols-12 gap-4 py-3 text-[10px] text-slate uppercase tracking-wider border-b border-hairline">
               <div className="col-span-3">Name</div>
               <div className="col-span-4">Key Prefix</div>
               <div className="col-span-2">Created</div>
@@ -107,17 +107,17 @@ export function KeysClient({ initialKeys }: { initialKeys: ApiKey[] }) {
 
             {keys.map((k) => (
               <div key={k.id} className="ledger-row grid grid-cols-12 gap-4 items-center">
-                <div className="col-span-3 min-w-0 text-sm text-parchment font-medium truncate">
+                <div className="col-span-3 min-w-0 text-sm text-ink font-medium truncate">
                   {k.name}
                 </div>
                 <div className="col-span-4 min-w-0">
                   <DataLabel value={k.key_prefix + "..."} />
                 </div>
-                <div className="col-span-2 min-w-0 text-xs text-foreground-dim no-wrap">
+                <div className="col-span-2 min-w-0 text-xs text-slate no-wrap">
                   {new Date(k.created_at).toLocaleDateString()}
                 </div>
                 <div className="col-span-2 min-w-0">
-                  <span className={`text-sm no-wrap ${k.status === "active" ? "text-teal" : "text-rust"}`}>
+                  <span className={`text-sm no-wrap ${k.status === "active" ? "text-ink" : "text-slate"}`}>
                     {k.status.charAt(0).toUpperCase() + k.status.slice(1)}
                   </span>
                 </div>
@@ -125,7 +125,7 @@ export function KeysClient({ initialKeys }: { initialKeys: ApiKey[] }) {
                   {k.status === "active" && (
                     <button
                       onClick={() => revokeKey(k.id)}
-                      className="text-xs text-rust hover:text-rust-dim transition-colors no-wrap"
+                      className="text-xs text-ink hover:text-ink-dim transition-colors no-wrap"
                     >
                       Revoke
                     </button>

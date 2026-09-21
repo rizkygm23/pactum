@@ -6,6 +6,12 @@ import { nonces } from '@/lib/nonceStore';
 
 const JWT_SECRET = process.env.JWT_SECRET || crypto.randomBytes(32).toString("hex");
 
+if (!process.env.JWT_SECRET) {
+  console.warn(
+    "JWT_SECRET is not set — SIWE sessions will break on every server restart. Set it in test_integration/.env"
+  );
+}
+
 export async function POST(req: Request) {
   try {
     const { message, signature } = await req.json();

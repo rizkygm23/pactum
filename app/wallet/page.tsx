@@ -1,293 +1,223 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { createWalletClient, custom, createPublicClient, http, parseUnits, formatUnits } from "viem";
-import { arcTestnet } from "viem/chains";
-import { Wallet, Coins, ArrowRight, Loader2, Info } from "lucide-react";
-
-import { toast } from "react-hot-toast";
-
-// Pactum Contract config
-const PACTUM_CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_PACTUM_CONTRACT_ADDRESS as `0x${string}`;
-const USDC_ADDRESS = "0x3600000000000000000000000000000000000000";
-
-const ERC20_ABI = [
-  {
-    name: "approve",
-    type: "function",
-    stateMutability: "nonpayable",
-    inputs: [{ name: "spender", type: "address" }, { name: "amount", type: "uint256" }],
-    outputs: [{ name: "", type: "bool" }],
-  },
-  {
-    name: "balanceOf",
-    type: "function",
-    stateMutability: "view",
-    inputs: [{ name: "account", type: "address" }],
-    outputs: [{ name: "", type: "uint256" }],
-  }
-] as const;
-
-const PACTUM_ABI = [
-  {
-    name: "userBalances",
-    type: "function",
-    stateMutability: "view",
-    inputs: [{ name: "user", type: "address" }],
-    outputs: [{ name: "", type: "uint256" }],
-  },
-  {
-    name: "deposit",
-    type: "function",
-    stateMutability: "nonpayable",
-    inputs: [{ name: "amount", type: "uint256" }],
-    outputs: [],
-  }
-] as const;
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { Wallet, Coins, ArrowRight, ArrowDownLeft, Loader2, Info } from "lucide-react";
+import { ARC_TESTNET } from "@/lib/arc/config";
+import { useChannelWallet } from "@/components/wallet/useChannelWallet";
 
 export default function WalletPage() {
-  const [address, setAddress] = useState<string | null>(null);
-  const [onChainBalance, setOnChainBalance] = useState<number>(0);
-  const [pendingUsage, setPendingUsage] = useState<number>(0);
-  const [depositAmount, setDepositAmount] = useState<string>("");
-  const [loading, setLoading] = useState(false);
-  const [status, setStatus] = useState("");
-  const [isInitializing, setIsInitializing] = useState(true);
+  const {
+    address,
+    onChainBalance,
+    pendingUsage,
+    availableBalance,
+    isInitializing,
+    status,
+    busy,
+    connectWallet,
+    switchWallet,
+    deposit,
+    withdraw,
+    clearStatus,
+  } = useChannelWallet();
 
+  const [depositAmount, setDepositAmount] = useState("");
+  const [withdrawAmount, setWithdrawAmount] = useState("");
+
+  // Auto-dismiss the transient status line after a confirmed action
   useEffect(() => {
-    const checkConnection = async () => {
-      if (typeof window !== "undefined" && window.ethereum) {
-        try {
-          const accounts = await window.ethereum.request({ method: 'eth_accounts' });
-          if (accounts && accounts.length > 0) {
-            setAddress(accounts[0]);
-            fetchBalances(accounts[0]);
-          }
-        } catch (e) {
-          console.error("Auto-connect failed:", e);
-        }
-      }
-      setIsInitializing(false);
-    };
-    checkConnection();
-  }, []);
-
-  const connectWallet = async () => {
-    if (typeof window === "undefined" || !window.ethereum) {
-      toast.error("Please install MetaMask to continue.");
-      return;
+    if (status === "Deposit confirmed." || status === "Withdrawal confirmed.") {
+      const t = setTimeout(clearStatus, 3000);
+      return () => clearTimeout(t);
     }
-    
-    try {
-      const walletClient = createWalletClient({
-        chain: arcTestnet,
-        transport: custom(window.ethereum)
-      });
-      const [account] = await walletClient.requestAddresses();
-      setAddress(account);
-      fetchBalances(account);
-    } catch (e) {
-      console.error(e);
-      toast.error("Failed to connect to wallet.");
-    }
-  };
-
-  const fetchBalances = async (userAddress: string) => {
-    try {
-      const publicClient = createPublicClient({
-        chain: arcTestnet,
-        transport: http()
-      });
-
-      // 1. Fetch on-chain balance from PactumBilling
-      const balanceWei = await publicClient.readContract({
-        address: PACTUM_CONTRACT_ADDRESS,
-        abi: PACTUM_ABI,
-        functionName: "userBalances",
-        args: [userAddress as `0x${string}`],
-      }) as bigint;
-      setOnChainBalance(Number(formatUnits(balanceWei, 6))); // USDC has 6 decimals
-
-      // 2. Fetch off-chain pending usage
-      const res = await fetch(`/api/v1/wallet/balance?address=${userAddress}`);
-      const data = await res.json();
-      if (data.pendingUsage !== undefined) {
-        setPendingUsage(data.pendingUsage);
-      }
-    } catch (e) {
-      console.error("Error fetching balances:", e);
-    }
-  };
-
-  const switchWallet = async () => {
-    if (typeof window === "undefined" || !window.ethereum) return;
-    try {
-      await window.ethereum.request({
-        method: "wallet_requestPermissions",
-        params: [{ eth_accounts: {} }]
-      });
-      const accounts = await window.ethereum.request({ method: 'eth_accounts' });
-      if (accounts && accounts.length > 0) {
-        setAddress(accounts[0]);
-        fetchBalances(accounts[0]);
-      }
-    } catch (e) {
-      console.error("Switch wallet failed:", e);
-    }
-  };
+  }, [status, clearStatus]);
 
   const handleDeposit = async () => {
-    if (!address || !depositAmount || isNaN(Number(depositAmount))) return;
-    
-    setLoading(true);
-    setStatus("Requesting USDC approval...");
-    
-    try {
-      const publicClient = createPublicClient({ chain: arcTestnet, transport: custom(window.ethereum!) });
-      const walletClient = createWalletClient({ chain: arcTestnet, transport: custom(window.ethereum!) });
-      
-      const amountWei = parseUnits(depositAmount, 6);
-
-      // 1. Approve USDC
-      const approveHash = await walletClient.writeContract({
-        account: address as `0x${string}`,
-        address: USDC_ADDRESS,
-        abi: ERC20_ABI,
-        functionName: "approve",
-        args: [PACTUM_CONTRACT_ADDRESS, amountWei],
-      });
-      
-      setStatus("Waiting for approval confirmation on blockchain...");
-      await publicClient.waitForTransactionReceipt({ hash: approveHash });
-
-      // 2. Deposit to Pactum
-      setStatus("Processing deposit...");
-      const depositHash = await walletClient.writeContract({
-        account: address as `0x${string}`,
-        address: PACTUM_CONTRACT_ADDRESS,
-        abi: PACTUM_ABI,
-        functionName: "deposit",
-        args: [amountWei],
-      });
-
-      setStatus("Waiting for deposit confirmation...");
-      await publicClient.waitForTransactionReceipt({ hash: depositHash });
-
-      setStatus("Deposit successful!");
-      setDepositAmount("");
-      await fetchBalances(address);
-      
-      setTimeout(() => setStatus(""), 3000);
-    } catch (e: any) {
-      console.error("Deposit Error:", e);
-      setStatus(`Failed: ${e.shortMessage || e.message}`);
-    } finally {
-      setLoading(false);
-    }
+    if (await deposit(depositAmount)) setDepositAmount("");
   };
 
-  const availableBalance = Math.max(0, onChainBalance - pendingUsage);
+  const handleWithdraw = async () => {
+    if (await withdraw(withdrawAmount)) setWithdrawAmount("");
+  };
 
   return (
-    <div className="min-h-screen bg-neutral-950 text-white flex flex-col items-center px-4 py-12 sm:py-20 font-sans">
-      <div className="max-w-md w-full bg-neutral-900 border border-neutral-800 rounded-2xl shadow-2xl p-5 sm:p-8">
-        
-        <div className="text-center mb-6 sm:mb-8">
-          <div className="w-14 h-14 sm:w-16 h-16 bg-blue-500/10 rounded-full flex items-center justify-center mx-auto mb-4 border border-blue-500/20">
-            <Wallet className="w-7 h-7 sm:w-8 h-8 text-blue-400" />
-          </div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">Universal Wallet</h1>
-          <p className="text-neutral-400 text-sm text-balance">
-            Deposit USDC to pay for AI services across the Pactum ecosystem.
-            Gas-free per-token billing via State Channels.
-          </p>
+    <div className="flex min-h-dvh flex-col items-center bg-canvas px-4 py-10 sm:py-16">
+      <div className="w-full max-w-md">
+        {/* Way back — every page keeps an exit */}
+        <div className="mb-6">
+          <Link
+            href="/"
+            className="focus-ring text-xs text-slate transition-colors hover:text-ink"
+          >
+            ← Back to pactum
+          </Link>
         </div>
 
-        {isInitializing ? (
-          <div className="w-full flex justify-center py-8">
-            <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
+        <div className="card">
+          {/* Header */}
+          <div className="mb-6 sm:mb-8">
+            <span className="stage-ordinal">Deposit</span>
+            <div className="rule-mark mt-2 max-w-16" />
+            <h1 className="display-face mt-5 text-2xl font-normal tracking-[-0.02em] text-ink sm:text-3xl">
+              Channel deposit
+            </h1>
+            <p className="mt-2 text-sm leading-relaxed text-graphite">
+              Top up your Pactum balance with USDC. The deposit sits in the
+              billing contract and settles every metered call across
+              integrated apps.
+            </p>
           </div>
-        ) : !address ? (
-          <button
-            onClick={connectWallet}
-            className="w-full bg-white text-black font-semibold rounded-xl py-3 px-4 hover:bg-neutral-200 transition-colors flex items-center justify-center gap-2"
-          >
-            Connect Wallet (MetaMask)
-          </button>
-        ) : (
-          <div className="space-y-6">
-            <div className="bg-neutral-950 rounded-xl p-3 sm:p-4 border border-neutral-800 flex items-center justify-between">
-              <div>
-                <p className="text-xs text-neutral-500 mb-1">Connected Wallet</p>
-                <p className="text-xs sm:text-sm font-mono break-all text-neutral-300">
-                  {address}
-                </p>
-              </div>
-              <button onClick={switchWallet} className="text-xs text-blue-400 hover:text-blue-300 underline underline-offset-2 shrink-0 ml-4">
-                Switch
-              </button>
+
+          {isInitializing ? (
+            <div className="flex w-full justify-center py-10">
+              <Loader2 className="h-6 w-6 animate-spin text-ink" />
             </div>
-
-            <div className="grid grid-cols-2 gap-3 sm:gap-4">
-              <div className="min-w-0 bg-neutral-800/50 rounded-xl p-3 sm:p-4 border border-neutral-800">
-                <p className="text-xs text-neutral-500 mb-1 flex items-center gap-1">
-                  On-Chain Balance <Info className="w-3 h-3 shrink-0" />
-                </p>
-                <p className="text-xl sm:text-2xl font-bold text-white break-all">{onChainBalance.toFixed(4)}</p>
-                <p className="text-xs text-neutral-500 mt-1">USDC</p>
-              </div>
-              <div className="min-w-0 bg-neutral-800/50 rounded-xl p-3 sm:p-4 border border-neutral-800">
-                <p className="text-xs text-neutral-500 mb-1 flex items-center gap-1">
-                  Available Balance
-                </p>
-                <p className="text-xl sm:text-2xl font-bold text-blue-400 break-all">{availableBalance.toFixed(4)}</p>
-                <p className="text-xs text-neutral-500 mt-1">USDC</p>
-              </div>
-            </div>
-
-            {pendingUsage > 0 && (
-              <div className="bg-orange-500/10 border border-orange-500/20 rounded-xl p-3 flex items-start gap-3">
-                <Info className="w-5 h-5 text-orange-400 shrink-0 mt-0.5" />
-                <p className="text-xs text-orange-200 leading-relaxed">
-                  You have pending usage of <strong>{pendingUsage.toFixed(4)} USDC</strong> that has not been settled on-chain. Your available balance has been adjusted.
-                </p>
-              </div>
-            )}
-
-            <div className="pt-4 border-t border-neutral-800">
-              <label className="block text-sm font-medium text-neutral-300 mb-2">
-                Top up Balance (USDC)
-              </label>
-              <div className="flex gap-2">
-                <div className="relative min-w-0 flex-1">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Coins className="w-4 h-4 text-neutral-500" />
-                  </div>
-                  <input
-                    type="number"
-                    value={depositAmount}
-                    onChange={(e) => setDepositAmount(e.target.value)}
-                    placeholder="Amount to deposit (USDC)"
-                    className="w-full bg-neutral-950 border border-neutral-800 rounded-xl py-3 pl-10 pr-4 text-white placeholder-neutral-600 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
-                  />
+          ) : !address ? (
+            <button onClick={connectWallet} className="btn-primary focus-ring no-wrap w-full gap-2">
+              <Wallet className="h-4 w-4" />
+              Connect wallet
+            </button>
+          ) : (
+            <div className="space-y-6">
+              {/* Connected wallet */}
+              <div className="flex items-center justify-between gap-4 rounded-md border border-hairline bg-canvas-warm p-3 sm:p-4">
+                <div className="min-w-0">
+                  <p className="micro-caps mb-1 text-stone">Connected wallet</p>
+                  <p className="data-mono text-xs text-ink sm:text-sm">{address}</p>
                 </div>
                 <button
-                  onClick={handleDeposit}
-                  disabled={loading || !depositAmount}
-                  className="shrink-0 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-xl px-5 sm:px-6 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  onClick={switchWallet}
+                  className="focus-ring shrink-0 text-xs font-semibold text-ink underline-offset-2 hover:underline"
                 >
-                  {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <ArrowRight className="w-5 h-5" />}
+                  Switch
                 </button>
               </div>
-              
+
+              {/* Balances */}
+              <div className="grid grid-cols-2 gap-3 sm:gap-4">
+                <div className="min-w-0 rounded-md border border-hairline bg-canvas-warm p-3 sm:p-4">
+                  <p className="micro-caps mb-1.5 flex items-center gap-1 text-stone">
+                    On-chain <Info className="h-3 w-3 shrink-0" />
+                  </p>
+                  <p className="display-face text-xl tabular-nums text-ink sm:text-2xl">
+                    {onChainBalance.toFixed(4)}
+                  </p>
+                  <p className="mt-1 text-xs text-slate">USDC</p>
+                </div>
+                <div className="min-w-0 rounded-md border border-hairline bg-canvas-warm p-3 sm:p-4">
+                  <p className="micro-caps mb-1.5 text-stone">Available</p>
+                  <p className="display-face text-xl tabular-nums text-ink sm:text-2xl">
+                    {availableBalance.toFixed(4)}
+                  </p>
+                  <p className="mt-1 text-xs text-slate">USDC</p>
+                </div>
+              </div>
+
+              {pendingUsage > 0 && (
+                <div className="flex items-start gap-3 rounded-md border border-hairline-soft bg-hairline p-3">
+                  <Info className="mt-0.5 h-4 w-4 shrink-0 text-ink" />
+                  <p className="text-xs leading-relaxed text-graphite">
+                    <span className="data-mono text-ink">{pendingUsage.toFixed(4)} USDC</span> of
+                    usage is still pending settlement on-chain. Your available
+                    balance has been adjusted.
+                  </p>
+                </div>
+              )}
+
+              {/* Deposit */}
+              <div className="border-t border-hairline pt-2">
+                <label
+                  htmlFor="deposit-amount"
+                  className="micro-caps mb-2 block text-slate"
+                >
+                  Top up (USDC)
+                </label>
+                <div className="flex gap-2">
+                  <div className="relative min-w-0 flex-1">
+                    <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                      <Coins className="h-4 w-4 text-stone" />
+                    </div>
+                    <input
+                      id="deposit-amount"
+                      type="number"
+                      value={depositAmount}
+                      onChange={(e) => setDepositAmount(e.target.value)}
+                      placeholder="0.00"
+                      className="input-field focus-ring pl-9"
+                    />
+                  </div>
+                  <button
+                    onClick={handleDeposit}
+                    disabled={busy !== null || !depositAmount}
+                    className="btn-primary focus-ring no-wrap shrink-0 px-5 disabled:cursor-not-allowed disabled:opacity-40"
+                  >
+                    {busy === "deposit" ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <ArrowRight className="h-4 w-4" />
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              {/* Withdraw — pull unused balance back out of the channel */}
+              <div className="border-t border-hairline pt-2">
+                <div className="mb-2 flex items-baseline justify-between">
+                  <label
+                    htmlFor="withdraw-amount"
+                    className="micro-caps text-slate"
+                  >
+                    Withdraw unused
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setWithdrawAmount(availableBalance.toFixed(6))}
+                    className="focus-ring text-[11px] font-semibold text-ink underline-offset-2 hover:underline"
+                  >
+                    Max {availableBalance.toFixed(4)}
+                  </button>
+                </div>
+                <div className="flex gap-2">
+                  <input
+                    id="withdraw-amount"
+                    type="number"
+                    value={withdrawAmount}
+                    onChange={(e) => setWithdrawAmount(e.target.value)}
+                    placeholder="0.00"
+                    className="input-field focus-ring"
+                  />
+                  <button
+                    onClick={handleWithdraw}
+                    disabled={busy !== null || !withdrawAmount}
+                    className="btn-ghost focus-ring no-wrap shrink-0 px-5 disabled:cursor-not-allowed disabled:opacity-40"
+                  >
+                    {busy === "withdraw" ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <ArrowDownLeft className="h-4 w-4" />
+                    )}
+                  </button>
+                </div>
+                <p className="mt-2 text-[11px] leading-relaxed text-slate">
+                  The full on-chain balance can be withdrawn. Usage that has not
+                  settled yet remains owed — later calls may be rejected until it
+                  is covered again.
+                </p>
+              </div>
+
               {status && (
-                <p className="text-xs text-center mt-3 text-blue-400 break-words animate-pulse">
+                <p className="data-mono text-center text-xs text-ink break-words">
                   {status}
                 </p>
               )}
             </div>
-          </div>
-        )}
+          )}
+        </div>
+
+        <p className="data-mono mt-6 text-center text-xs text-slate">
+          Arc Testnet · chain {ARC_TESTNET.chainId} · settlement in USDC
+        </p>
       </div>
     </div>
   );

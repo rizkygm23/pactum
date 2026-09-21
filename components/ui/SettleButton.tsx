@@ -21,7 +21,15 @@ export function SettleButton({ disabled }: { disabled: boolean }) {
       if (!res.ok) {
         toast.error(data.error || "Failed to perform settlement");
       } else {
-        toast.success(`Success! TX: ${data.hash.slice(0, 10)}...`);
+        const hash: string | undefined = data.txHashes?.[0];
+        const skipped: number = data.skipped?.length || 0;
+        if (hash) {
+          toast.success(
+            `Success! TX: ${hash.slice(0, 10)}...` + (skipped > 0 ? ` (${skipped} event skipped)` : "")
+          );
+        } else {
+          toast.success(data.message || "Nothing to settle.");
+        }
         router.refresh();
       }
     } catch (e) {

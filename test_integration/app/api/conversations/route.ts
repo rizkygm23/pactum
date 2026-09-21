@@ -24,7 +24,7 @@ export async function GET(req: Request) {
     }
 
     const { data: conversations, error } = await supabase
-      .from('conversations_aura')
+      .from('conversations_pactum')
       .select('id, title, created_at')
       .ilike('wallet_address', user_address) // Case insensitive match for Ethereum addresses
       .order('created_at', { ascending: false });

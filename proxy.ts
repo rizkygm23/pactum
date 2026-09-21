@@ -1,4 +1,14 @@
 import { type NextRequest, NextResponse } from "next/server";
+import { verifySessionToken } from "@/lib/session-token";
+
+const SESSION_COOKIE_NAME = "pactum_session";
+
+async function isAuthenticated(request: NextRequest): Promise<boolean> {
+  const token = request.cookies.get(SESSION_COOKIE_NAME)?.value;
+  const secret = process.env.SESSION_SECRET;
+  if (!token || !secret) return false;
+  return (await verifySessionToken(token, secret)) !== null;
+}
 
 export async function proxy(request: NextRequest) {
   const isDashboard = request.nextUrl.pathname.startsWith("/dashboard");
@@ -6,15 +16,13 @@ export async function proxy(request: NextRequest) {
     request.nextUrl.pathname.startsWith("/login") ||
     request.nextUrl.pathname.startsWith("/signup");
 
-  // Read the custom cookie
-  const sessionCookie = request.cookies.get("pactum_session");
-  const isAuthenticated = !!sessionCookie?.value;
+  const authed = await isAuthenticated(request);
 
-  if (isDashboard && !isAuthenticated) {
+  if (isDashboard && !authed) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
-  if (isAuthRoute && isAuthenticated) {
+  if (isAuthRoute && authed) {
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 

@@ -1,79 +1,94 @@
-/* Hallmark · genre: modern-minimal · macrostructure: Narrative Workflow
- * theme: custom (project-locked) · vibe: "notarial ledger, precise, austere"
- * paper oklch(19.6% 0.031 265) dark · accent oklch(71.4% 0.126 87) warm · display roman-serif
- * enrichment: none (typography only, Tier-A CSS rules) · nav: N9 · footer: Ft5
- * pre-emit critique: P5 H5 E4 S5 R5 V4
+/* DESIGN-runwayml.md · Runwai-design-analysis (alpha)
+ * Editorial, gallery-grade monochrome system.
+ * Black ink on paper-white · hairline dividers · single sans · black pill CTAs.
+ * No accent colour, no shadows, no gradients — depth is tonal and typographic.
  */
-@import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap");
 @import "tailwindcss";
 
 /* ──────────────────────────────────────────────────
-   Pactum Design Tokens
-   Theme: Notarial Ledger — presisi, berwibawa, tenang
+   Design tokens — DESIGN-runwayml.md
    ────────────────────────────────────────────────── */
 
 @theme inline {
-  /* Brand palette */
-  --color-ink-navy: #0E1526;
-  --color-graphite: #1B2333;
-  --color-brass: #C9A227;
-  --color-brass-dim: #A68420;
-  --color-brass-glow: #D4B13A;
-  --color-teal: #3FA796;
-  --color-teal-dim: #2E8A7B;
-  --color-parchment: #EDE8DC;
-  --color-parchment-dim: #D9D2C3;
-  --color-rust: #C2542C;
-  --color-rust-dim: #A04424;
+  /* Brand & action */
+  --color-primary: #000000;
+  --color-on-primary: #ffffff;
 
-  /* Semantic */
-  --color-background: var(--color-ink-navy);
-  --color-surface: var(--color-graphite);
-  --color-foreground: var(--color-parchment);
-  --color-foreground-dim: #8B8FA0;
-  --color-accent: var(--color-brass);
-  --color-success: var(--color-teal);
-  --color-error: var(--color-rust);
-  --color-border: rgba(237, 232, 220, 0.08);
-  --color-border-strong: rgba(237, 232, 220, 0.15);
+  /* Neutral ladder */
+  --color-ink: #030303;
+  --color-ink-soft: #1a1a1a;
+  --color-graphite: #404040;
+  --color-slate: #676f7b;
+  --color-slate-soft: #727a85;
+  --color-mute: #6b7280;
+  --color-stone: #939393;
+  --color-ash: #999999;
 
-  /* Fonts — registered for Tailwind utilities */
-  --font-display: "Fraunces", "Georgia", serif;
-  --font-sans: "Inter", system-ui, sans-serif;
-  --font-mono: "IBM Plex Mono", "Consolas", monospace;
+  /* Surfaces */
+  --color-hairline: #e7eaf0;
+  --color-hairline-soft: #c9ccd1;
+  --color-surface-cool: #d0d4d4;
+  --color-canvas: #ffffff;
+  --color-canvas-warm: #fefefe;
+  --color-scrim: #1a1a1a;
+  --color-footer: #030303;
 
-  /* Radius — notarial, not consumer-rounded */
-  --radius-sm: 4px;
-  --radius-md: 6px;
-  --radius-lg: 8px;
+  /* Semantic aliases (kept for util parity across pages) */
+  --color-background: var(--color-canvas);
+  --color-surface: var(--color-canvas-warm);
+  --color-foreground: var(--color-ink);
+  --color-foreground-dim: var(--color-slate);
+  --color-accent: var(--color-primary);
+  --color-border: var(--color-hairline);
+  --color-border-strong: var(--color-hairline-soft);
+
+  /* Type — one face, every level (Inter stands in for abcNormal) */
+  --font-sans: var(--font-inter), "Helvetica Neue", Arial, sans-serif;
+  --font-display: var(--font-inter), "Helvetica Neue", Arial, sans-serif;
+  --font-mono: var(--font-ibm-plex-mono), "SFMono-Regular", Consolas, monospace;
+
+  /* Radius — pills for buttons, near-flat for surfaces */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 16px;
 }
 
-/* ── Motion + rule tokens ─────────────────────── */
+/* ── Motion tokens ─────────────────────────────── */
 :root {
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
-  --ease-in: cubic-bezier(0.55, 0, 1, 0.45);
-  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
   --dur-short: 140ms;
   --dur-mid: 320ms;
   --dur-long: 640ms;
-  --rule-hairline: 1px;
-  --rule-heavy: 2px;
   --measure: 62ch;
+  color-scheme: light;
 }
 
 /* ── Base ─────────────────────────────────────── */
 html {
-  color-scheme: dark;
   overflow-x: clip;
 }
 
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
 body {
-  background: var(--color-ink-navy);
-  color: var(--color-parchment);
+  background: var(--color-canvas);
+  color: var(--color-ink);
   font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: clip;
+}
+
+::selection {
+  background: var(--color-ink);
+  color: var(--color-on-primary);
 }
 
 /* ── Scrollbar (Chromium) ─────────────────────── */
@@ -85,146 +100,202 @@ body {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(237, 232, 220, 0.12);
+  background: var(--color-hairline-soft);
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(237, 232, 220, 0.2);
+  background: var(--color-stone);
 }
 
-/* ── Ledger row — hairline dividers ───────────── */
-.ledger-row {
-  border-bottom: 1px solid var(--color-border);
-  padding: 0.75rem 0;
-  transition: background 0.15s ease;
-}
-.ledger-row:hover {
-  background: rgba(27, 35, 51, 0.6);
-}
-
-/* ── Receipt stub — dashed tear line ──────────── */
-.receipt-stub {
-  border-bottom: 2px dashed var(--color-border-strong);
-  padding-bottom: 1.5rem;
-  margin-bottom: 1.5rem;
-}
-
-/* ── Seal badge glow animation ────────────────── */
-@keyframes seal-pulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(201, 162, 39, 0.3); }
-  50% { box-shadow: 0 0 12px 4px rgba(201, 162, 39, 0.15); }
-}
-
-.seal-badge {
-  animation: seal-pulse 3s ease-in-out infinite;
-}
-
-/* ── Data label — monospace precision ─────────── */
-.data-mono {
-  font-family: var(--font-mono);
-  font-variant-numeric: tabular-nums;
-  letter-spacing: 0.02em;
-  /* Hashes, addresses and keys must never push a layout wider than
-     the viewport — they wrap instead. */
+/* ── Type helpers ─────────────────────────────── */
+/* Display: negative tracking is core to the brand voice */
+.display-face {
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: -0.02em;
   overflow-wrap: anywhere;
   min-width: 0;
 }
 
-/* ── Code blocks — always scroll, never overflow ─
-   `pre` is the only element allowed a horizontal scrollbar. Without
-   this, one long line of JSON widens every ancestor on mobile. */
-pre {
-  max-width: 100%;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-}
-pre code {
-  white-space: pre;
+.eyebrow {
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.025em;
+  text-transform: uppercase;
 }
 
-/* Grid/flex children collapse instead of forcing their track wider */
-main :where(pre, table) {
+.micro-caps {
+  font-size: 11px;
+  font-weight: 450;
+  letter-spacing: 0.018em;
+  text-transform: uppercase;
+}
+
+/* ── Data — monospace precision for hashes, addresses, amounts ── */
+.data-mono {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.01em;
+  overflow-wrap: anywhere;
   min-width: 0;
 }
 
-.btn-ghost {
-  background: transparent;
-  color: var(--color-parchment);
-  font-weight: 500;
-  padding: 0.5rem 1.25rem;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--color-border-strong);
-  transition: all 0.2s ease;
+/* ── Buttons ──────────────────────────────────── */
+/* Every primary action is a black pill — same pill at every scale. */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.43;
+  height: 40px;
+  padding: 0 24px;
+  border: 1px solid var(--color-primary);
+  border-radius: 9999px;
+  transition: background var(--dur-short) ease, transform var(--dur-short) ease;
   cursor: pointer;
-  font-size: 0.875rem;
 }
-.btn-ghost:hover {
-  background: rgba(237, 232, 220, 0.05);
-  border-color: rgba(237, 232, 220, 0.25);
+.btn-primary:hover {
+  background: var(--color-ink-soft);
+}
+.btn-primary:active {
+  transform: scale(0.98);
+}
+.btn-primary:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 
-/* ── Input ────────────────────────────────────── */
+/* Inverse pill for dark scrim surfaces */
+.btn-inverse {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-on-primary);
+  color: var(--color-primary);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.43;
+  height: 40px;
+  padding: 0 24px;
+  border: 1px solid var(--color-on-primary);
+  border-radius: 9999px;
+  transition: opacity var(--dur-short) ease, transform var(--dur-short) ease;
+  cursor: pointer;
+}
+.btn-inverse:hover {
+  opacity: 0.85;
+}
+.btn-inverse:active {
+  transform: scale(0.98);
+}
+.btn-inverse:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Secondary action: white pill with a 1px ink border */
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-canvas);
+  color: var(--color-ink);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.43;
+  height: 40px;
+  padding: 0 24px;
+  border: 1px solid var(--color-ink);
+  border-radius: 9999px;
+  transition: background var(--dur-short) ease, transform var(--dur-short) ease;
+  cursor: pointer;
+}
+.btn-ghost:hover {
+  background: var(--color-canvas-warm);
+}
+.btn-ghost:active {
+  transform: scale(0.98);
+}
+.btn-ghost:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Inline text link */
+.btn-text-link {
+  background: transparent;
+  color: var(--color-ink);
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: var(--color-hairline-soft);
+  transition: text-decoration-color var(--dur-short) ease;
+  cursor: pointer;
+}
+.btn-text-link:hover {
+  text-decoration-color: var(--color-ink);
+}
+
+/* ── Inputs — 1px bottom rule, no box ─────────── */
 .input-field {
-  background: var(--color-ink-navy);
-  border: 1px solid var(--color-border-strong);
-  border-radius: var(--radius-md);
-  padding: 0.625rem 0.875rem;
-  color: var(--color-parchment);
-  font-size: 0.875rem;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  background: var(--color-canvas);
+  border: 0;
+  border-bottom: 1px solid var(--color-hairline-soft);
+  border-radius: 0;
+  padding: 12px 0;
+  color: var(--color-ink);
+  font-size: 16px;
+  transition: border-color var(--dur-short) ease;
   width: 100%;
   outline: none;
 }
 .input-field::placeholder {
-  color: var(--color-foreground-dim);
+  color: var(--color-stone);
 }
 .input-field:focus {
-  border-color: var(--color-brass);
-  box-shadow: 0 0 0 2px rgba(201, 162, 39, 0.15);
+  border-bottom-color: var(--color-ink);
+}
+.input-field:disabled {
+  color: var(--color-mute);
 }
 
-/* ── Status chips ─────────────────────────────── */
-.status-settled {
-  color: var(--color-teal);
-  background: rgba(63, 167, 150, 0.1);
-  border: 1px solid rgba(63, 167, 150, 0.2);
-  padding: 0.125rem 0.625rem;
+/* ── Status chips — borders and copy, not colour ── */
+.status-settled,
+.status-pending,
+.status-failed {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 10px;
   border-radius: 9999px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
+  font-size: 11px;
+  font-weight: 500;
   letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.status-settled {
+  background: var(--color-primary);
+  color: var(--color-on-primary);
 }
 .status-pending {
-  color: var(--color-brass);
-  background: rgba(201, 162, 39, 0.1);
-  border: 1px solid rgba(201, 162, 39, 0.2);
-  padding: 0.125rem 0.625rem;
-  border-radius: 9999px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  background: var(--color-hairline);
+  color: var(--color-graphite);
 }
 .status-failed {
-  color: var(--color-rust);
-  background: rgba(194, 84, 44, 0.1);
-  border: 1px solid rgba(194, 84, 44, 0.2);
-  padding: 0.125rem 0.625rem;
-  border-radius: 9999px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  background: var(--color-canvas);
+  color: var(--color-ink);
+  border: 1px solid var(--color-ink);
 }
 
-/* ── Card ─────────────────────────────────────── */
-/* `.card` is unlayered, so a `p-*` utility can never override it.
-   The mobile step-down has to live here. */
+/* ── Card — flat, hairline border, md radius ──── */
 .card {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
+  background: var(--color-canvas);
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--radius-md);
   padding: 1rem;
 }
 @media (min-width: 40rem) {
@@ -233,29 +304,37 @@ main :where(pre, table) {
   }
 }
 
-/* ══════════════════════════════════════════════════
-   Landing — Narrative Workflow
-   Three motion primitives only: rule-sweep, seal-strike,
-   ledger-tick. All transform/opacity. All reveal once.
-   ══════════════════════════════════════════════════ */
-
-/* Display headers must never overflow their track */
-.display-face {
-  font-family: var(--font-display);
-  overflow-wrap: anywhere;
-  min-width: 0;
-  letter-spacing: -0.02em;
+/* ── Ledger row — hairline dividers ───────────── */
+.ledger-row {
+  border-bottom: 1px solid var(--color-hairline);
+  padding: 0.875rem 0;
+  transition: background 0.15s ease;
+}
+.ledger-row:hover {
+  background: var(--color-canvas-warm);
 }
 
-/* Clickable affordances are one-line objects */
+/* ── Receipt stub — dashed tear line ──────────── */
+.receipt-stub {
+  border-bottom: 1px dashed var(--color-hairline-soft);
+  padding-bottom: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+/* ── Seal — black ring, no glow ───────────────── */
+.seal-badge {
+  border: 1px solid var(--color-ink);
+}
+
+/* ── Clickable affordances are one-line objects ── */
 .no-wrap {
   white-space: nowrap;
 }
 
-/* ── Primitive 1 · stage rule sweep ───────────── */
+/* ── Motion primitives (transform/opacity only) ── */
 .rule-sweep {
-  height: var(--rule-heavy);
-  background: var(--color-brass);
+  height: 1px;
+  background: var(--color-primary);
   transform: scaleX(0);
   transform-origin: left center;
   transition: transform var(--dur-long) var(--ease-out);
@@ -264,10 +343,14 @@ main :where(pre, table) {
   transform: scaleX(1);
 }
 
-/* ── Primitive 2 · seal strike ────────────────── */
+.rule-mark {
+  height: 1px;
+  background: var(--color-primary);
+}
+
 .seal-strike {
   opacity: 0;
-  transform: scale(0.94);
+  transform: scale(0.96);
   transition:
     opacity var(--dur-mid) var(--ease-out),
     transform var(--dur-mid) var(--ease-out);
@@ -277,7 +360,6 @@ main :where(pre, table) {
   transform: scale(1);
 }
 
-/* ── Primitive 3 · ledger tick ────────────────── */
 .ledger-tick {
   opacity: 0;
   transform: translateY(6px);
@@ -294,30 +376,28 @@ main :where(pre, table) {
 .is-revealed .ledger-tick:nth-child(3) { transition-delay: 140ms; }
 .is-revealed .ledger-tick:nth-child(4) { transition-delay: 210ms; }
 
-/* ── Stage ordinal ────────────────────────────── */
+/* ── Stage ordinal — editorial margin label ───── */
 .stage-ordinal {
-  font-family: var(--font-mono);
-  font-variant-numeric: tabular-nums;
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.18em;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--color-brass);
+  color: var(--color-graphite);
 }
 
-/* ── Typographic code frame (never fake chrome) ─ */
+/* ── Typographic code frame ───────────────────── */
 .code-frame {
-  border-top: var(--rule-hairline) solid var(--color-border-strong);
-  border-bottom: var(--rule-hairline) solid var(--color-border-strong);
-  background: rgba(14, 21, 38, 0.6);
+  border-top: 1px solid var(--color-hairline-soft);
+  border-bottom: 1px solid var(--color-hairline-soft);
+  background: var(--color-canvas-warm);
 }
 .code-frame__label {
   font-family: var(--font-mono);
   font-size: 0.6875rem;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--color-foreground-dim);
-  border-bottom: var(--rule-hairline) solid var(--color-border);
+  color: var(--color-graphite);
+  border-bottom: 1px solid var(--color-hairline);
   padding: 0.5rem 1rem;
 }
 .code-frame__body {
@@ -326,7 +406,7 @@ main :where(pre, table) {
   line-height: 1.75;
   padding: 1rem;
   overflow-x: auto;
-  color: var(--color-parchment-dim);
+  color: var(--color-ink-soft);
   tab-size: 2;
 }
 
@@ -336,7 +416,7 @@ main :where(pre, table) {
   grid-template-columns: 1fr;
   gap: 0.125rem;
   padding: 0.875rem 0;
-  border-bottom: var(--rule-hairline) solid var(--color-border);
+  border-bottom: 1px solid var(--color-hairline);
 }
 @media (min-width: 40rem) {
   .spec-row {
@@ -346,11 +426,24 @@ main :where(pre, table) {
   }
 }
 
-/* ── Focus ring — instant, never animated ─────── */
+/* ── Code blocks — scroll, never overflow ─────── */
+pre {
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+pre code {
+  white-space: pre;
+}
+main :where(pre, table) {
+  min-width: 0;
+}
+
+/* ── Focus ring — ink, instant, never animated ── */
 .focus-ring:focus-visible {
-  outline: 2px solid var(--color-brass-glow);
-  outline-offset: 3px;
-  border-radius: var(--radius-sm);
+  outline: 2px solid var(--color-ink);
+  outline-offset: 2px;
+  border-radius: var(--radius-xs);
 }
 
 /* ── Reduced motion ───────────────────────────── */
@@ -366,8 +459,5 @@ main :where(pre, table) {
   .is-revealed .seal-strike,
   .is-revealed .ledger-tick {
     transform: none;
-  }
-  .seal-badge {
-    animation: none;
   }
 }

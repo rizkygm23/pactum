@@ -40,7 +40,6 @@ export async function GET(
     .eq("id", id)
     .single();
 
-  // @ts-ignore
   if (error || !transaction || transaction.invoices_pactum?.projects_pactum?.user_id !== userId) {
     return NextResponse.json({ error: "Receipt not found or unauthorized" }, { status: 404 });
   }

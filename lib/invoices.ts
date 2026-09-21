@@ -1,9 +1,10 @@
 import { createAdminClient } from "@/lib/supabase/admin";
+import { getUtcDayRange, getUtcMonthRange } from "@/lib/time";
 
 interface GenerateInvoiceParams {
   projectId: string;
-  periodStart: Date;
-  periodEnd: Date;
+  periodStart: Date | string;
+  periodEnd: Date | string;
 }
 
 interface InvoiceWithBreakdown {
@@ -11,15 +12,15 @@ interface InvoiceWithBreakdown {
   project_id: string;
   period_start: string;
   period_end: string;
-  total_amount: number;
+  total_amount: string;
   status: string;
   created_at: string;
   usage_events?: Array<{
     id: string;
-    endpoint: string;
-    quantity: number;
-    unit_price: number;
-    cost: number;
+    endpoint: string | null;
+    quantity: string | number | null;
+    unit_price: string | number | null;
+    cost: string | number | null;
     created_at: string;
   }>;
 }
@@ -55,8 +56,8 @@ export async function generateInvoice(
     .from("usage_events_pactum")
     .select("id, endpoint, quantity, unit_price, cost, created_at")
     .in("api_key_id", keyIds)
-    .gte("created_at", params.periodStart.toISOString())
-    .lte("created_at", params.periodEnd.toISOString())
+    .gte("created_at", new Date(params.periodStart).toISOString())
+    .lte("created_at", new Date(params.periodEnd).toISOString())
     .order("created_at", { ascending: true });
 
   if (usageError) throw new Error(`Failed to fetch usage: ${usageError.message}`);
@@ -72,10 +73,10 @@ export async function generateInvoice(
     .from("invoices_pactum")
     .insert({
       project_id: params.projectId,
-      period_start: params.periodStart.toISOString(),
-      period_end: params.periodEnd.toISOString(),
+      period_start: new Date(params.periodStart).toISOString(),
+      period_end: new Date(params.periodEnd).toISOString(),
       total_amount: totalAmount,
-      status: totalAmount > 0 ? "draft" : "draft",
+      status: "draft",
     })
     .select()
     .single();
@@ -114,22 +115,4 @@ export async function finalizeInvoice(invoiceId: string): Promise<void> {
   if (updateError) throw new Error(`Failed to finalize: ${updateError.message}`);
 }
 
-/**
- * Get today's date range (UTC) for daily invoice generation.
- */
-export function getTodayRange(): { start: Date; end: Date } {
-  const now = new Date();
-  const start = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
-  const end = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 23, 59, 59, 999));
-  return { start, end };
-}
-
-/**
- * Get current month's date range (UTC) for monthly invoice generation.
- */
-export function getMonthRange(): { start: Date; end: Date } {
-  const now = new Date();
-  const start = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
-  const end = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 0, 23, 59, 59, 999));
-  return { start, end };
-}
+export { getUtcDayRange as getTodayRange, getUtcMonthRange as getMonthRange };

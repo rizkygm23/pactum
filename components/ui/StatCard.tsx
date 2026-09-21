@@ -2,40 +2,24 @@ interface StatCardProps {
   label: string;
   value: string | number;
   unit?: string;
-  trend?: "up" | "down" | "neutral";
-  trendValue?: string;
 }
 
 /**
- * StatCard — Hero stat display with Fraunces numerals.
- * Used on the dashboard overview for key metrics.
+ * StatCard — flat editorial stat: micro-caps label, display-size figure,
+ * hairline-bordered card. No shadow, no fill.
  */
-export function StatCard({ label, value, unit, trend, trendValue }: StatCardProps) {
-  const trendColors = {
-    up: "text-teal",
-    down: "text-rust",
-    neutral: "text-foreground-dim",
-  };
-
+export function StatCard({ label, value, unit }: StatCardProps) {
   return (
     <div className="card flex min-w-0 flex-col gap-2">
-      <span className="text-xs font-medium text-foreground-dim uppercase tracking-wider">
-        {label}
-      </span>
+      <span className="micro-caps text-slate">{label}</span>
       <div className="flex flex-wrap items-baseline gap-x-1.5 gap-y-0">
-        <span
-          className="text-2xl sm:text-3xl font-semibold text-parchment tabular-nums break-all"
-          style={{ fontFamily: "var(--font-display)" }}
-        >
+        <span className="display-face text-2xl font-normal tracking-[-0.02em] text-ink sm:text-3xl">
           {value}
         </span>
         {unit && (
-          <span className="text-sm text-foreground-dim data-mono">{unit}</span>
+          <span className="data-mono text-sm text-stone">{unit}</span>
         )}
       </div>
-      {trend && trendValue && (
-        <span className={`text-xs ${trendColors[trend]}`}>{trendValue}</span>
-      )}
     </div>
   );
 }

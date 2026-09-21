@@ -77,8 +77,8 @@ export async function POST(request: Request) {
 
   const body = await request.json().catch(() => ({}));
 
-  let periodStart: Date;
-  let periodEnd: Date;
+  let periodStart: Date | string;
+  let periodEnd: Date | string;
 
   if (body.period_start && body.period_end) {
     periodStart = new Date(body.period_start);

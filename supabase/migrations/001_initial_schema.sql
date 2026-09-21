@@ -55,7 +55,7 @@ create policy "Users can delete own projects"
 
 
 -- ── 3. api_keys_pactum ───────────────────────────────────────
-create type public.api_key_status as enum ('active', 'revoked');
+create type public.api_key_status_pactum as enum ('active', 'revoked');
 
 create table if not exists public.api_keys_pactum (
   id uuid primary key default gen_random_uuid(),
@@ -63,7 +63,7 @@ create table if not exists public.api_keys_pactum (
   key_hash text not null,
   key_prefix text not null,        -- e.g. "pactum_a1b2c3d4" for display
   name text default 'Default',
-  status public.api_key_status default 'active' not null,
+  status public.api_key_status_pactum default 'active' not null,
   created_at timestamptz default now() not null
 );
 
@@ -101,7 +101,7 @@ create policy "Users can update own API keys"
 
 
 -- ── 4. policies_pactum ───────────────────────────────────────
-create type public.policy_status as enum ('active', 'inactive');
+create type public.policy_status_pactum as enum ('active', 'inactive');
 
 create table if not exists public.policies_pactum (
   id uuid primary key default gen_random_uuid(),
@@ -109,7 +109,7 @@ create table if not exists public.policies_pactum (
   spend_limit_daily numeric(18, 6) default 100.000000,
   spend_limit_monthly numeric(18, 6) default 3000.000000,
   allowlist jsonb default '[]'::jsonb,
-  status public.policy_status default 'active' not null,
+  status public.policy_status_pactum default 'active' not null,
   created_at timestamptz default now() not null,
   updated_at timestamptz default now() not null
 );
@@ -183,7 +183,7 @@ create policy "Users can view own usage events"
 
 
 -- ── 6. invoices_pactum ───────────────────────────────────────
-create type public.invoice_status as enum ('draft', 'finalized', 'settling', 'settled', 'failed');
+create type public.invoice_status_pactum as enum ('draft', 'finalized', 'settling', 'settled', 'failed');
 
 create table if not exists public.invoices_pactum (
   id uuid primary key default gen_random_uuid(),
@@ -191,7 +191,7 @@ create table if not exists public.invoices_pactum (
   period_start timestamptz not null,
   period_end timestamptz not null,
   total_amount numeric(18, 6) default 0.000000,
-  status public.invoice_status default 'draft' not null,
+  status public.invoice_status_pactum default 'draft' not null,
   created_at timestamptz default now() not null
 );
 
@@ -209,7 +209,7 @@ create policy "Users can view own invoices"
 
 
 -- ── 7. transactions_pactum ───────────────────────────────────
-create type public.tx_status as enum ('pending', 'submitted', 'confirmed', 'failed');
+create type public.tx_status_pactum as enum ('pending', 'submitted', 'confirmed', 'failed');
 
 create table if not exists public.transactions_pactum (
   id uuid primary key default gen_random_uuid(),
@@ -218,7 +218,7 @@ create table if not exists public.transactions_pactum (
   chain text default 'arc-testnet',
   amount numeric(18, 6) not null,
   currency text default 'USDC',
-  status public.tx_status default 'pending' not null,
+  status public.tx_status_pactum default 'pending' not null,
   settled_at timestamptz,
   created_at timestamptz default now() not null
 );
@@ -238,7 +238,7 @@ create policy "Users can view own transactions"
 
 
 -- ── 8. webhooks_pactum ───────────────────────────────────────
-create type public.webhook_status as enum ('active', 'inactive');
+create type public.webhook_status_pactum as enum ('active', 'inactive');
 
 create table if not exists public.webhooks_pactum (
   id uuid primary key default gen_random_uuid(),
@@ -246,7 +246,7 @@ create table if not exists public.webhooks_pactum (
   url text not null,
   secret_hash text not null,
   events jsonb default '["usage.recorded", "payment.settled", "policy.limit_exceeded"]'::jsonb,
-  status public.webhook_status default 'active' not null,
+  status public.webhook_status_pactum default 'active' not null,
   created_at timestamptz default now() not null
 );
 

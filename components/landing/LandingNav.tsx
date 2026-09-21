@@ -1,33 +1,32 @@
 import Link from "next/link";
 
 /**
- * N9 — edge-aligned minimal.
- * Wordmark hard-left, one CTA hard-right, nothing in between.
- * No pill, no blur backdrop, no centred link cluster.
+ * nav-bar — canvas background, 64px height, wordmark hard-left, action
+ * hard-right. Divided from the page by spacing, not a hairline.
  */
 export function LandingNav({ signedIn }: { signedIn: boolean }) {
   return (
-    <header className="border-b border-border">
-      <nav className="flex items-center justify-between px-5 py-4 sm:px-8">
+    <header className="bg-canvas">
+      <nav className="flex h-16 items-center justify-between px-5 sm:px-8 lg:px-12">
         <Link
           href="/"
-          className="focus-ring display-face text-lg font-semibold text-parchment flex items-center gap-2 no-wrap"
+          className="focus-ring no-wrap flex items-center gap-2 text-lg font-semibold tracking-tight text-ink"
         >
-          <img src="/pactum-logo.png" alt="Pactum" className="w-6 h-6 object-contain" />
-          Pactum
+          <img src="/pactum-logo.png" alt="Pactum" className="h-6 w-6 object-contain" />
+          pactum
         </Link>
 
         {signedIn ? (
           <Link
             href="/dashboard"
-            className="focus-ring text-sm font-medium text-parchment no-wrap border-b border-brass pb-0.5 transition-colors hover:text-brass"
+            className="focus-ring no-wrap btn-text-link"
           >
             Dashboard
           </Link>
         ) : (
           <Link
             href="/login"
-            className="focus-ring text-sm font-medium text-parchment no-wrap border-b border-brass pb-0.5 transition-colors hover:text-brass"
+            className="focus-ring no-wrap btn-text-link"
           >
             Sign in
           </Link>

@@ -7,9 +7,9 @@ interface SealBadgeProps {
 }
 
 /**
- * Seal Badge — Pactum's signature visual element.
- * Appears when a transaction is settled on Arc.
- * Brass-gold circular badge with checkmark + tx hash.
+ * Seal — Pactum's signature mark: a settled transaction rendered as a
+ * black-ring stamp on paper. No glow, no colour — the ring and the copy
+ * carry the confirmation.
  */
 export function SealBadge({ txHash, explorerUrl, size = "md" }: SealBadgeProps) {
   const sizeClasses = {
@@ -20,30 +20,30 @@ export function SealBadge({ txHash, explorerUrl, size = "md" }: SealBadgeProps) 
 
   const iconSizes = {
     sm: 16,
-    md: 24,
-    lg: 32,
+    md: 22,
+    lg: 30,
   };
 
   const shortHash = txHash ? `${txHash.slice(0, 6)}…${txHash.slice(-4)}` : "";
 
   const badge = (
     <div
-      className={`seal-badge ${sizeClasses[size]} rounded-full border-2 border-brass flex flex-col items-center justify-center bg-brass/10 transition-transform hover:scale-105`}
+      className={`seal-badge ${sizeClasses[size]} flex flex-col items-center justify-center rounded-full bg-canvas transition-transform hover:scale-[1.03]`}
     >
       <CheckCircle2
         size={iconSizes[size]}
-        className="text-brass mb-1"
-        strokeWidth={2}
+        className="mb-1 text-ink"
+        strokeWidth={1.5}
       />
       <span
-        className="text-brass font-semibold uppercase tracking-widest"
+        className="micro-caps text-ink"
         style={{ fontSize: size === "sm" ? "6px" : size === "md" ? "7px" : "8px" }}
       >
         Settled on Arc
       </span>
       {size !== "sm" && (
         <span
-          className="data-mono text-foreground-dim mt-0.5"
+          className="data-mono text-stone mt-0.5"
           style={{ fontSize: size === "md" ? "8px" : "9px" }}
         >
           {shortHash}

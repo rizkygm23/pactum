@@ -3,9 +3,16 @@ const http = require('http');
 // ==========================================
 // PACTUM API TEST SCRIPT
 // ==========================================
-// 1. Ganti 'YOUR_API_KEY_HERE' dengan API Key yang Anda buat di Dashboard Pactum
-const API_KEY = "pactum_fb3facc27834a2efed84fbd02aa5bc0966e1eafa";
+// 1. Set your API key (created in the Pactum dashboard) via env:
+//      PACTUM_TEST_API_KEY=pactum_... node test-api.js
+const API_KEY = process.env.PACTUM_TEST_API_KEY;
 // ==========================================
+
+if (!API_KEY) {
+  console.error("❌ Set PACTUM_TEST_API_KEY env var first, e.g.:");
+  console.error("   PACTUM_TEST_API_KEY=pactum_... node test-api.js");
+  process.exit(1);
+}
 
 const payload = JSON.stringify({
   model: "gpt-4o",

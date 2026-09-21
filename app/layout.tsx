@@ -3,6 +3,8 @@ import { Inter, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "react-hot-toast";
 
+// Single type family across the system (Inter stands in for abcNormal per
+// DESIGN-runwayml.md); Plex Mono survives only for hashes/addresses/code.
 const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
@@ -12,14 +14,14 @@ const inter = Inter({
 const ibmPlexMono = IBM_Plex_Mono({
   variable: "--font-ibm-plex-mono",
   subsets: ["latin"],
-  weight: ["400", "500", "600"],
+  weight: ["400", "500"],
   display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "Pactum — Billing Infrastructure for AI SaaS on Arc",
+  title: "Pactum — Metered billing, settled in USDC on Arc",
   description:
-    "Usage metering, policy wallets, and USDC settlement on Arc. The billing layer for AI SaaS and devtools.",
+    "Meter every API call off-chain, settle in batches on Arc, and hand your customer a receipt with a transaction hash on it.",
 };
 
 export default function RootLayout({
@@ -32,15 +34,17 @@ export default function RootLayout({
       lang="en"
       className={`${inter.variable} ${ibmPlexMono.variable} h-full`}
     >
-      <body className="min-h-full flex flex-col bg-ink-navy text-parchment antialiased">
+      <body className="min-h-full flex flex-col bg-canvas text-ink antialiased">
         {children}
-        <Toaster 
+        <Toaster
           position="bottom-right"
           toastOptions={{
             style: {
-              background: '#1D2538',
-              color: '#F4F1E1',
-              border: '1px solid #364259',
+              background: "#ffffff",
+              color: "#030303",
+              border: "1px solid #e7eaf0",
+              borderRadius: "16px",
+              fontSize: "14px",
             },
           }}
         />

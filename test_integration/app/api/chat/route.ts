@@ -9,6 +9,9 @@ const JWT_SECRET = process.env.JWT_SECRET || crypto.randomBytes(32).toString("he
 const PACTUM_API_URL = process.env.PACTUM_API_URL || "https://pactum-ruddy.vercel.app/api/v1";
 const PACTUM_API_KEY = process.env.PACTUM_API_KEY;
 const XAI_API_KEY = process.env.XAI_API_KEY;
+// LLM relay model. "auto" lets the relay pick an available channel;
+// pinned names (e.g. DeepSeek-V4-Pro) break when the relay drops that channel.
+const LLM_MODEL = process.env.LLM_MODEL || "auto";
 
 export async function POST(req: Request) {
   try {
@@ -41,7 +44,7 @@ export async function POST(req: Request) {
       const title = prompt.length > 30 ? prompt.substring(0, 30) + '...' : prompt;
 
       const { error: insertError } = await supabase
-        .from('conversations_aura')
+        .from('conversations_pactum')
         .insert({
           id: currentConversationId,
           wallet_address: user_address,
@@ -55,7 +58,7 @@ export async function POST(req: Request) {
     } else {
       // Verify ownership of existing conversation
       const { data: convo, error: convoError } = await supabase
-        .from('conversations_aura')
+        .from('conversations_pactum')
         .select('wallet_address')
         .eq('id', currentConversationId)
         .single();
@@ -67,7 +70,7 @@ export async function POST(req: Request) {
 
     // 2. Save User Message
     const { error: msgInsertError } = await supabase
-      .from('messages_aura')
+      .from('messages_pactum')
       .insert({
         conversation_id: currentConversationId,
         role: 'user',
@@ -80,7 +83,7 @@ export async function POST(req: Request) {
 
     // 3. Build context for AI
     const { data: history, error: historyError } = await supabase
-      .from('messages_aura')
+      .from('messages_pactum')
       .select('role, content')
       .eq('conversation_id', currentConversationId)
       .order('created_at', { ascending: true });
@@ -121,19 +124,24 @@ Here is extensive context about the ecosystem you operate in. Use this knowledge
 
     // 3.5 Pre-check balance on-chain to prevent free-riding AI API
     try {
-      const provider = new ethers.JsonRpcProvider("https://rpc.testnet.arc.network");
+      const ARC_RPC_URL = process.env.ARC_TESTNET_RPC_URL || "https://rpc.testnet.arc.io";
+      const PACTUM_CONTRACT = process.env.PACTUM_CONTRACT_ADDRESS;
+      if (!PACTUM_CONTRACT) throw new Error("PACTUM_CONTRACT_ADDRESS is not configured");
+      const provider = new ethers.JsonRpcProvider(ARC_RPC_URL);
       const contract = new ethers.Contract(
-        "0x84b739c9B1484EB4fc8C095f7a1dC396669EAeE3",
+        PACTUM_CONTRACT,
         ["function userBalances(address) view returns (uint256)"],
         provider
       );
       const balanceWei = await contract.userBalances(user_address);
       const onChainBalance = Number(balanceWei) / 1000000;
 
-      // Fetch pending usage from Pactum
+      // Fetch pending usage from Pactum (API-key scoped to this project)
       let pendingUsage = 0;
       try {
-        const usageRes = await fetch(`${PACTUM_API_URL}/wallet/balance?address=${user_address}`);
+        const usageRes = await fetch(`${PACTUM_API_URL}/wallet/balance?address=${user_address}`, {
+          headers: { "X-API-Key": PACTUM_API_KEY || "" },
+        });
         if (usageRes.ok) {
           const usageData = await usageRes.json();
           pendingUsage = usageData.pendingUsage || 0;
@@ -165,7 +173,7 @@ Here is extensive context about the ecosystem you operate in. Use this knowledge
         },
         body: JSON.stringify({
           messages: aiMessages,
-          model: "DeepSeek-V4-Pro",
+          model: LLM_MODEL,
           stream: false,
           temperature: 0.1
         })
@@ -221,7 +229,7 @@ Here is extensive context about the ecosystem you operate in. Use this knowledge
 
       // 6. Save AI Response
       await supabase
-        .from('messages_aura')
+        .from('messages_pactum')
         .insert({
           conversation_id: currentConversationId,
           role: 'ai',
@@ -230,7 +238,7 @@ Here is extensive context about the ecosystem you operate in. Use this knowledge
 
       // Update conversation updated_at
       await supabase
-        .from('conversations_aura')
+        .from('conversations_pactum')
         .update({ updated_at: new Date().toISOString() })
         .eq('id', currentConversationId);
 

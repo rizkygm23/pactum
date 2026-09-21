@@ -15,7 +15,7 @@ export async function getDb() {
   });
 
   await db.exec(`
-    CREATE TABLE IF NOT EXISTS conversations_aura (
+    CREATE TABLE IF NOT EXISTS conversations_pactum (
       id TEXT PRIMARY KEY,
       wallet_address TEXT NOT NULL,
       title TEXT NOT NULL,
@@ -23,13 +23,13 @@ export async function getDb() {
       updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
     );
 
-    CREATE TABLE IF NOT EXISTS messages_aura (
+    CREATE TABLE IF NOT EXISTS messages_pactum (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       conversation_id TEXT NOT NULL,
       role TEXT NOT NULL,
       content TEXT NOT NULL,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      FOREIGN KEY (conversation_id) REFERENCES conversations_aura (id) ON DELETE CASCADE
+      FOREIGN KEY (conversation_id) REFERENCES conversations_pactum (id) ON DELETE CASCADE
     );
   `);
 

@@ -25,7 +25,6 @@ export async function DELETE(
     .eq("id", id)
     .single();
 
-  // @ts-ignore - Supabase types for joined tables are sometimes tricky, we know this shape
   if (!keyData || keyData.projects_pactum?.user_id !== userId) {
     return NextResponse.json({ error: "Not found or unauthorized" }, { status: 404 });
   }

@@ -32,7 +32,7 @@ export function WalletSettings({ initialWallet, projectId }: { initialWallet: st
 
   return (
     <form onSubmit={handleSave} className="space-y-4">
-      <p className="text-sm text-foreground-dim mb-4">
+      <p className="text-sm text-slate mb-4">
         This is the Arc Testnet wallet where your USDC settlements will be sent. 
         It must be an EVM-compatible address.
       </p>
@@ -52,8 +52,8 @@ export function WalletSettings({ initialWallet, projectId }: { initialWallet: st
       {message && (
         <div className={`text-sm px-3 py-2 rounded-md max-w-full break-words ${
           message.type === "success" 
-            ? "text-teal bg-teal/10 border border-teal/20" 
-            : "text-rust bg-rust/10 border border-rust/20"
+            ? "text-ink bg-hairline border border-hairline-soft" 
+            : "text-ink bg-canvas border border-ink"
         }`}>
           {message.text}
         </div>

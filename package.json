@@ -1,23 +1,21 @@
 {
-  "name": "pactum-temp",
+  "name": "pactum",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test": "vitest run",
+    "compile": "node compile.js"
   },
   "dependencies": {
-    "@circle-fin/developer-controlled-wallets": "^10.8.0",
-    "@circle-fin/smart-contract-platform": "^10.8.0",
-    "@openzeppelin/contracts": "^5.6.1",
-    "@supabase/ssr": "^0.12.4",
     "@supabase/supabase-js": "^2.111.0",
     "bcryptjs": "^3.0.3",
     "lucide-react": "^1.28.0",
     "mermaid": "^11.16.1",
-    "next": "16.2.12",
+    "next": "^16.3.5",
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "react-hot-toast": "^2.6.0",
@@ -26,17 +24,16 @@
     "viem": "^2.55.10"
   },
   "devDependencies": {
-    "@nomicfoundation/hardhat-toolbox": "^7.0.0",
     "@tailwindcss/postcss": "^4",
     "@types/bcryptjs": "^2.4.6",
-    "@types/node": "^20",
+    "@types/node": "^24.13.6",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
-    "eslint-config-next": "16.2.12",
-    "hardhat": "^3.12.0",
+    "eslint-config-next": "^16.3.5",
     "solc": "^0.8.36",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^5.0.1"
   }
 }

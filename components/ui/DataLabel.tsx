@@ -8,8 +8,7 @@ interface DataLabelProps {
 }
 
 /**
- * DataLabel — Monospace precision display for tx hashes, API keys, USDC amounts.
- * Evokes ledger/buku besar precision.
+ * DataLabel — monospace precision display for tx hashes, API keys, amounts.
  */
 export function DataLabel({ value, label, copyable = false, truncate = false }: DataLabelProps) {
   const displayValue = truncate && value.length > 16
@@ -25,21 +24,21 @@ export function DataLabel({ value, label, copyable = false, truncate = false }: 
   return (
     <div className="inline-flex min-w-0 max-w-full flex-col gap-0.5">
       {label && (
-        <span className="text-[10px] text-foreground-dim uppercase tracking-wider font-medium">
+        <span className="micro-caps text-stone">
           {label}
         </span>
       )}
       {copyable ? (
         <button
           type="button"
-          className="data-mono focus-ring max-w-full cursor-pointer text-left text-sm text-parchment transition-colors hover:text-brass"
+          className="data-mono focus-ring max-w-full cursor-pointer text-left text-sm text-ink underline-offset-2 hover:underline"
           onClick={handleCopy}
           title={`Click to copy: ${value}`}
         >
           {displayValue}
         </button>
       ) : (
-        <span className="data-mono max-w-full text-sm text-parchment">
+        <span className="data-mono max-w-full text-sm text-ink">
           {displayValue}
         </span>
       )}

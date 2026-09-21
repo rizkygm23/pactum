@@ -27,7 +27,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
 
     // Verify ownership
     const { data: convo, error: convoError } = await supabase
-      .from('conversations_aura')
+      .from('conversations_pactum')
       .select('wallet_address')
       .eq('id', id)
       .single();
@@ -42,7 +42,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
 
     // Fetch messages
     const { data: messages, error: messagesError } = await supabase
-      .from('messages_aura')
+      .from('messages_pactum')
       .select('role, content, created_at')
       .eq('conversation_id', id)
       .order('created_at', { ascending: true });

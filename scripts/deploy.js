@@ -3,11 +3,11 @@ import { privateKeyToAccount } from "viem/accounts";
 import { arcTestnet } from "viem/chains";
 import fs from "fs";
 import path from "path";
-import dotenv from "dotenv";
+import { loadEnvLocal } from "./lib/env.js";
 
-dotenv.config({ path: ".env.local" });
+loadEnvLocal();
 
-const RPC_URL = process.env.ARC_TESTNET_RPC_URL || "https://rpc.testnet.arc.network";
+const RPC_URL = process.env.ARC_TESTNET_RPC_URL || "https://rpc.testnet.arc.io";
 const USDC_ADDRESS = "0x3600000000000000000000000000000000000000";
 
 async function main() {
@@ -17,8 +17,9 @@ async function main() {
     console.error("Gunakan private key EVM (awali dengan 0x) yang memiliki saldo USDC di Arc Testnet.");
     process.exit(1);
   }
+  const normalizedPk = pk.startsWith("0x") ? pk : `0x${pk}`;
 
-  const account = privateKeyToAccount(pk as `0x${string}`);
+  const account = privateKeyToAccount(normalizedPk);
   console.log(`Deploying from account: ${account.address}`);
 
   const publicClient = createPublicClient({

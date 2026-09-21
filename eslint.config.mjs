@@ -12,6 +12,9 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Nested demo app's build output and dependencies:
+    "test_integration/.next/**",
+    "test_integration/node_modules/**",
   ]),
 ]);
 

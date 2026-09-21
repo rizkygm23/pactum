@@ -10,9 +10,10 @@ The API uses two authentication methods depending on the context:
 
 | Method | Header | Used By | Endpoints |
 |---|---|---|---|
-| **Session Cookie** | `pactum_session` (HTTP-only cookie) | Dashboard UI | Keys, Policies, Invoices, Settings |
-| **API Key** | `X-API-Key: pactum_<hex>` | Third-party apps | `/usage/track` |
-| **Bearer Token** | `Authorization: Bearer <operator_token>` | Settlement cron | `/settlement/cron` |
+| **Session Cookie** | `pactum_session` (HTTP-only, HMAC-signed) | Dashboard UI | Keys, Policies, Invoices, Settlement (manual), Usage summary |
+| **API Key** | `X-API-Key: pactum_<hex>` | Third-party apps | `/usage/track`, `/wallet/balance` |
+| **Bearer Token** | `Authorization: Bearer <CRON_SECRET>` | Settlement cron | `/settlement/cron` |
+| **Wallet Signature** | `x-pactum-address` + `x-pactum-timestamp` + `x-pactum-signature` | End-user wallets | `/wallet/balance` |
 
 ---
 
@@ -79,14 +80,38 @@ Records a single usage event. This is the primary SDK endpoint called by third-p
 
 | Status | Condition |
 |---|---|
-| `400` | Missing required fields |
+| `400` | Missing required fields or invalid `user_address` format |
 | `401` | Missing or invalid API key |
 | `402` | Insufficient funds in user's State Channel balance |
 | `403` | API key has been revoked |
+| `429` | Policy limit exceeded — daily or monthly spend limit reached |
 | `500` | Database or on-chain read error |
+| `503` | Billing misconfigured — `PACTUM_CONTRACT_ADDRESS` missing on the server (fail-closed) |
 
 > [!NOTE]
 > Cost is calculated as: `(prompt_tokens × prompt_price_per_token) + (completion_tokens × completion_price_per_token)`
+
+---
+
+### `GET /api/v1/usage/summary`
+
+Returns the current user's spend for the current UTC day and month, plus the active policy limits and remaining budget.
+
+**Auth:** Session cookie
+
+**Response (200):**
+
+```json
+{
+  "daily_spend": 0.0125,
+  "monthly_spend": 0.34,
+  "daily_limit": 100,
+  "monthly_limit": 3000,
+  "remaining_daily": 99.9875,
+  "remaining_monthly": 2999.66,
+  "total_events_today": 7
+}
+```
 
 ---
 
@@ -275,7 +300,7 @@ Generate a new invoice by aggregating usage events within a time period.
 
 ### `POST /api/v1/settlement/cron`
 
-Triggers a batch settlement of all pending usage events. Aggregates costs per (user, merchant) pair and executes a single `batchSettleUsage` call on the PactumBilling smart contract.
+Triggers a global batch settlement of all pending usage events. Aggregates costs per (user, merchant) pair in exact integer units, skips groups whose on-chain user balance is insufficient (reported in `skipped` instead of reverting the whole batch), and executes `batchSettleUsage` on the PactumBilling smart contract in chunks of at most 50 groups. Each settled event records its `settled_tx_hash`.
 
 **Auth:** `Authorization: Bearer <operator_token>`
 
@@ -284,9 +309,12 @@ Triggers a batch settlement of all pending usage events. Aggregates costs per (u
 ```json
 {
   "message": "Settlement successful",
-  "hash": "0xabc...def",
-  "processedEvents": 42,
-  "batches": 5
+  "settledGroups": 5,
+  "settledEvents": 42,
+  "txHashes": ["0xabc...def"],
+  "skipped": [
+    { "user": "0x...", "merchant": "0x...", "reason": "on-chain balance below pending usage" }
+  ]
 }
 ```
 
@@ -299,19 +327,46 @@ Triggers a batch settlement of all pending usage events. Aggregates costs per (u
 
 ---
 
+### `POST /api/v1/settlement/manual`
+
+Same settlement engine as the cron endpoint, but **scoped to the logged-in user's own projects** — a dashboard user can only settle events belonging to their API keys, never other users'.
+
+**Auth:** Session cookie
+
+**Response (200):** same shape as `/api/v1/settlement/cron`.
+
+**Error Responses:**
+
+| Status | Condition |
+|---|---|
+| `401` | Not logged in |
+| `404` | User has no project |
+| `500` | Contract call failed |
+
+---
+
 ## Wallet Balance
 
 ### `GET /api/v1/wallet/balance`
 
-Returns the total pending off-chain usage for a given user address. Used by the wallet UI to display the available balance.
+Returns the total pending off-chain usage for a given address — used by
+wallet UIs to display the available balance, and by integrators for
+pre-flight checks. **Authenticated access only** (the numeric amount is not
+served to anonymous callers).
 
-**Auth:** None (public endpoint)
+**Auth — one of:**
+
+| Who | How | Scope |
+|---|---|---|
+| Third-party app | `X-API-Key` header | Pending usage of the address **scoped to that key's own project** |
+| End-user wallet | `x-pactum-address` + `x-pactum-timestamp` + `x-pactum-signature` — a `personal_sign` of `Pactum: verify wallet ownership\nAddress: <address>\nTimestamp: <ms>` (±10 min) | Full pending usage for that address |
+| Dashboard session | `pactum_session` cookie | Scoped to the logged-in user's projects |
 
 **Query Parameters:**
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|
-| `address` | `string` | Yes | User wallet address |
+| `address` | `string` | Yes | User wallet address, `0x` + 40 hex |
 
 **Response (200):**
 
@@ -321,8 +376,12 @@ Returns the total pending off-chain usage for a given user address. Used by the 
 }
 ```
 
+**Response (401):** missing/invalid credentials for all three paths.
+
 > [!NOTE]
-> Available balance is calculated client-side as: `On-Chain Balance − pendingUsage`.
+> Available balance = `On-Chain Balance (userBalances) − pendingUsage`.
+> Read the on-chain half from the contract directly — see
+> [Contract Integration](./smart-contract.md).
 
 ---
 

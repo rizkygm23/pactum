@@ -1,9 +1,11 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getSessionCookie } from "@/lib/auth";
+import { USAGE_STATUS } from "@/lib/usage-status";
 import { redirect } from "next/navigation";
 import { DataLabel } from "@/components/ui/DataLabel";
 import { SettleButton } from "@/components/ui/SettleButton";
 import { WithdrawWidget } from "@/components/ui/WithdrawWidget";
+import { explorerTxUrl } from "@/lib/arc/config";
 
 export default async function PayoutsPage() {
   const userId = await getSessionCookie();
@@ -30,12 +32,12 @@ export default async function PayoutsPage() {
       .from("usage_events_pactum")
       .select("cost, api_keys_pactum!inner(project_id)")
       .eq("api_keys_pactum.project_id", project?.id ?? "")
-      .eq("status", "pending_settlement"),
+      .eq("status", USAGE_STATUS.PENDING),
     supabase
       .from("usage_events_pactum")
-      .select("id, cost, user_address, created_at, endpoint, api_keys_pactum!inner(project_id)")
+      .select("id, cost, user_address, created_at, endpoint, settled_tx_hash, api_keys_pactum!inner(project_id)")
       .eq("api_keys_pactum.project_id", project?.id ?? "")
-      .eq("status", "settled")
+      .eq("status", USAGE_STATUS.SETTLED)
       .order("created_at", { ascending: false })
       .limit(50)
   ]);
@@ -47,20 +49,19 @@ export default async function PayoutsPage() {
       <div className="flex flex-col gap-4 mb-6 sm:mb-8 lg:flex-row lg:items-start lg:justify-between lg:gap-6">
         <div className="min-w-0">
           <h1
-            className="text-xl sm:text-2xl font-semibold text-parchment"
-            style={{ fontFamily: "var(--font-display)" }}
+            className="text-xl sm:text-2xl font-semibold text-ink font-display"
           >
             Payouts
           </h1>
-          <p className="text-sm text-foreground-dim mt-1">
+          <p className="text-sm text-slate mt-1">
             Settlement history from the Smart Contract to your wallet.
           </p>
         </div>
-        <div className="bg-graphite px-4 py-3 rounded-lg border border-border flex flex-col items-start gap-1 lg:items-end lg:shrink-0">
-          <span className="text-xs text-foreground-dim uppercase tracking-wider">Pending Payout</span>
+        <div className="bg-hairline px-4 py-3 rounded-lg border border-hairline flex flex-col items-start gap-1 lg:items-end lg:shrink-0">
+          <span className="text-xs text-slate uppercase tracking-wider">Pending Payout</span>
           <div className="flex items-baseline gap-2">
-             <span className="data-mono text-lg sm:text-xl text-rust font-semibold">{totalPending.toFixed(6)}</span>
-             <span className="text-sm text-foreground-dim">USDC</span>
+             <span className="data-mono text-lg sm:text-xl text-ink font-semibold">{totalPending.toFixed(6)}</span>
+             <span className="text-sm text-slate">USDC</span>
           </div>
           <SettleButton disabled={totalPending <= 0} />
         </div>
@@ -68,10 +69,10 @@ export default async function PayoutsPage() {
 
       <WithdrawWidget expectedMerchantAddress={project?.merchant_wallet_address || null} />
 
-      <div className="mt-8 sm:mt-10 overflow-hidden bg-ink-navy border border-border rounded-xl">
+      <div className="mt-8 sm:mt-10 overflow-hidden bg-canvas border border-hairline rounded-lg">
         {(!settledEvents || settledEvents.length === 0) ? (
           <div className="text-center py-12 px-4">
-            <p className="text-foreground-dim text-sm">
+            <p className="text-slate text-sm">
               No settlement history yet.
             </p>
           </div>
@@ -80,7 +81,7 @@ export default async function PayoutsPage() {
           <div className="overflow-x-auto">
             <div className="min-w-[40rem] md:min-w-0">
               {/* Header */}
-              <div className="grid grid-cols-12 gap-2 px-4 py-3 text-[10px] text-foreground-dim uppercase tracking-wider border-b border-border-strong bg-graphite/50">
+              <div className="grid grid-cols-12 gap-2 px-4 py-3 text-[10px] text-slate uppercase tracking-wider border-b border-hairline-soft bg-canvas-warm">
                 <div className="col-span-3">User Address</div>
                 <div className="col-span-3">Model</div>
                 <div className="col-span-3 text-right">Amount (USDC)</div>
@@ -93,24 +94,36 @@ export default async function PayoutsPage() {
                     key={event.id}
                     className="grid grid-cols-12 gap-2 px-4 py-3 items-center hover:bg-white/[0.02] transition-colors"
                   >
-                    <div className="col-span-3 min-w-0 text-sm text-parchment">
+                    <div className="col-span-3 min-w-0 text-sm text-ink">
                       <DataLabel value={event.user_address || "Unknown"} truncate />
                     </div>
-                    <div className="col-span-3 min-w-0 text-sm text-parchment font-mono truncate">
+                    <div className="col-span-3 min-w-0 text-sm text-ink font-mono truncate">
                       {event.endpoint || "Unknown"}
                     </div>
                     <div className="col-span-3 text-right">
-                      <span className="data-mono text-parchment font-medium">
+                      <span className="data-mono text-ink font-medium">
                         {Number(event.cost).toFixed(6)}
                       </span>
                     </div>
-                    <div className="col-span-3 text-right text-xs text-foreground-dim">
-                      {new Date(event.created_at).toLocaleDateString("en-US", {
-                        month: "short",
-                        day: "numeric",
-                        hour: "2-digit",
-                        minute: "2-digit"
-                      })}
+                    <div className="col-span-3 text-right text-xs text-slate">
+                      <div>
+                        {new Date(event.created_at).toLocaleDateString("en-US", {
+                          month: "short",
+                          day: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit"
+                        })}
+                      </div>
+                      {event.settled_tx_hash && (
+                        <a
+                          href={explorerTxUrl(event.settled_tx_hash)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-[10px] uppercase tracking-wider text-slate hover:text-ink underline"
+                        >
+                          Settled on-chain ↗
+                        </a>
+                      )}
                     </div>
                   </div>
                 ))}

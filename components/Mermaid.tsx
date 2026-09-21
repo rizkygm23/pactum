@@ -34,5 +34,5 @@ export function Mermaid({ chart }: { chart: string }) {
     }
   }, [chart]);
 
-  return <div ref={containerRef} className="my-8 flex justify-center bg-[#0D1117] p-6 rounded-lg border border-slate-800 overflow-x-auto min-h-[100px]" />;
+  return <div ref={containerRef} className="my-8 flex justify-center bg-canvas-warm p-6 rounded-lg border border-hairline overflow-x-auto min-h-[100px]" />;
 }

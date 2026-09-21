@@ -7,29 +7,29 @@ interface PageProps {
   params: Promise<{ slug: string }>;
 }
 
+function readDocsFile(name: string): string | null {
+  try {
+    return fs.readFileSync(path.join(process.cwd(), "docs", name), "utf8");
+  } catch {
+    return null;
+  }
+}
+
 export default async function DocPage({ params }: PageProps) {
   const { slug } = await params;
-  
+
   // Prevent directory traversal
   const safeSlug = slug.replace(/[^a-zA-Z0-9-]/g, "");
-  const filePath = path.join(process.cwd(), "docs", `${safeSlug}.md`);
-  
-  try {
-    if (!fs.existsSync(filePath)) {
-      return notFound();
-    }
-    
-    const content = fs.readFileSync(filePath, "utf8");
-    
-    return (
-      <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
-        <MarkdownRenderer content={content} />
-      </div>
-    );
-  } catch (error) {
-    console.error(`Failed to load doc: ${slug}`, error);
-    return notFound();
-  }
+  if (!safeSlug) return notFound();
+
+  const content = readDocsFile(`${safeSlug}.md`);
+  if (!content) return notFound();
+
+  return (
+    <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
+      <MarkdownRenderer content={content} />
+    </div>
+  );
 }
 
 // Generate static params for all markdown files
@@ -37,13 +37,13 @@ export async function generateStaticParams() {
   try {
     const docsDir = path.join(process.cwd(), "docs");
     const files = fs.readdirSync(docsDir);
-    
+
     return files
       .filter(file => file.endsWith(".md") && file !== "README.md")
       .map(file => ({
         slug: file.replace(".md", "")
       }));
-  } catch (e) {
+  } catch {
     return [];
   }
 }

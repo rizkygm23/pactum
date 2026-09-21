@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 
 export function LoginForm() {
@@ -43,7 +42,7 @@ export function LoginForm() {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <label htmlFor="login-email" className="block text-sm font-medium text-parchment mb-1.5">
+        <label htmlFor="login-email" className="block text-sm font-medium text-ink mb-1.5">
           Email
         </label>
         <input
@@ -59,7 +58,7 @@ export function LoginForm() {
       </div>
 
       <div>
-        <label htmlFor="login-password" className="block text-sm font-medium text-parchment mb-1.5">
+        <label htmlFor="login-password" className="block text-sm font-medium text-ink mb-1.5">
           Password
         </label>
         <input
@@ -75,7 +74,7 @@ export function LoginForm() {
       </div>
 
       {error && (
-        <div className="text-sm text-rust bg-rust/10 border border-rust/20 rounded-md px-3 py-2">
+        <div className="text-sm text-ink bg-canvas border border-ink rounded-md px-3 py-2">
           {error}
         </div>
       )}

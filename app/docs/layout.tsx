@@ -2,38 +2,40 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BookOpen, Rocket, Code2, Link as LinkIcon, FileText } from "lucide-react";
+import {
+  BookOpen,
+  Rocket,
+  Code2,
+  FileText,
+} from "lucide-react";
 
 export default function DocsLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
+  // Keep in sync with the files in ./docs — deleted pages disappear here too.
   const navItems = [
     { name: "Overview", href: "/docs", icon: BookOpen },
-    { name: "Architecture", href: "/docs/architecture", icon: FileText },
-    { name: "Setup Guide", href: "/docs/setup", icon: Code2 },
+    { name: "Integration Guide", href: "/docs/integration-guide", icon: Rocket },
     { name: "API Reference", href: "/docs/api-reference", icon: Code2 },
-    { name: "Smart Contract", href: "/docs/smart-contract", icon: LinkIcon },
-    { name: "Settlement Flow", href: "/docs/settlement", icon: Rocket },
-    { name: "Integration Guide", href: "/docs/integration-guide", icon: Code2 },
-    { name: "Deployment", href: "/docs/deployment", icon: Rocket },
+    { name: "Smart Contract", href: "/docs/smart-contract", icon: FileText },
   ];
 
   return (
-    <div className="min-h-screen bg-graphite flex flex-col md:flex-row">
+    <div className="min-h-dvh bg-canvas flex flex-col md:flex-row">
       {/*
         Sidebar. Below `md` this collapses to a single horizontally
         scrollable rail so it costs one row of height instead of ~260px
         of chrome above every article.
       */}
-      <aside className="w-full md:w-64 md:shrink-0 bg-slate-950 border-b border-slate-800 md:border-b-0 md:border-r md:sticky md:top-0 md:h-screen md:overflow-y-auto">
+      <aside className="w-full md:w-64 md:shrink-0 bg-canvas border-b border-hairline md:border-b-0 md:border-r md:sticky md:top-0 md:h-dvh md:overflow-y-auto">
         <div className="px-4 py-3 md:p-6">
           <div className="flex items-center gap-2 mb-3 md:mb-8">
             <div className="w-8 h-8 shrink-0 flex items-center justify-center">
-              <FileText className="w-5 h-5 text-slate-100" />
+              <FileText className="w-5 h-5 text-ink" />
             </div>
             <Link
               href="/"
-              className="focus-ring text-base md:text-lg font-semibold text-slate-100 tracking-tight truncate"
+              className="focus-ring text-base md:text-lg font-semibold text-ink tracking-tight truncate"
             >
               Documentation
             </Link>
@@ -50,8 +52,8 @@ export default function DocsLayout({ children }: { children: React.ReactNode }) 
                   aria-current={isActive ? "page" : undefined}
                   className={`focus-ring flex shrink-0 items-center gap-2 md:gap-3 whitespace-nowrap px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                     isActive
-                      ? "bg-slate-800 text-white"
-                      : "text-slate-400 hover:text-slate-200 hover:bg-slate-900"
+                      ? "bg-hairline text-ink shadow-[inset_2px_0_0_0_var(--color-ink)]"
+                      : "text-ink/70 hover:text-ink hover:bg-canvas/50"
                   }`}
                 >
                   <Icon className="w-4 h-4 shrink-0" />
@@ -60,6 +62,15 @@ export default function DocsLayout({ children }: { children: React.ReactNode }) 
               );
             })}
           </nav>
+
+          <div className="hidden md:block mt-8 pt-4 border-t border-hairline">
+            <Link
+              href="/"
+              className="focus-ring text-xs text-slate transition-colors hover:text-ink"
+            >
+              ← Back to Pactum
+            </Link>
+          </div>
         </div>
       </aside>
 

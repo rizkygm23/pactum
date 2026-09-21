@@ -25,7 +25,6 @@ export async function GET(
     .eq("id", id)
     .single();
 
-  // @ts-ignore
   if (!invoice || invoice.projects_pactum?.user_id !== userId) {
     return NextResponse.json({ error: "Not found or unauthorized" }, { status: 404 });
   }
@@ -84,7 +83,6 @@ export async function PUT(
     .eq("id", id)
     .single();
 
-  // @ts-ignore
   if (!invoice || invoice.projects_pactum?.user_id !== userId) {
     return NextResponse.json({ error: "Invoice not found or unauthorized" }, { status: 404 });
   }

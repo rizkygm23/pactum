@@ -70,10 +70,20 @@ export async function PUT(request: Request) {
     .eq("status", "active")
     .single();
 
+  // Validate limits — a negative or NaN limit would block every metered call
+  const daily = Number(body.spend_limit_daily ?? 100);
+  const monthly = Number(body.spend_limit_monthly ?? 3000);
+  if (!Number.isFinite(daily) || daily < 0 || !Number.isFinite(monthly) || monthly < 0) {
+    return NextResponse.json(
+      { error: "spend_limit_daily and spend_limit_monthly must be non-negative numbers" },
+      { status: 400 }
+    );
+  }
+
   const policyData = {
     project_id: project.id,
-    spend_limit_daily: body.spend_limit_daily ?? 100,
-    spend_limit_monthly: body.spend_limit_monthly ?? 3000,
+    spend_limit_daily: daily,
+    spend_limit_monthly: monthly,
     allowlist: body.allowlist ?? [],
     status: "active" as const,
     updated_at: new Date().toISOString(),

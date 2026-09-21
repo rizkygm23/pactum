@@ -1,13 +1,27 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { hashPassword, setSessionCookie } from "@/lib/auth";
+import { rateLimit, getClientIp } from "@/lib/rate-limit";
+import { log } from "@/lib/obs";
 
 export async function POST(request: Request) {
+  const limit = rateLimit(`register:${getClientIp(request)}`);
+  if (!limit.allowed) {
+    return NextResponse.json(
+      { error: `Too many attempts. Try again in ${limit.retryAfter}s.` },
+      { status: 429 }
+    );
+  }
+
   try {
     const { email, password, company_name } = await request.json();
 
     if (!email || !password) {
       return NextResponse.json({ error: "Email and password are required" }, { status: 400 });
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return NextResponse.json({ error: "Invalid email format" }, { status: 400 });
     }
 
     if (password.length < 6) {
@@ -42,7 +56,7 @@ export async function POST(request: Request) {
       .single();
 
     if (userError || !newUser) {
-      console.error("Error inserting user:", userError);
+      log("error", "user insert failed", { error: String(userError) });
       return NextResponse.json({ error: "Failed to create account" }, { status: 500 });
     }
 
@@ -55,7 +69,7 @@ export async function POST(request: Request) {
       });
 
     if (projectError) {
-      console.error("Failed to create project:", projectError);
+      log("warn", "default project creation failed", { error: String(projectError) });
     }
 
     // Set session cookie
@@ -63,7 +77,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ success: true, user_id: newUser.id }, { status: 201 });
   } catch (error) {
-    console.error("Register error:", error);
+    log("error", "register failed", { error: String(error) });
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

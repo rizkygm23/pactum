@@ -1,16 +1,15 @@
 /** @type {import('next').NextConfig} */
+const path = require("path");
+
 const nextConfig = {
   reactStrictMode: true,
-  // Fix Turbopack workspace root detection issue caused by a global package-lock.json
-  experimental: {
-    turbopack: {
-      // @ts-ignore
-      root: __dirname,
-    }
+  // Pin Turbopack's workspace root to this app. Without it, Turbopack infers
+  // the parent repo as root (nearest package-lock.json) and tries to compile
+  // the parent's proxy.ts with this app's "@/" alias, which fails with
+  // "Can't resolve '@/lib/session-token'".
+  turbopack: {
+    root: path.join(__dirname),
   },
-  eslint: {
-    ignoreDuringBuilds: true,
-  }
-}
+};
 
-module.exports = nextConfig
+module.exports = nextConfig;

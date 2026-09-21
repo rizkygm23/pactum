@@ -12,23 +12,23 @@ export default function MarkdownRenderer({ content }: { content: string }) {
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         components={{
-          pre({ children, ...props }: any) {
+          pre({ children, ...props }: React.ComponentPropsWithoutRef<"pre">) {
             const childArray = React.Children.toArray(children);
           if (childArray.length === 1 && React.isValidElement(childArray[0])) {
-            const child = childArray[0] as React.ReactElement<any>;
+            const child = childArray[0] as React.ReactElement<{ className?: string }>;
             if (child.props.className?.includes("language-mermaid")) {
                 return <>{children}</>;
               }
             }
             return (
               <div className="relative my-6">
-                <pre className="bg-[#0D1117] p-4 rounded-lg overflow-x-auto border border-slate-800" {...props}>
+                <pre className="bg-canvas-warm p-4 rounded-lg overflow-x-auto border border-hairline" {...props}>
                   {children}
                 </pre>
               </div>
             );
           },
-          code({ className, children, ...props }: any) {
+          code({ className, children, ...props }: React.ComponentPropsWithoutRef<"code">) {
             const match = /language-(\w+)/.exec(className || "");
             const language = match ? match[1] : "";
             
@@ -43,28 +43,28 @@ export default function MarkdownRenderer({ content }: { content: string }) {
             }
             
             return (
-              <code className="bg-slate-800 text-slate-300 px-1.5 py-0.5 rounded text-sm font-mono border border-slate-700" {...props}>
+              <code className="bg-hairline text-graphite px-1.5 py-0.5 rounded text-sm font-mono border border-hairline-soft" {...props}>
                 {children}
               </code>
             );
           },
           p({ children }) {
-            return <p className="leading-7 text-slate-300 my-4 text-base">{children}</p>;
+            return <p className="leading-7 text-graphite my-4 text-base">{children}</p>;
           },
           h1({ children }) {
-            return <h1 className="text-3xl font-semibold tracking-tight text-slate-100 mb-6 pb-4 border-b border-slate-800">{children}</h1>;
+            return <h1 className="text-3xl font-semibold tracking-tight text-ink mb-6 pb-4 border-b border-hairline">{children}</h1>;
           },
           h2({ children }) {
-            return <h2 className="text-xl font-medium text-slate-100 mt-12 mb-4 pb-2 border-b border-slate-800/50">{children}</h2>;
+            return <h2 className="text-xl font-medium text-ink mt-12 mb-4 pb-2 border-b border-hairline/50">{children}</h2>;
           },
           h3({ children }) {
-            return <h3 className="text-lg font-medium text-slate-200 mt-8 mb-3">{children}</h3>;
+            return <h3 className="text-lg font-medium text-ink mt-8 mb-3">{children}</h3>;
           },
           ul({ children }) {
-            return <ul className="list-disc pl-6 space-y-2 text-slate-300 my-4 text-base">{children}</ul>;
+            return <ul className="list-disc pl-6 space-y-2 text-graphite my-4 text-base">{children}</ul>;
           },
           ol({ children }) {
-            return <ol className="list-decimal pl-6 space-y-2 text-slate-300 my-4 text-base">{children}</ol>;
+            return <ol className="list-decimal pl-6 space-y-2 text-graphite my-4 text-base">{children}</ol>;
           },
           li({ children }) {
             return <li className="pl-1 leading-7">{children}</li>;
@@ -74,32 +74,32 @@ export default function MarkdownRenderer({ content }: { content: string }) {
             const parsedHref = href?.replace("./", "/docs/").replace(".md", "");
             
             if (isInternal) {
-              return <Link href={parsedHref || "#"} className="text-emerald-400 hover:text-emerald-300 underline underline-offset-2">{children}</Link>;
+              return <Link href={parsedHref || "#"} className="text-ink underline-offset-2 hover:underline underline underline-offset-2">{children}</Link>;
             }
-            return <a href={href} target="_blank" rel="noreferrer" className="text-emerald-400 hover:text-emerald-300 underline underline-offset-2">{children}</a>;
+            return <a href={href} target="_blank" rel="noreferrer" className="text-ink underline-offset-2 hover:underline underline underline-offset-2">{children}</a>;
           },
           blockquote({ children }) {
             return (
-              <blockquote className="border-l-4 border-slate-600 bg-slate-900/50 px-5 py-4 rounded-r-md my-6 text-slate-300 italic text-base">
+              <blockquote className="border-l-4 border-hairline-soft bg-canvas-warm/50 px-5 py-4 rounded-r-md my-6 text-graphite italic text-base">
                 {children}
               </blockquote>
             );
           },
           table({ children }) {
             return (
-              <div className="overflow-x-auto my-8 border border-slate-800 rounded-lg">
+              <div className="overflow-x-auto my-8 border border-hairline rounded-lg">
                 <table className="w-full text-sm text-left">{children}</table>
               </div>
             );
           },
           th({ children }) {
-            return <th className="px-4 py-3 bg-slate-900 border-b border-slate-700 font-semibold text-slate-200 whitespace-nowrap">{children}</th>;
+            return <th className="px-4 py-3 bg-canvas-warm border-b border-hairline-soft font-semibold text-ink whitespace-nowrap">{children}</th>;
           },
           td({ children }) {
-            return <td className="px-4 py-3 border-b border-slate-800 text-slate-300">{children}</td>;
+            return <td className="px-4 py-3 border-b border-hairline text-graphite">{children}</td>;
           },
           hr() {
-            return <hr className="my-10 border-slate-800" />;
+            return <hr className="my-10 border-hairline" />;
           }
         }}
       >

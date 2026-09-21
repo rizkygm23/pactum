@@ -1,11 +1,11 @@
 import { createWalletClient, createPublicClient, http, parseUnits } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { arcTestnet } from "viem/chains";
-import dotenv from "dotenv";
+import { loadEnvLocal } from "./lib/env.js";
 
-dotenv.config({ path: ".env.local" });
+loadEnvLocal();
 
-const RPC_URL = "https://rpc.testnet.arc.network";
+const RPC_URL = "https://rpc.testnet.arc.io";
 const USDC_ADDRESS = "0x3600000000000000000000000000000000000000";
 const CONTRACT_ADDRESS = process.env.PACTUM_CONTRACT_ADDRESS;
 

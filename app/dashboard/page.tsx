@@ -1,9 +1,11 @@
+import Link from "next/link";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { StatCard } from "@/components/ui/StatCard";
 import { DataLabel } from "@/components/ui/DataLabel";
 import { SealBadge } from "@/components/ui/SealBadge";
 import { explorerTxUrl } from "@/lib/arc/config";
 import { getSessionCookie } from "@/lib/auth";
+import { USAGE_STATUS } from "@/lib/usage-status";
 import { redirect } from "next/navigation";
 
 export default async function DashboardOverview() {
@@ -47,14 +49,14 @@ export default async function DashboardOverview() {
       .from("usage_events_pactum")
       .select("id, cost, user_address, created_at, status, api_keys_pactum!inner(project_id)")
       .eq("api_keys_pactum.project_id", project?.id ?? "")
-      .eq("status", "settled")
+      .eq("status", USAGE_STATUS.SETTLED)
       .order("created_at", { ascending: false })
       .limit(5),
     supabase
       .from("usage_events_pactum")
       .select("cost, api_keys_pactum!inner(project_id)")
       .eq("api_keys_pactum.project_id", project?.id ?? "")
-      .eq("status", "settled")
+      .eq("status", USAGE_STATUS.SETTLED)
   ]);
 
   const todaySpend = (todayEvents || []).reduce(
@@ -72,12 +74,11 @@ export default async function DashboardOverview() {
       {/* Header */}
       <div className="mb-6 sm:mb-8">
         <h1
-          className="text-xl sm:text-2xl font-semibold text-parchment"
-          style={{ fontFamily: "var(--font-display)" }}
+          className="text-xl sm:text-2xl font-semibold text-ink font-display"
         >
           Overview
         </h1>
-        <p className="text-sm text-foreground-dim mt-1 break-words">
+        <p className="text-sm text-slate mt-1 break-words">
           {project?.name || "Your project"} — real-time billing status
         </p>
       </div>
@@ -106,16 +107,24 @@ export default async function DashboardOverview() {
 
       {/* Recent transactions */}
       <div className="card">
-        <h2 className="text-sm font-medium text-parchment mb-4 uppercase tracking-wider">
+        <h2 className="text-sm font-medium text-ink mb-4 uppercase tracking-wider">
           Recent Settlements
         </h2>
 
         {(!recentTxs || recentTxs.length === 0) ? (
           <div className="text-center py-12">
-            <p className="text-foreground-dim text-sm">
-              No settlements yet. Generate an invoice and trigger settlement to see
-              transactions here.
+            <span className="stage-ordinal">No settlements yet</span>
+            <p className="text-slate text-sm leading-relaxed max-w-sm mx-auto mt-3">
+              Metered calls appear here once their usage settles on-chain.
+              Trigger a settlement from the Payouts page when pending usage
+              builds up.
             </p>
+            <Link
+              href="/dashboard/payouts"
+              className="btn-ghost focus-ring no-wrap inline-block mt-5"
+            >
+              Go to Payouts
+            </Link>
           </div>
         ) : (
           <div className="space-y-0">
@@ -125,15 +134,15 @@ export default async function DashboardOverview() {
                 className="ledger-row flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4"
               >
                 <div className="flex min-w-0 items-center gap-3 sm:gap-4">
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 shrink-0 rounded-full border border-border flex items-center justify-center bg-brass/10">
-                    <span className="text-brass text-base">✓</span>
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 shrink-0 rounded-full border border-hairline flex items-center justify-center bg-hairline">
+                    <span className="text-ink text-base">✓</span>
                   </div>
                   <div className="min-w-0">
                     <DataLabel
                       value={tx.user_address || "Unknown User"}
                       truncate
                     />
-                    <p className="text-xs text-foreground-dim mt-0.5">
+                    <p className="text-xs text-slate mt-0.5">
                       {new Date(tx.created_at).toLocaleDateString("en-US", {
                         month: "short",
                         day: "numeric",
@@ -147,12 +156,11 @@ export default async function DashboardOverview() {
                 <div className="flex shrink-0 items-center justify-between gap-3 sm:flex-col sm:items-end sm:gap-1">
                   <div className="no-wrap">
                     <span
-                      className="data-mono text-base sm:text-lg text-parchment"
-                      style={{ fontFamily: "var(--font-display)" }}
+                      className="data-mono text-base sm:text-lg text-ink font-display"
                     >
                       {Number(tx.cost).toFixed(6)}
                     </span>
-                    <span className="text-xs text-foreground-dim ml-1">
+                    <span className="text-xs text-slate ml-1">
                       USDC
                     </span>
                   </div>

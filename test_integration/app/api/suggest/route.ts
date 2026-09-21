@@ -30,7 +30,7 @@ export async function POST(req: Request) {
 
     // Verify ownership
     const { data: convo, error: convoError } = await supabase
-      .from('conversations_aura')
+      .from('conversations_pactum')
       .select('wallet_address')
       .eq('id', conversationId)
       .single();
@@ -41,7 +41,7 @@ export async function POST(req: Request) {
 
     // Fetch last 6 messages to keep context window small and fast
     const { data: history, error: historyError } = await supabase
-      .from('messages_aura')
+      .from('messages_pactum')
       .select('role, content')
       .eq('conversation_id', conversationId)
       .order('created_at', { ascending: false })

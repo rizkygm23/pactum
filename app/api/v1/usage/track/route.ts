@@ -1,12 +1,14 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { hashApiKey, isValidKeyFormat } from "@/lib/api-keys";
-import { createWalletClient, createPublicClient, http, parseUnits } from "viem";
-import { privateKeyToAccount } from "viem/accounts";
-import { arcTestnet } from "viem/chains";
+import { parseUnits, formatUnits } from "viem";
 import { ARC_TESTNET } from "@/lib/arc/config";
+import { getPublicClient } from "@/lib/arc/clients";
+import { evaluatePolicy } from "@/lib/policy";
+import { validateUsageEvent } from "@/lib/money";
+import { USAGE_STATUS } from "@/lib/usage-status";
+import { newRequestId, log } from "@/lib/obs";
 
-// Minimal ABI for PactumBilling
 const PACTUM_BILLING_ABI = [
   {
     name: "userBalances",
@@ -17,76 +19,170 @@ const PACTUM_BILLING_ABI = [
   },
 ] as const;
 
-export async function POST(request: Request) {
-  // 1. Extract API key
-  const apiKey = request.headers.get("x-api-key") || request.headers.get("X-API-Key");
+type Supabase = ReturnType<typeof createAdminClient>;
 
+/* ── Helpers ──────────────────────────────────────────────────────────── */
+
+interface AuthedKey {
+  id: string;
+  projectId: string;
+}
+
+/** Resolve + validate the X-API-Key header against the hashed key table. */
+async function authenticateKey(
+  supabase: Supabase,
+  apiKey: string | null
+): Promise<{ key: AuthedKey } | { response: NextResponse }> {
   if (!apiKey) {
-    return NextResponse.json({ error: "Missing X-API-Key header" }, { status: 401 });
+    return { response: NextResponse.json({ error: "Missing X-API-Key header" }, { status: 401 }) };
   }
   if (!isValidKeyFormat(apiKey)) {
-    return NextResponse.json({ error: "Invalid API key format" }, { status: 401 });
+    return { response: NextResponse.json({ error: "Invalid API key format" }, { status: 401 }) };
   }
 
-  const supabase = createAdminClient();
-  const keyHash = hashApiKey(apiKey);
-
-  // 2. Lookup key by hash
   const { data: keyRecord, error: keyError } = await supabase
     .from("api_keys_pactum")
     .select("id, project_id, status")
-    .eq("key_hash", keyHash)
+    .eq("key_hash", hashApiKey(apiKey))
     .single();
 
   if (keyError || !keyRecord) {
-    return NextResponse.json({ error: "Invalid API key" }, { status: 401 });
+    return { response: NextResponse.json({ error: "Invalid API key" }, { status: 401 }) };
   }
   if (keyRecord.status !== "active") {
-    return NextResponse.json({ error: "API key has been revoked" }, { status: 403 });
+    return { response: NextResponse.json({ error: "API key has been revoked" }, { status: 403 }) };
+  }
+  return { key: { id: keyRecord.id, projectId: keyRecord.project_id } };
+}
+
+/**
+ * State-channel availability: on-chain deposit minus everything still pending
+ * must cover the new charge. Fail-closed when the contract is not configured.
+ */
+async function assertChannelAvailable(
+  supabase: Supabase,
+  userAddress: string,
+  costString: string
+): Promise<NextResponse | null> {
+  const contractAddress = process.env.PACTUM_CONTRACT_ADDRESS as `0x${string}` | undefined;
+  if (!contractAddress) {
+    log("error", "PACTUM_CONTRACT_ADDRESS missing — rejecting usage track (fail-closed)");
+    return NextResponse.json(
+      { error: "Billing misconfigured: contract address missing on the server." },
+      { status: 503 }
+    );
   }
 
-  // 3. Parse body
-  let body: {
-    model: string;
-    prompt_tokens?: number;
-    completion_tokens?: number;
-    prompt_price_per_token?: number;
-    completion_price_per_token?: number;
-    user_address: `0x${string}`;
-    metadata?: Record<string, unknown>;
-    idempotency_key: string;
-  };
+  try {
+    const publicClient = getPublicClient();
+    const onChainBalanceWei = (await publicClient.readContract({
+      address: contractAddress,
+      abi: PACTUM_BILLING_ABI,
+      functionName: "userBalances",
+      args: [userAddress as `0x${string}`],
+    })) as bigint;
 
+    const { data: pendingUsageData } = await supabase
+      .from("usage_events_pactum")
+      .select("cost")
+      .ilike("user_address", userAddress)
+      .eq("status", USAGE_STATUS.PENDING);
+
+    const pendingUnits = (pendingUsageData || []).reduce(
+      (sum, e) => sum + parseUnits(String(e.cost ?? "0"), ARC_TESTNET.usdcDecimals),
+      0n
+    );
+    const costUnits = parseUnits(costString, ARC_TESTNET.usdcDecimals);
+    const availableUnits = onChainBalanceWei - pendingUnits;
+
+    if (availableUnits < costUnits) {
+      return NextResponse.json(
+        {
+          error: "Insufficient funds in State Channel.",
+          details: `On-chain: ${formatUnits(onChainBalanceWei, ARC_TESTNET.usdcDecimals)} USDC, Pending: ${formatUnits(pendingUnits, ARC_TESTNET.usdcDecimals)} USDC, Required: ${formatUnits(costUnits, ARC_TESTNET.usdcDecimals)} USDC`,
+        },
+        { status: 402 }
+      );
+    }
+    return null;
+  } catch (e: unknown) {
+    log("error", "state channel read error", { error: String(e) });
+    return NextResponse.json({ error: "Failed to read on-chain balance." }, { status: 500 });
+  }
+}
+
+/** PRD P0 enforcement: a project's daily/monthly spend limit blocks metering. */
+async function assertPolicyAllows(
+  supabase: Supabase,
+  projectId: string,
+  cost: number
+): Promise<NextResponse | null> {
+  const { policy, dailySpend, monthlySpend } = await evaluatePolicy(projectId);
+  if (!policy) return null;
+
+  const dailyLimit =
+    policy.spend_limit_daily != null ? Number(policy.spend_limit_daily) : null;
+  const monthlyLimit =
+    policy.spend_limit_monthly != null ? Number(policy.spend_limit_monthly) : null;
+
+  if (dailyLimit !== null && dailySpend + cost > dailyLimit) {
+    return NextResponse.json(
+      {
+        error: "policy_limit_exceeded",
+        details: `Daily spend limit of ${dailyLimit} USDC exceeded. Spent today: ${dailySpend} USDC.`,
+        remaining_daily: Math.max(0, dailyLimit - dailySpend),
+      },
+      { status: 429 }
+    );
+  }
+  if (monthlyLimit !== null && monthlySpend + cost > monthlyLimit) {
+    return NextResponse.json(
+      {
+        error: "policy_limit_exceeded",
+        details: `Monthly spend limit of ${monthlyLimit} USDC exceeded. Spent this month: ${monthlySpend} USDC.`,
+        remaining_monthly: Math.max(0, monthlyLimit - monthlySpend),
+      },
+      { status: 429 }
+    );
+  }
+  return null;
+}
+
+/* ── Route ────────────────────────────────────────────────────────────── */
+
+export async function POST(request: Request) {
+  const reqId = newRequestId();
+  const startedAt = Date.now();
+
+  // 1. Authenticate the caller by API key
+  const supabase = createAdminClient();
+  const auth = await authenticateKey(
+    supabase,
+    request.headers.get("x-api-key") || request.headers.get("X-API-Key")
+  );
+  if ("response" in auth) return auth.response;
+  const key = auth.key;
+
+  // 2. Parse and strictly validate the body — everything that touches the
+  // ledger (tokens, prices, address, string sizes) is normalized here.
+  let body: Record<string, unknown>;
   try {
     body = await request.json();
   } catch {
     return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
   }
 
-  if (!body.model || !body.idempotency_key || !body.user_address) {
-    return NextResponse.json(
-      { error: "Missing required fields: model, user_address, idempotency_key" },
-      { status: 400 }
-    );
+  const validated = validateUsageEvent(body as never);
+  if (!validated.ok) {
+    return NextResponse.json({ error: validated.error }, { status: 400 });
   }
+  const ev = validated.value;
 
-  const pTokens = body.prompt_tokens || 0;
-  const cTokens = body.completion_tokens || 0;
-  const pPrice = body.prompt_price_per_token || 0;
-  const cPrice = body.completion_price_per_token || 0;
-
-  const cost = (pTokens * pPrice) + (cTokens * cPrice);
-  const totalTokens = pTokens + cTokens;
-  
-  if (cost < 0) {
-    return NextResponse.json({ error: "Invalid negative cost calculation" }, { status: 400 });
-  }
-
-  // 4. Check idempotency in DB first
+  // 3. Idempotency — the same key always resolves to the same event
   const { data: existing } = await supabase
     .from("usage_events_pactum")
     .select("id, cost, created_at")
-    .eq("idempotency_key", body.idempotency_key)
+    .eq("idempotency_key", ev.idempotencyKey)
     .single();
 
   if (existing) {
@@ -98,85 +194,60 @@ export async function POST(request: Request) {
     });
   }
 
-  // 5. State Channel Off-Chain Billing: Check On-Chain Balance vs Pending Off-Chain Usage
-  const contractAddress = process.env.PACTUM_CONTRACT_ADDRESS as `0x${string}`;
-  
-  if (contractAddress) {
-    try {
-      // a. Get On-Chain Balance
-      const publicClient = createPublicClient({ chain: arcTestnet, transport: http(ARC_TESTNET.rpc) });
-      const onChainBalanceWei = await publicClient.readContract({
-        address: contractAddress,
-        abi: PACTUM_BILLING_ABI,
-        functionName: "userBalances",
-        args: [body.user_address],
-      }) as bigint;
-      const onChainBalance = Number(onChainBalanceWei) / (10 ** ARC_TESTNET.usdcDecimals);
+  // 4. Balance + policy gates
+  const channel = await assertChannelAvailable(supabase, ev.userAddress, ev.costString);
+  if (channel) return channel;
 
-      // b. Get Pending Off-Chain Usage
-      const { data: pendingUsageData } = await supabase
-        .from("usage_events_pactum")
-        .select("cost")
-        .ilike("user_address", body.user_address)
-        .eq("status", "pending_settlement");
+  const policy = await assertPolicyAllows(supabase, key.projectId, ev.costNumber);
+  if (policy) return policy;
 
-      const pendingUsage = (pendingUsageData || []).reduce((sum, e) => sum + Number(e.cost), 0);
-      const availableBalance = onChainBalance - pendingUsage;
-
-      if (availableBalance < cost) {
-        return NextResponse.json(
-          { 
-            error: "Insufficient funds in State Channel.", 
-            details: `On-chain: ${onChainBalance} USDC, Pending: ${pendingUsage} USDC, Required: ${cost} USDC` 
-          },
-          { status: 402 }
-        );
-      }
-    } catch (e: any) {
-      console.error("State Channel read error:", e);
-      return NextResponse.json({ error: "Failed to read on-chain balance." }, { status: 500 });
-    }
-  } else {
-    console.warn("PACTUM_CONTRACT_ADDRESS is missing. Skipping real-time balance check.");
-  }
-
-  // Combine token info into metadata
+  // 5. Record the charge
   const updatedMetadata = {
-    ...body.metadata,
-    prompt_tokens: pTokens,
-    completion_tokens: cTokens,
-    prompt_price_per_token: pPrice,
-    completion_price_per_token: cPrice,
+    ...(typeof body.metadata === "object" && body.metadata !== null ? body.metadata : {}),
+    prompt_tokens: ev.promptTokens,
+    completion_tokens: ev.completionTokens,
+    prompt_price_per_token: ev.promptPrice,
+    completion_price_per_token: ev.completionPrice,
   };
 
-  // 6. Insert usage event into database
+  const totalTokens = ev.promptTokens + ev.completionTokens;
   const { data: event, error: insertError } = await supabase
     .from("usage_events_pactum")
     .insert({
-      api_key_id: keyRecord.id,
-      endpoint: body.model, // We store model in the existing endpoint column to avoid db schema changes
-      quantity: totalTokens > 0 ? totalTokens : 1, // Store total tokens in quantity
-      unit_price: totalTokens > 0 ? cost / totalTokens : cost, // Avoid division by zero
-      cost,
-      user_address: body.user_address,
+      api_key_id: key.id,
+      endpoint: ev.model, // stored in the existing endpoint column to avoid a schema change
+      quantity: totalTokens > 0 ? totalTokens : 1,
+      unit_price: totalTokens > 0 ? ev.costNumber / totalTokens : ev.costNumber,
+      cost: ev.costString,
+      user_address: ev.userAddress,
       metadata: updatedMetadata,
-      idempotency_key: body.idempotency_key,
-      status: "pending_settlement"
+      idempotency_key: ev.idempotencyKey,
+      status: USAGE_STATUS.PENDING,
     })
     .select("id, cost, created_at")
     .single();
 
   if (insertError) {
+    // 23505 = unique violation: a concurrent request with the same
+    // idempotency_key won the race — return its event instead of failing.
     if (insertError.code === "23505") {
       const { data: raceExisting } = await supabase
         .from("usage_events_pactum")
         .select("id, cost, created_at")
-        .eq("idempotency_key", body.idempotency_key)
+        .eq("idempotency_key", ev.idempotencyKey)
         .single();
-      return NextResponse.json({ recorded: true, deduplicated: true, event_id: raceExisting?.id, cost: Number(raceExisting?.cost) });
+      return NextResponse.json({
+        recorded: true,
+        deduplicated: true,
+        event_id: raceExisting?.id,
+        cost: Number(raceExisting?.cost),
+      });
     }
-    return NextResponse.json({ error: insertError.message }, { status: 500 });
+    log("error", "usage_track insert failed", { reqId, code: insertError.code });
+    return NextResponse.json({ error: "Failed to record usage event" }, { status: 500 });
   }
+
+  log("info", "usage recorded", { reqId, keyId: key.id.slice(0, 8), cost: ev.costString, ms: Date.now() - startedAt });
 
   return NextResponse.json({
     recorded: true,
