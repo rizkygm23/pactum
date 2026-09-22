@@ -11,7 +11,7 @@ const PACTUM_API_KEY = process.env.PACTUM_API_KEY;
 const XAI_API_KEY = process.env.XAI_API_KEY;
 // LLM relay model. "auto" lets the relay pick an available channel;
 // pinned names (e.g. DeepSeek-V4-Pro) break when the relay drops that channel.
-const LLM_MODEL = process.env.LLM_MODEL || "auto";
+const LLM_MODEL = process.env.LLM_MODEL || "grok-4.20-0309-reasoning";
 
 export async function POST(req: Request) {
   try {
@@ -165,7 +165,7 @@ Here is extensive context about the ecosystem you operate in. Use this knowledge
     let completionTokens = 0;
 
     try {
-      const aiRes = await fetch("https://api.hcnsec.cn/v1/chat/completions", {
+      const aiRes = await fetch("https://api.x.ai/v1/chat/completions", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -179,7 +179,18 @@ Here is extensive context about the ecosystem you operate in. Use this knowledge
         })
       });
 
-      const aiData = await aiRes.json();
+      // Parse defensively — upstream relays occasionally return HTML errors
+      const aiRaw = await aiRes.text();
+      let aiData: any;
+      try {
+        aiData = JSON.parse(aiRaw);
+      } catch {
+        console.error("LLM relay returned non-JSON:", aiRes.status, aiRaw.slice(0, 200));
+        return NextResponse.json(
+          { error: `LLM service returned an invalid response (HTTP ${aiRes.status}).` },
+          { status: 500 }
+        );
+      }
 
       if (aiRes.ok && aiData.choices) {
         aiResponseText = aiData.choices[0].message.content;
@@ -214,7 +225,21 @@ Here is extensive context about the ecosystem you operate in. Use this knowledge
         }),
       });
 
-      const pactumData = await pactumRes.json();
+      // Parse defensively — an HTML response here almost always means
+      // PACTUM_API_URL is missing the /api/v1 suffix or points elsewhere.
+      const pactumRaw = await pactumRes.text();
+      let pactumData: any;
+      try {
+        pactumData = JSON.parse(pactumRaw);
+      } catch {
+        console.error("Pactum billing returned non-JSON:", pactumRes.status, pactumRaw.slice(0, 200));
+        return NextResponse.json(
+          {
+            error: `Pactum billing endpoint returned an invalid response (HTTP ${pactumRes.status}). Check PACTUM_API_URL — it must end with /api/v1.`,
+          },
+          { status: 502 }
+        );
+      }
 
       if (!pactumRes.ok) {
         if (pactumRes.status === 402) {
