@@ -3,7 +3,9 @@ import jwt from 'jsonwebtoken';
 import { supabase } from '@/lib/supabase';
 
 const JWT_SECRET = process.env.JWT_SECRET || "default_secret";
-const XAI_API_KEY = process.env.XAI_API_KEY;
+const LLM_BASE_URL = process.env.LLM_BASE_URL || "https://api.x.ai/v1";
+const LLM_MODEL = process.env.LLM_MODEL || "grok-4.20-0309-non-reasoning";
+const LLM_API_KEY = process.env.XAI_API_KEY || process.env.LLM_API_KEY;
 
 export async function POST(req: Request) {
   try {
@@ -75,15 +77,15 @@ Respond ONLY with this exact JSON format:
       }
     ];
 
-    const aiRes = await fetch("https://api.hcnsec.cn/v1/chat/completions", {
+    const aiRes = await fetch(`${LLM_BASE_URL}/chat/completions`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${XAI_API_KEY}`
+        "Authorization": `Bearer ${LLM_API_KEY}`
       },
       body: JSON.stringify({
         messages: aiMessages,
-        model: "DeepSeek-V4-Pro",
+        model: LLM_MODEL,
         stream: false,
         temperature: 0.9,
         max_tokens: 150,

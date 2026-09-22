@@ -6,12 +6,12 @@ import { ethers } from 'ethers';
 import { supabase } from '@/lib/supabase';
 
 const JWT_SECRET = process.env.JWT_SECRET || crypto.randomBytes(32).toString("hex");
-const PACTUM_API_URL = process.env.PACTUM_API_URL || "https://pactum-ruddy.vercel.app/api/v1";
+const PACTUM_API_URL = process.env.PACTUM_API_URL || "https://pactum.rizzgm.xyz/api/v1";
 const PACTUM_API_KEY = process.env.PACTUM_API_KEY;
-const XAI_API_KEY = process.env.XAI_API_KEY;
-// LLM relay model. "auto" lets the relay pick an available channel;
-// pinned names (e.g. DeepSeek-V4-Pro) break when the relay drops that channel.
-const LLM_MODEL = process.env.LLM_MODEL || "grok-4.20-0309-reasoning";
+// xAI (Grok) — verified available on this key via GET /v1/models.
+const LLM_BASE_URL = process.env.LLM_BASE_URL || "https://api.x.ai/v1";
+const LLM_MODEL = process.env.LLM_MODEL || "grok-4.20-0309-non-reasoning";
+const LLM_API_KEY = process.env.XAI_API_KEY || process.env.LLM_API_KEY;
 
 export async function POST(req: Request) {
   try {
@@ -165,11 +165,11 @@ Here is extensive context about the ecosystem you operate in. Use this knowledge
     let completionTokens = 0;
 
     try {
-      const aiRes = await fetch("https://api.x.ai/v1/chat/completions", {
+      const aiRes = await fetch(`${LLM_BASE_URL}/chat/completions`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${XAI_API_KEY}`
+          "Authorization": `Bearer ${LLM_API_KEY}`
         },
         body: JSON.stringify({
           messages: aiMessages,
@@ -217,8 +217,8 @@ Here is extensive context about the ecosystem you operate in. Use this knowledge
           model: "auto",
           prompt_tokens: promptTokens,
           completion_tokens: completionTokens,
-          prompt_price_per_token: 0.000005,
-          completion_price_per_token: 0.000015,
+          prompt_price_per_token: 0.000001,
+          completion_price_per_token: 0.000001,
           user_address: user_address,
           idempotency_key: `chat-${Date.now()}-${crypto.randomBytes(4).toString("hex")}`,
           metadata: { app: "demo-chat-app", conversation_id: currentConversationId },
