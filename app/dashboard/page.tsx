@@ -141,7 +141,7 @@ export default async function DashboardOverview() {
                     <span className="text-xs text-[#939393]">USDC</span>
                   </span>
                   <div className="flex items-center gap-1.5">
-                    <StatusBadge status={tx.status} />
+                    <StatusBadge status={tx.status ?? "pending"} />
                     {tx.settled_tx_hash && (
                       <a href={explorerTxUrl(tx.settled_tx_hash)} target="_blank" rel="noopener noreferrer"
                         className="text-[#939393] hover:text-[#030303] transition-colors" title="View on explorer">

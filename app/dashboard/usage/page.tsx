@@ -93,7 +93,17 @@ export default async function UsagePage() {
           />
         </div>
       ) : (
-        <UsageFilterTable events={events} keyMap={keyMap} />
+        <UsageFilterTable
+          events={events.map((e) => ({
+            ...e,
+            endpoint:   e.endpoint   ?? "",
+            quantity:   e.quantity   ?? "0",
+            unit_price: e.unit_price ?? "0",
+            cost:       e.cost       ?? "0",
+            status:     e.status     ?? "pending",
+          }))}
+          keyMap={keyMap}
+        />
       )}
     </div>
   );
