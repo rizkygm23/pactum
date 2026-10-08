@@ -1,23 +1,33 @@
 import Link from "next/link";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { StatCard } from "@/components/ui/StatCard";
-import { DataLabel } from "@/components/ui/DataLabel";
-import { SealBadge } from "@/components/ui/SealBadge";
 import { explorerTxUrl } from "@/lib/arc/config";
 import { getSessionCookie } from "@/lib/auth";
 import { USAGE_STATUS } from "@/lib/usage-status";
 import { redirect } from "next/navigation";
+import { PageHeader } from "@/components/ui/PageHeader";
+import { StatusBadge } from "@/components/ui/StatusBadge";
+import { AvatarInitial } from "@/components/ui/AvatarInitial";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { OnboardingChecklist } from "@/components/dashboard/OnboardingChecklist";
+import { Activity, Zap, Plus, BookOpen, ExternalLink } from "lucide-react";
+
+function timeAgo(dateStr: string): string {
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const mins  = Math.floor(diff / 60_000);
+  const hours = Math.floor(diff / 3_600_000);
+  const days  = Math.floor(diff / 86_400_000);
+  if (mins < 1)   return "just now";
+  if (mins < 60)  return `${mins}m ago`;
+  if (hours < 24) return `${hours}h ago`;
+  return `${days}d ago`;
+}
 
 export default async function DashboardOverview() {
   const userId = await getSessionCookie();
-
-  if (!userId) {
-    redirect("/login");
-  }
+  if (!userId) redirect("/login");
 
   const supabase = createAdminClient();
-
-  // Get project
   const { data: project } = await supabase
     .from("projects_pactum")
     .select("id, name, merchant_wallet_address")
@@ -25,146 +35,120 @@ export default async function DashboardOverview() {
     .limit(1)
     .single();
 
-  // Today's usage start date
   const todayStart = new Date();
   todayStart.setUTCHours(0, 0, 0, 0);
 
   const [
     { count: activeKeys },
+    { count: revokedKeys },
     { data: todayEvents },
     { data: recentTxs },
-    { data: allSettled }
+    { data: allSettled },
   ] = await Promise.all([
-    supabase
-      .from("api_keys_pactum")
-      .select("id", { count: "exact", head: true })
-      .eq("project_id", project?.id ?? "")
-      .eq("status", "active"),
-    supabase
-      .from("usage_events_pactum")
+    supabase.from("api_keys_pactum").select("id", { count: "exact", head: true })
+      .eq("project_id", project?.id ?? "").eq("status", "active"),
+    supabase.from("api_keys_pactum").select("id", { count: "exact", head: true })
+      .eq("project_id", project?.id ?? "").eq("status", "revoked"),
+    supabase.from("usage_events_pactum")
       .select("cost, api_keys_pactum!inner(project_id)")
       .eq("api_keys_pactum.project_id", project?.id ?? "")
       .gte("created_at", todayStart.toISOString()),
-    supabase
-      .from("usage_events_pactum")
-      .select("id, cost, user_address, created_at, status, api_keys_pactum!inner(project_id)")
+    supabase.from("usage_events_pactum")
+      .select("id, cost, user_address, created_at, status, endpoint, settled_tx_hash, api_keys_pactum!inner(project_id)")
       .eq("api_keys_pactum.project_id", project?.id ?? "")
-      .eq("status", USAGE_STATUS.SETTLED)
-      .order("created_at", { ascending: false })
-      .limit(5),
-    supabase
-      .from("usage_events_pactum")
+      .order("created_at", { ascending: false }).limit(8),
+    supabase.from("usage_events_pactum")
       .select("cost, api_keys_pactum!inner(project_id)")
       .eq("api_keys_pactum.project_id", project?.id ?? "")
-      .eq("status", USAGE_STATUS.SETTLED)
+      .eq("status", USAGE_STATUS.SETTLED),
   ]);
 
-  const todaySpend = (todayEvents || []).reduce(
-    (sum, e) => sum + Number(e.cost),
-    0
-  );
-
-  const totalSettled = (allSettled || []).reduce(
-    (sum, event) => sum + Number(event.cost),
-    0
-  );
+  const todaySpend   = (todayEvents  || []).reduce((s, e) => s + Number(e.cost), 0);
+  const totalSettled = (allSettled   || []).reduce((s, e) => s + Number(e.cost), 0);
+  const hasWallet    = Boolean(project?.merchant_wallet_address);
+  const hasKeys      = (activeKeys ?? 0) > 0;
 
   return (
     <div>
-      {/* Header */}
-      <div className="mb-6 sm:mb-8">
-        <h1
-          className="text-xl sm:text-2xl font-semibold text-ink font-display"
-        >
-          Overview
-        </h1>
-        <p className="text-sm text-slate mt-1 break-words">
-          {project?.name || "Your project"} — real-time billing status
-        </p>
+      <PageHeader
+        title="Overview"
+        subtitle={`${project?.name || "Your project"} — real-time billing status`}
+      />
+
+      <OnboardingChecklist hasWallet={hasWallet} hasKeys={hasKeys} />
+
+      {/* Stats */}
+      <div className="grid grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4 mb-6">
+        <StatCard label="Today's Usage"  value={todaySpend.toFixed(4)} unit="USDC" />
+        <StatCard label="Active API Keys" value={activeKeys || 0}
+          sub={(revokedKeys ?? 0) > 0 ? `${revokedKeys} revoked` : undefined} />
+        <StatCard label="Total Settled"  value={totalSettled.toFixed(2)} unit="USDC" />
+        <StatCard label="Events Today"   value={(todayEvents || []).length} />
       </div>
 
-      {/* Stats row */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
-        <StatCard
-          label="Today's Usage"
-          value={todaySpend.toFixed(4)}
-          unit="USDC"
-        />
-        <StatCard
-          label="Active API Keys"
-          value={activeKeys || 0}
-        />
-        <StatCard
-          label="Total Settled"
-          value={totalSettled.toFixed(2)}
-          unit="USDC"
-        />
-        <StatCard
-          label="Events Today"
-          value={(todayEvents || []).length}
-        />
+      {/* Quick actions */}
+      <div className="flex flex-wrap gap-2 mb-6">
+        {[
+          { href: "/dashboard/payouts",  Icon: Zap,      label: "Settle pending" },
+          { href: "/dashboard/settings", Icon: Plus,     label: "New API key" },
+          { href: "/docs",               Icon: BookOpen, label: "View docs" },
+        ].map(({ href, Icon, label }) => (
+          <Link key={href} href={href}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-[#e7eaf0] bg-white px-3 py-1.5 text-xs font-medium text-[#404040] hover:bg-[#f9fafb] hover:text-[#030303] transition-colors">
+            <Icon className="w-3 h-3" /> {label}
+          </Link>
+        ))}
       </div>
 
-      {/* Recent transactions */}
-      <div className="card">
-        <h2 className="text-sm font-medium text-ink mb-4 uppercase tracking-wider">
-          Recent Settlements
-        </h2>
+      {/* Recent activity */}
+      <div className="rounded-xl border border-[#e7eaf0] bg-white overflow-hidden">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-[#e7eaf0]">
+          <h2 className="text-xs font-semibold uppercase tracking-widest text-[#939393]">Recent Activity</h2>
+          <Link href="/dashboard/usage"
+            className="inline-flex items-center gap-1 rounded-lg border border-[#e7eaf0] px-3 py-1.5 text-xs font-medium text-[#404040] hover:bg-[#f9fafb] transition-colors">
+            <Activity className="w-3 h-3" /> View all
+          </Link>
+        </div>
 
         {(!recentTxs || recentTxs.length === 0) ? (
-          <div className="text-center py-12">
-            <span className="stage-ordinal">No settlements yet</span>
-            <p className="text-slate text-sm leading-relaxed max-w-sm mx-auto mt-3">
-              Metered calls appear here once their usage settles on-chain.
-              Trigger a settlement from the Payouts page when pending usage
-              builds up.
-            </p>
-            <Link
-              href="/dashboard/payouts"
-              className="btn-ghost focus-ring no-wrap inline-block mt-5"
-            >
-              Go to Payouts
-            </Link>
-          </div>
+          <EmptyState
+            icon={Activity}
+            title="No activity yet"
+            description="Metered calls appear here once recorded. Integrate and start tracking usage."
+            action={<Link href="/docs" className="text-xs font-semibold text-[#030303] underline underline-offset-2">Integration Guide →</Link>}
+          />
         ) : (
-          <div className="space-y-0">
+          <div className="divide-y divide-[#e7eaf0]">
             {recentTxs.map((tx) => (
-              <div
-                key={tx.id}
-                className="ledger-row flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4"
-              >
-                <div className="flex min-w-0 items-center gap-3 sm:gap-4">
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 shrink-0 rounded-full border border-hairline flex items-center justify-center bg-hairline">
-                    <span className="text-ink text-base">✓</span>
+              <div key={tx.id} className="flex items-center gap-3 px-5 py-3.5 sm:gap-4 hover:bg-[#f9fafb] transition-colors">
+                <AvatarInitial seed={tx.user_address || "??"} size="md" />
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span className="font-mono text-xs text-[#030303] truncate max-w-[180px]">
+                      {tx.user_address || "Unknown"}
+                    </span>
+                    {tx.endpoint && (
+                      <span className="hidden sm:inline font-mono text-[10px] text-[#939393] truncate">
+                        · {tx.endpoint}
+                      </span>
+                    )}
                   </div>
-                  <div className="min-w-0">
-                    <DataLabel
-                      value={tx.user_address || "Unknown User"}
-                      truncate
-                    />
-                    <p className="text-xs text-slate mt-0.5">
-                      {new Date(tx.created_at).toLocaleDateString("en-US", {
-                        month: "short",
-                        day: "numeric",
-                        year: "numeric",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                    </p>
-                  </div>
+                  <p className="text-xs text-[#676f7b] mt-0.5">{timeAgo(tx.created_at)}</p>
                 </div>
-                <div className="flex shrink-0 items-center justify-between gap-3 sm:flex-col sm:items-end sm:gap-1">
-                  <div className="no-wrap">
-                    <span
-                      className="data-mono text-base sm:text-lg text-ink font-display"
-                    >
-                      {Number(tx.cost).toFixed(6)}
-                    </span>
-                    <span className="text-xs text-slate ml-1">
-                      USDC
-                    </span>
+                <div className="flex flex-col items-end gap-1 shrink-0">
+                  <span className="font-mono text-sm font-medium text-[#030303]">
+                    {Number(tx.cost).toFixed(6)}{" "}
+                    <span className="text-xs text-[#939393]">USDC</span>
+                  </span>
+                  <div className="flex items-center gap-1.5">
+                    <StatusBadge status={tx.status} />
+                    {tx.settled_tx_hash && (
+                      <a href={explorerTxUrl(tx.settled_tx_hash)} target="_blank" rel="noopener noreferrer"
+                        className="text-[#939393] hover:text-[#030303] transition-colors" title="View on explorer">
+                        <ExternalLink className="w-3 h-3" />
+                      </a>
+                    )}
                   </div>
-                  <span className="status-settled no-wrap">{tx.status}</span>
                 </div>
               </div>
             ))}

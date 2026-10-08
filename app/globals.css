@@ -1,463 +1,103 @@
-/* DESIGN-runwayml.md · Runwai-design-analysis (alpha)
- * Editorial, gallery-grade monochrome system.
- * Black ink on paper-white · hairline dividers · single sans · black pill CTAs.
- * No accent colour, no shadows, no gradients — depth is tonal and typographic.
- */
+/* Pactum · Design System v3 — pure Tailwind utilities, no custom classes */
 @import "tailwindcss";
 
-/* ──────────────────────────────────────────────────
-   Design tokens — DESIGN-runwayml.md
-   ────────────────────────────────────────────────── */
-
 @theme inline {
-  /* Brand & action */
-  --color-primary: #000000;
-  --color-on-primary: #ffffff;
+  /* Brand */
+  --color-primary:        #000000;
+  --color-on-primary:     #ffffff;
 
   /* Neutral ladder */
-  --color-ink: #030303;
-  --color-ink-soft: #1a1a1a;
-  --color-graphite: #404040;
-  --color-slate: #676f7b;
-  --color-slate-soft: #727a85;
-  --color-mute: #6b7280;
-  --color-stone: #939393;
-  --color-ash: #999999;
+  --color-ink:            #030303;
+  --color-ink-soft:       #1a1a1a;
+  --color-graphite:       #404040;
+  --color-slate:          #676f7b;
+  --color-slate-soft:     #727a85;
+  --color-mute:           #6b7280;
+  --color-stone:          #939393;
+  --color-ash:            #999999;
 
   /* Surfaces */
-  --color-hairline: #e7eaf0;
-  --color-hairline-soft: #c9ccd1;
-  --color-surface-cool: #d0d4d4;
-  --color-canvas: #ffffff;
-  --color-canvas-warm: #fefefe;
-  --color-scrim: #1a1a1a;
-  --color-footer: #030303;
+  --color-hairline:       #e7eaf0;
+  --color-hairline-soft:  #c9ccd1;
+  --color-surface-cool:   #d0d4d4;
+  --color-canvas:         #ffffff;
+  --color-canvas-warm:    #f9fafb;
+  --color-scrim:          #0f1117;
+  --color-footer:         #030303;
 
-  /* Semantic aliases (kept for util parity across pages) */
-  --color-background: var(--color-canvas);
-  --color-surface: var(--color-canvas-warm);
-  --color-foreground: var(--color-ink);
+  /* Status */
+  --color-green:          #16a34a;
+  --color-green-subtle:   #f0fdf4;
+  --color-green-border:   #bbf7d0;
+  --color-amber:          #d97706;
+  --color-amber-subtle:   #fffbeb;
+  --color-amber-border:   #fde68a;
+  --color-red:            #dc2626;
+  --color-red-subtle:     #fef2f2;
+  --color-red-border:     #fecaca;
+  --color-blue:           #2563eb;
+  --color-blue-subtle:    #eff6ff;
+  --color-blue-border:    #bfdbfe;
+
+  /* Semantic aliases */
+  --color-background:     var(--color-canvas);
+  --color-surface:        var(--color-canvas-warm);
+  --color-foreground:     var(--color-ink);
   --color-foreground-dim: var(--color-slate);
-  --color-accent: var(--color-primary);
-  --color-border: var(--color-hairline);
-  --color-border-strong: var(--color-hairline-soft);
+  --color-accent:         var(--color-primary);
+  --color-border:         var(--color-hairline);
+  --color-border-strong:  var(--color-hairline-soft);
 
-  /* Type — one face, every level (Inter stands in for abcNormal) */
-  --font-sans: var(--font-inter), "Helvetica Neue", Arial, sans-serif;
+  /* Typography */
+  --font-sans:    var(--font-inter), "Helvetica Neue", Arial, sans-serif;
   --font-display: var(--font-inter), "Helvetica Neue", Arial, sans-serif;
-  --font-mono: var(--font-ibm-plex-mono), "SFMono-Regular", Consolas, monospace;
+  --font-mono:    var(--font-ibm-plex-mono), "SFMono-Regular", Consolas, monospace;
 
-  /* Radius — pills for buttons, near-flat for surfaces */
+  /* Radius */
   --radius-xs: 4px;
   --radius-sm: 6px;
   --radius-md: 8px;
   --radius-lg: 16px;
 }
 
-/* ── Motion tokens ─────────────────────────────── */
+/* ── Motion tokens ──────────────────────────────── */
 :root {
-  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-out:  cubic-bezier(0.22, 1, 0.36, 1);
   --dur-short: 140ms;
-  --dur-mid: 320ms;
-  --dur-long: 640ms;
-  --measure: 62ch;
+  --dur-mid:   320ms;
+  --dur-long:  640ms;
   color-scheme: light;
 }
 
-/* ── Base ─────────────────────────────────────── */
-html {
-  overflow-x: clip;
-}
+/* ── Base resets ────────────────────────────────── */
+@layer base {
+  *, *::before, *::after { box-sizing: border-box; }
 
-@media (prefers-reduced-motion: no-preference) {
   html {
-    scroll-behavior: smooth;
+    font-family: var(--font-sans);
+    background: var(--color-canvas);
+    color: var(--color-ink);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
   }
-}
 
-body {
-  background: var(--color-canvas);
-  color: var(--color-ink);
-  font-family: var(--font-sans);
-  font-size: 16px;
-  line-height: 1.5;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  overflow-x: clip;
-}
+  body { min-height: 100dvh; }
 
-::selection {
-  background: var(--color-ink);
-  color: var(--color-on-primary);
-}
-
-/* ── Scrollbar (Chromium) ─────────────────────── */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  background: var(--color-hairline-soft);
-  border-radius: 3px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: var(--color-stone);
-}
-
-/* ── Type helpers ─────────────────────────────── */
-/* Display: negative tracking is core to the brand voice */
-.display-face {
-  font-family: var(--font-display);
-  font-weight: 400;
-  letter-spacing: -0.02em;
-  overflow-wrap: anywhere;
-  min-width: 0;
-}
-
-.eyebrow {
-  font-size: 14px;
-  font-weight: 500;
-  letter-spacing: 0.025em;
-  text-transform: uppercase;
-}
-
-.micro-caps {
-  font-size: 11px;
-  font-weight: 450;
-  letter-spacing: 0.018em;
-  text-transform: uppercase;
-}
-
-/* ── Data — monospace precision for hashes, addresses, amounts ── */
-.data-mono {
-  font-family: var(--font-mono);
-  font-variant-numeric: tabular-nums;
-  letter-spacing: 0.01em;
-  overflow-wrap: anywhere;
-  min-width: 0;
-}
-
-/* ── Buttons ──────────────────────────────────── */
-/* Every primary action is a black pill — same pill at every scale. */
-.btn-primary {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--color-primary);
-  color: var(--color-on-primary);
-  font-size: 14px;
-  font-weight: 600;
-  line-height: 1.43;
-  height: 40px;
-  padding: 0 24px;
-  border: 1px solid var(--color-primary);
-  border-radius: 9999px;
-  transition: background var(--dur-short) ease, transform var(--dur-short) ease;
-  cursor: pointer;
-}
-.btn-primary:hover {
-  background: var(--color-ink-soft);
-}
-.btn-primary:active {
-  transform: scale(0.98);
-}
-.btn-primary:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-
-/* Inverse pill for dark scrim surfaces */
-.btn-inverse {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--color-on-primary);
-  color: var(--color-primary);
-  font-size: 14px;
-  font-weight: 600;
-  line-height: 1.43;
-  height: 40px;
-  padding: 0 24px;
-  border: 1px solid var(--color-on-primary);
-  border-radius: 9999px;
-  transition: opacity var(--dur-short) ease, transform var(--dur-short) ease;
-  cursor: pointer;
-}
-.btn-inverse:hover {
-  opacity: 0.85;
-}
-.btn-inverse:active {
-  transform: scale(0.98);
-}
-.btn-inverse:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-
-/* Secondary action: white pill with a 1px ink border */
-.btn-ghost {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--color-canvas);
-  color: var(--color-ink);
-  font-size: 14px;
-  font-weight: 600;
-  line-height: 1.43;
-  height: 40px;
-  padding: 0 24px;
-  border: 1px solid var(--color-ink);
-  border-radius: 9999px;
-  transition: background var(--dur-short) ease, transform var(--dur-short) ease;
-  cursor: pointer;
-}
-.btn-ghost:hover {
-  background: var(--color-canvas-warm);
-}
-.btn-ghost:active {
-  transform: scale(0.98);
-}
-.btn-ghost:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-
-/* Inline text link */
-.btn-text-link {
-  background: transparent;
-  color: var(--color-ink);
-  font-size: 14px;
-  font-weight: 600;
-  text-decoration: underline;
-  text-underline-offset: 3px;
-  text-decoration-color: var(--color-hairline-soft);
-  transition: text-decoration-color var(--dur-short) ease;
-  cursor: pointer;
-}
-.btn-text-link:hover {
-  text-decoration-color: var(--color-ink);
-}
-
-/* ── Inputs — 1px bottom rule, no box ─────────── */
-.input-field {
-  background: var(--color-canvas);
-  border: 0;
-  border-bottom: 1px solid var(--color-hairline-soft);
-  border-radius: 0;
-  padding: 12px 0;
-  color: var(--color-ink);
-  font-size: 16px;
-  transition: border-color var(--dur-short) ease;
-  width: 100%;
-  outline: none;
-}
-.input-field::placeholder {
-  color: var(--color-stone);
-}
-.input-field:focus {
-  border-bottom-color: var(--color-ink);
-}
-.input-field:disabled {
-  color: var(--color-mute);
-}
-
-/* ── Status chips — borders and copy, not colour ── */
-.status-settled,
-.status-pending,
-.status-failed {
-  display: inline-flex;
-  align-items: center;
-  padding: 2px 10px;
-  border-radius: 9999px;
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-}
-.status-settled {
-  background: var(--color-primary);
-  color: var(--color-on-primary);
-}
-.status-pending {
-  background: var(--color-hairline);
-  color: var(--color-graphite);
-}
-.status-failed {
-  background: var(--color-canvas);
-  color: var(--color-ink);
-  border: 1px solid var(--color-ink);
-}
-
-/* ── Card — flat, hairline border, md radius ──── */
-.card {
-  background: var(--color-canvas);
-  border: 1px solid var(--color-hairline);
-  border-radius: var(--radius-md);
-  padding: 1rem;
-}
-@media (min-width: 40rem) {
-  .card {
-    padding: 1.5rem;
+  /* keep focus rings accessible */
+  :focus-visible {
+    outline: 2px solid var(--color-ink);
+    outline-offset: 2px;
+    border-radius: 2px;
   }
-}
 
-/* ── Ledger row — hairline dividers ───────────── */
-.ledger-row {
-  border-bottom: 1px solid var(--color-hairline);
-  padding: 0.875rem 0;
-  transition: background 0.15s ease;
-}
-.ledger-row:hover {
-  background: var(--color-canvas-warm);
-}
-
-/* ── Receipt stub — dashed tear line ──────────── */
-.receipt-stub {
-  border-bottom: 1px dashed var(--color-hairline-soft);
-  padding-bottom: 1.5rem;
-  margin-bottom: 1.5rem;
-}
-
-/* ── Seal — black ring, no glow ───────────────── */
-.seal-badge {
-  border: 1px solid var(--color-ink);
-}
-
-/* ── Clickable affordances are one-line objects ── */
-.no-wrap {
-  white-space: nowrap;
-}
-
-/* ── Motion primitives (transform/opacity only) ── */
-.rule-sweep {
-  height: 1px;
-  background: var(--color-primary);
-  transform: scaleX(0);
-  transform-origin: left center;
-  transition: transform var(--dur-long) var(--ease-out);
-}
-.is-revealed .rule-sweep {
-  transform: scaleX(1);
-}
-
-.rule-mark {
-  height: 1px;
-  background: var(--color-primary);
-}
-
-.seal-strike {
-  opacity: 0;
-  transform: scale(0.96);
-  transition:
-    opacity var(--dur-mid) var(--ease-out),
-    transform var(--dur-mid) var(--ease-out);
-}
-.is-revealed .seal-strike {
-  opacity: 1;
-  transform: scale(1);
-}
-
-.ledger-tick {
-  opacity: 0;
-  transform: translateY(6px);
-  transition:
-    opacity var(--dur-mid) var(--ease-out),
-    transform var(--dur-mid) var(--ease-out);
-}
-.is-revealed .ledger-tick {
-  opacity: 1;
-  transform: translateY(0);
-}
-.is-revealed .ledger-tick:nth-child(1) { transition-delay: 0ms; }
-.is-revealed .ledger-tick:nth-child(2) { transition-delay: 70ms; }
-.is-revealed .ledger-tick:nth-child(3) { transition-delay: 140ms; }
-.is-revealed .ledger-tick:nth-child(4) { transition-delay: 210ms; }
-
-/* ── Stage ordinal — editorial margin label ───── */
-.stage-ordinal {
-  font-size: 12px;
-  font-weight: 500;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--color-graphite);
-}
-
-/* ── Typographic code frame ───────────────────── */
-.code-frame {
-  border-top: 1px solid var(--color-hairline-soft);
-  border-bottom: 1px solid var(--color-hairline-soft);
-  background: var(--color-canvas-warm);
-}
-.code-frame__label {
-  font-family: var(--font-mono);
-  font-size: 0.6875rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--color-graphite);
-  border-bottom: 1px solid var(--color-hairline);
-  padding: 0.5rem 1rem;
-}
-.code-frame__body {
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  line-height: 1.75;
-  padding: 1rem;
-  overflow-x: auto;
-  color: var(--color-ink-soft);
-  tab-size: 2;
-}
-
-/* ── Spec table — hairline ledger rows ────────── */
-.spec-row {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 0.125rem;
-  padding: 0.875rem 0;
-  border-bottom: 1px solid var(--color-hairline);
-}
-@media (min-width: 40rem) {
-  .spec-row {
-    grid-template-columns: 14rem minmax(0, 1fr);
-    gap: 1.5rem;
-    align-items: baseline;
-  }
-}
-
-/* ── Code blocks — scroll, never overflow ─────── */
-pre {
-  max-width: 100%;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-}
-pre code {
-  white-space: pre;
-}
-main :where(pre, table) {
-  min-width: 0;
-}
-
-/* ── Focus ring — ink, instant, never animated ── */
-.focus-ring:focus-visible {
-  outline: 2px solid var(--color-ink);
-  outline-offset: 2px;
-  border-radius: var(--radius-xs);
-}
-
-/* ── Reduced motion ───────────────────────────── */
-@media (prefers-reduced-motion: reduce) {
-  .rule-sweep,
-  .seal-strike,
-  .ledger-tick {
-    transition-duration: 150ms;
-    transition-property: opacity;
-    transform: none;
-  }
-  .is-revealed .rule-sweep,
-  .is-revealed .seal-strike,
-  .is-revealed .ledger-tick {
-    transform: none;
+  /* status chip colours as CSS custom props so we can ref in inline styles */
+  :root {
+    --chip-settled-bg:  #f0fdf4;
+    --chip-settled-fg:  #15803d;
+    --chip-pending-bg:  #fffbeb;
+    --chip-pending-fg:  #b45309;
+    --chip-failed-bg:   #fef2f2;
+    --chip-failed-fg:   #b91c1c;
   }
 }
