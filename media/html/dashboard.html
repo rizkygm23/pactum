@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Inter',sans-serif; background:#ffffff; color:#030303; font-size:16px; line-height:1.5; -webkit-font-smoothing:antialiased; }
+  .mono { font-family:'IBM Plex Mono',monospace; font-variant-numeric:tabular-nums; }
+  .micro { font-size:11px; font-weight:450; letter-spacing:.018em; text-transform:uppercase; }
+  .app { display:flex; height:900px; overflow:hidden; }
+  .rail { width:240px; border-right:1px solid #e7eaf0; display:flex; flex-direction:column; }
+  .brand { display:flex; align-items:center; gap:8px; padding:20px; border-bottom:1px solid #e7eaf0; }
+  .logo { width:28px; height:28px; border-radius:6px; background:#030303; color:#fff; display:flex; align-items:center; justify-content:center; font-weight:600; font-size:13px; }
+  .brand h1 { font-size:18px; font-weight:600; letter-spacing:-.01em; }
+  .nav { padding:16px 12px; flex:1; }
+  .nav a { display:block; padding:9px 12px; border-radius:8px; font-size:14px; color:#404040; text-decoration:none; margin-bottom:2px; }
+  .nav a.active { background:#e7eaf0; font-weight:600; color:#030303; }
+  .user { border-top:1px solid #e7eaf0; padding:16px; }
+  .user p { font-family:'IBM Plex Mono',monospace; font-size:11px; color:#676f7b; word-break:break-all; }
+  .user button { margin-top:10px; background:none; border:none; font-size:12px; font-weight:600; color:#676f7b; cursor:pointer; }
+  .main { flex:1; overflow:hidden; padding:32px 40px; }
+  h2.pagetitle { font-size:24px; font-weight:400; letter-spacing:-.02em; }
+  .pagesub { font-size:14px; color:#676f7b; margin-top:4px; }
+  .stats { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin:28px 0; }
+  .stat { border:1px solid #e7eaf0; border-radius:8px; padding:20px; }
+  .stat .micro { color:#676f7b; }
+  .stat .num { font-size:30px; font-weight:400; letter-spacing:-.02em; margin-top:8px; }
+  .stat .unit { font-family:'IBM Plex Mono',monospace; font-size:13px; color:#939393; margin-left:4px; }
+  .panel { border:1px solid #e7eaf0; border-radius:8px; padding:24px; }
+  .panel h3 { font-size:13px; font-weight:500; letter-spacing:.05em; text-transform:uppercase; color:#030303; }
+  .row { display:flex; align-items:center; justify-content:space-between; gap:16px; padding:14px 0; border-bottom:1px solid #e7eaf0; }
+  .row:last-child { border-bottom:none; }
+  .row .who { display:flex; align-items:center; gap:12px; }
+  .avatar { width:40px; height:40px; border-radius:9999px; border:1px solid #e7eaf0; background:#fefefe; display:flex; align-items:center; justify-content:center; color:#030303; font-size:15px; }
+  .addr { font-family:'IBM Plex Mono',monospace; font-size:13px; color:#030303; }
+  .when { font-size:11px; color:#676f7b; margin-top:2px; }
+  .amt { font-family:'IBM Plex Mono',monospace; font-size:16px; color:#030303; }
+  .amt span { font-size:11px; color:#939393; margin-left:3px; }
+  .chip { font-size:10px; font-weight:500; letter-spacing:.05em; text-transform:uppercase; background:#030303; color:#fff; padding:3px 10px; border-radius:9999px; }
+  .txline { display:flex; justify-content:space-between; align-items:center; padding:10px 0 2px; border-top:1px dashed #c9ccd1; margin-top:6px; }
+  .txline .micro { color:#939393; }
+  .txhash { font-family:'IBM Plex Mono',monospace; font-size:11px; color:#404040; text-decoration:underline; text-underline-offset:3px; text-decoration-color:#c9ccd1; }
+  .empty-hint { margin-top:14px; padding:10px 14px; border:1px solid #e7eaf0; border-radius:8px; font-size:12px; color:#676f7b; background:#fefefe; }
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="rail">
+    <div class="brand">
+      <div class="logo">P</div>
+      <h1>pactum</h1>
+    </div>
+    <nav class="nav">
+      <a class="active" href="#">Overview</a>
+      <a href="#">Usage</a>
+      <a href="#">Payouts</a>
+      <a href="#">Settings</a>
+      <a href="#">Documentation</a>
+    </nav>
+    <div class="user">
+      <p>builder@pactum.dev</p>
+      <button>Sign out</button>
+    </div>
+  </aside>
+  <main class="main">
+    <h2 class="pagetitle">Overview</h2>
+    <p class="pagesub">Pactum Studio — real-time billing status</p>
+
+    <div class="stats">
+      <div class="stat"><div class="micro">Today's Usage</div><div class="num">0.000895<span class="unit">USDC</span></div></div>
+      <div class="stat"><div class="micro">Active API Keys</div><div class="num">1</div></div>
+      <div class="stat"><div class="micro">Total Settled</div><div class="num">0.003913<span class="unit">USDC</span></div></div>
+      <div class="stat"><div class="micro">Events Today</div><div class="num">7</div></div>
+    </div>
+
+    <div class="panel">
+      <h3>Recent Settlements</h3>
+      <div class="row">
+        <div class="who">
+          <div class="avatar">✓</div>
+          <div>
+            <div class="addr">0x3813cB42…5F727a</div>
+            <div class="when">Sep 22, 2026, 03:27 AM</div>
+          </div>
+        </div>
+        <div style="text-align:right">
+          <div class="amt">0.001422<span>USDC</span></div>
+          <div style="margin-top:6px"><span class="chip">settled</span></div>
+        </div>
+      </div>
+      <div class="txline">
+        <span class="micro">Settled on-chain ↗</span>
+        <span class="txhash">0xdaf606d797f87e9e1970e38a8e8bff73a3a632a963a45315314830427695cca1</span>
+      </div>
+
+      <div class="row">
+        <div class="who">
+          <div class="avatar">✓</div>
+          <div>
+            <div class="addr">0x3813cB42…5F727a</div>
+            <div class="when">Sep 22, 2026, 03:26 AM</div>
+          </div>
+        </div>
+        <div style="text-align:right">
+          <div class="amt">0.001395<span>USDC</span></div>
+          <div style="margin-top:6px"><span class="chip">settled</span></div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="who">
+          <div class="avatar">✓</div>
+          <div>
+            <div class="addr">0x3813cB42…5F727a</div>
+            <div class="when">Sep 22, 2026, 03:16 AM</div>
+          </div>
+        </div>
+        <div style="text-align:right">
+          <div class="amt">0.001096<span>USDC</span></div>
+          <div style="margin-top:6px"><span class="chip">settled</span></div>
+        </div>
+      </div>
+
+      <div class="empty-hint">
+        Every settled row carries its <b>settled_tx_hash</b> — the batch above was
+        sealed in one <span class="mono">batchSettleUsage</span> transaction on Arc (chain 5042002).
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

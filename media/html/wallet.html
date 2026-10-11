@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Inter',sans-serif; background:#ffffff; color:#030303; font-size:16px; line-height:1.5; -webkit-font-smoothing:antialiased; }
+  .mono { font-family:'IBM Plex Mono',monospace; font-variant-numeric:tabular-nums; }
+  .micro { font-size:11px; font-weight:450; letter-spacing:.018em; text-transform:uppercase; }
+  .wrap { min-height:900px; display:flex; flex-direction:column; align-items:center; padding:40px 16px; }
+  .back { width:100%; max-width:448px; margin-bottom:24px; font-size:12px; color:#676f7b; }
+  .back a { color:#676f7b; text-decoration:none; }
+  .card { width:100%; max-width:448px; border:1px solid #e7eaf0; border-radius:8px; padding:24px; background:#fff; }
+  .ordinal { font-size:12px; font-weight:500; letter-spacing:.14em; text-transform:uppercase; color:#404040; }
+  .rule { width:64px; height:1px; background:#030303; margin-top:8px; }
+  h1 { font-size:28px; font-weight:400; letter-spacing:-.02em; margin-top:20px; }
+  .sub { font-size:14px; color:#404040; margin-top:8px; line-height:1.5; }
+  .walletbox { display:flex; align-items:center; justify-content:space-between; gap:16px; border:1px solid #e7eaf0; background:#fefefe; border-radius:8px; padding:14px; margin-bottom:24px; }
+  .walletbox .addr { font-family:'IBM Plex Mono',monospace; font-size:12px; color:#030303; word-break:break-all; }
+  .walletbox a { font-size:12px; font-weight:600; color:#030303; text-decoration:underline; text-underline-offset:2px; }
+  .tiles { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:24px; }
+  .tile { border:1px solid #e7eaf0; background:#fefefe; border-radius:8px; padding:16px; }
+  .tile .micro { color:#939393; }
+  .tile .num { font-size:24px; font-weight:400; letter-spacing:-.02em; margin-top:6px; }
+  .tile .unit { font-size:12px; color:#676f7b; margin-top:4px; }
+  .notice { display:flex; gap:12px; border:1px solid #c9ccd1; background:#e7eaf0; border-radius:8px; padding:12px; font-size:12px; color:#404040; margin-bottom:24px; }
+  .notice b { font-family:'IBM Plex Mono',monospace; color:#030303; }
+  .sect { border-top:1px solid #e7eaf0; padding-top:8px; }
+  .sect .head { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:8px; }
+  .sect label { font-size:11px; font-weight:450; letter-spacing:.018em; text-transform:uppercase; color:#676f7b; }
+  .sect .max { font-size:11px; font-weight:600; color:#030303; text-decoration:underline; text-underline-offset:2px; }
+  .fieldrow { display:flex; gap:8px; }
+  .field { flex:1; border:0; border-bottom:1px solid #c9ccd1; padding:12px 0; font-size:16px; color:#030303; outline:none; font-family:'Inter',sans-serif; }
+  .pill { height:40px; padding:0 22px; border-radius:9999px; font-size:14px; font-weight:600; cursor:pointer; display:inline-flex; align-items:center; gap:8px; }
+  .pill.primary { background:#030303; color:#fff; border:1px solid #030303; }
+  .pill.ghost { background:#fff; color:#030303; border:1px solid #030303; }
+  .hint { font-size:11px; color:#676f7b; line-height:1.5; margin-top:10px; }
+  .foot { font-family:'IBM Plex Mono',monospace; text-align:center; font-size:12px; color:#676f7b; margin-top:24px; }
+  .divider { border:0; border-top:1px solid #e7eaf0; margin:24px 0; }
+  .arrow { width:14px; height:14px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div style="width:100%;max-width:448px">
+    <div class="back"><a href="#">← Back to pactum</a></div>
+
+    <div class="card">
+      <div class="ordinal">Deposit</div>
+      <div class="rule"></div>
+      <h1>Channel deposit</h1>
+      <p class="sub">Top up your Pactum balance with USDC. The deposit sits in the billing contract and settles every metered call across integrated apps.</p>
+
+      <div style="height:24px"></div>
+
+      <div class="walletbox">
+        <div style="min-width:0">
+          <div class="micro" style="color:#939393;margin-bottom:4px">Connected wallet</div>
+          <div class="addr">0x3813cB42a4376e4FaCB4b7F0fA3492CC0A5F727a</div>
+        </div>
+        <a href="#">Switch</a>
+      </div>
+
+      <div class="tiles">
+        <div class="tile">
+          <div class="micro">On-chain ⓘ</div>
+          <div class="num">7.9817</div>
+          <div class="unit">USDC</div>
+        </div>
+        <div class="tile">
+          <div class="micro">Available</div>
+          <div class="num">7.9743</div>
+          <div class="unit">USDC</div>
+        </div>
+      </div>
+
+      <div class="notice">
+        <span>ⓘ</span>
+        <p><b>0.007415 USDC</b> of usage is still pending settlement on-chain. Your available balance has been adjusted.</p>
+      </div>
+
+      <div class="sect">
+        <label>Top up (USDC)</label>
+        <div class="fieldrow">
+          <input class="field" value="5.00" readonly>
+          <button class="pill primary">→</button>
+        </div>
+      </div>
+
+      <hr class="divider">
+
+      <div class="sect">
+        <div class="head">
+          <label>Withdraw unused</label>
+          <span class="max">Max 7.9743</span>
+        </div>
+        <div class="fieldrow">
+          <input class="field" value="2.00" readonly>
+          <button class="pill ghost">↓</button>
+        </div>
+        <p class="hint">The full on-chain balance can be withdrawn. Usage that has not settled yet remains owed — later calls may be rejected until it is covered again.</p>
+      </div>
+    </div>
+
+    <p class="foot">Arc Testnet · chain 5042002 · settlement in USDC</p>
+  </div>
+</div>
+</body>
+</html>
