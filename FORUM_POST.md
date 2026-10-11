@@ -1,8 +1,9 @@
 # Pactum on Arc: per-token billing for AI APIs, settled in USDC
 
 > Draft Ecosystem Showcase post — follows forum_guildelines.md.
-> Before posting: add 1-3 screenshots of the "it works" moment and upload a
-> 30-120s screen recording to YouTube/Vimeo, then embed with the film icon.
+> Before posting: attach the two screenshots (dashboard + usage) and the Aura
+> AI demo shot listed in Media, then upload the 30-120s demo recording to
+> YouTube/Vimeo and embed it with the film icon.
 
 ---
 
@@ -10,7 +11,7 @@
 
 - **What it is** — Pactum is metered billing for AI services: your users prepay USDC into an on-chain channel, you meter every API call, and usage settles in batches on Arc with a tx-hash receipt.
 - **Who it's for** — AI/API developers who want per-token/per-call pricing without cards, invoices, or chasing payments.
-- **What you can do today** — create an API key, meter calls from your backend against the live testnet deployment, and try the billed-per-token chat demo end to end.
+- **What you can do today** — create an API key, meter calls from your backend against the live testnet deployment, watch every call land on the Usage page, and try the Aura AI demo — a chat billed per token, end to end.
 
 ---
 
@@ -39,6 +40,8 @@ curl -X POST https://pactum.rizzgm.xyz/api/v1/usage/track \
 
 3. Expected responses: `200 { "recorded": true, "cost": 0.0112 }` · replay with the same `idempotency_key` → `"deduplicated": true` (never double-charged) · `402` when the user's channel balance can't cover it · `429` when a daily/monthly spend policy caps the charge.
 
+Every call shows up on the dashboard **Usage** page as it lands — endpoint, quantity, unit price, cost, and `pending → settled` status.
+
 Users fund their balance (and withdraw unused funds) at the wallet page: approve USDC → `deposit()` → `userBalances` is the channel balance. Full walkthrough: **[Integration Guide](https://pactum.rizzgm.xyz/docs/integration-guide)**.
 
 ## Integration notes
@@ -63,24 +66,26 @@ Users fund their balance (and withdraw unused funds) at the wallet page: approve
 - Website / dashboard: https://pactum.rizzgm.xyz
 - Docs (integration-first): https://pactum.rizzgm.xyz/docs
 - GitHub: https://github.com/rizkygm23/pactum
-- Live demo (chat billed per token, Grok-powered): https://aura-ai.rizzgm.xyz
+- Live demo — Aura AI, chat billed per token: https://aura-ai.rizzgm.xyz
 - Contract on explorer: https://explorer.testnet.arc.io/address/0x4bab39e99d9bca6897d8b844f84fbe6b06d28509
 
 ## Media
 
-Screenshots ready in `media/` (HTML sources in `media/html/` — re-render anytime):
+Two screenshots to attach inline when posting (the "it works" moment):
 
-- [x] `media/dashboard.png` — overview with settled rows + on-chain tx-hash links (real batch `0xdaf606d7…`)
-- [x] `media/wallet.png` — deposit + withdraw flow with real balances (7.98 USDC on-chain)
-- [x] `media/chat.png` — demo chat with "Pactum Billed" stamps (real conversation)
-- [ ] 30-120s screen recording (upload to YouTube/Vimeo, embed with film icon): signup → API key → curl meter → 402 → settle → receipt
+1. **Dashboard** — settled usage batches with on-chain tx-hash links (real batch `0xdaf606d7…`).
+2. **Usage page** — metered calls as they land: endpoint, quantity, unit price, cost, and `pending → settled` status.
+
+Plus the **Aura AI demo** — the billed-per-token chat at [aura-ai.rizzgm.xyz](https://aura-ai.rizzgm.xyz): attach a screenshot of a billed reply, or better, the recording below.
+
+- [ ] 30-120s screen recording of the Aura AI demo (upload to YouTube/Vimeo, embed with film icon): connect wallet → send prompt → billed reply → settled batch with tx hash
 
 ## Who it's for
 
 - **Builders** — one curl against `/usage/track` after your model responds is the whole integration; first win is a metered, deduplicated event in under 15 minutes.
 - **Founders/PMs** — usage-based pricing for AI features without card rails; policy caps (429) give you spend guardrails per project.
 - **Infra/tooling** — stateless Next.js app + Supabase + a single operator wallet; `/api/health` and structured logs are ready for uptime checks.
-- **Community/educators** — the chat demo is the easiest path: connect MetaMask, deposit testnet USDC from the Circle faucet, and watch every reply get billed and settled.
+- **Community/educators** — the Aura AI demo is the easiest path: connect MetaMask, deposit testnet USDC from the Circle faucet, and watch every reply get billed and settled.
 - **End users** — try the demo with faucet funds; unused deposit is withdrawable at any time, even if the platform pauses.
 
 ---

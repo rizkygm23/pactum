@@ -2,10 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { createWalletClient, custom, createPublicClient, http, formatUnits } from "viem";
-import { arcTestnet } from "viem/chains";
 import { Wallet, Loader2, ArrowRight, CheckCircle2 } from "lucide-react";
 import { toast } from "react-hot-toast";
 import { ensureArcChain } from "@/lib/arc/chain-switch";
+import { ARC_VIEM_CHAIN } from "@/lib/arc/clients";
 
 const PACTUM_CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_PACTUM_CONTRACT_ADDRESS as `0x${string}`;
 const PACTUM_ABI = [
@@ -22,7 +22,7 @@ export function WithdrawWidget({ expectedMerchantAddress }: { expectedMerchantAd
 
   const fetchBalance = async (acc: string) => {
     try {
-      const publicClient = createPublicClient({ chain: arcTestnet, transport: custom(window.ethereum!) });
+      const publicClient = createPublicClient({ chain: ARC_VIEM_CHAIN, transport: custom(window.ethereum!) });
       const balanceWei = await publicClient.readContract({ address: PACTUM_CONTRACT_ADDRESS, abi: PACTUM_ABI, functionName: "merchantBalances", args: [acc as `0x${string}`] }) as bigint;
       setWithdrawableBalance(Number(formatUnits(balanceWei, 6)));
     } catch (e) { console.error("Error fetching merchant balance:", e); }
@@ -45,7 +45,7 @@ export function WithdrawWidget({ expectedMerchantAddress }: { expectedMerchantAd
     if (typeof window === "undefined" || !window.ethereum) { toast.error("Please install MetaMask."); return; }
     try {
       await ensureArcChain(window.ethereum!);
-      const walletClient = createWalletClient({ chain: arcTestnet, transport: custom(window.ethereum) });
+      const walletClient = createWalletClient({ chain: ARC_VIEM_CHAIN, transport: custom(window.ethereum) });
       const [account] = await walletClient.requestAddresses();
       setAddress(account); fetchBalance(account);
     } catch (e) { console.error(e); toast.error("Failed to connect wallet."); }
@@ -69,8 +69,8 @@ export function WithdrawWidget({ expectedMerchantAddress }: { expectedMerchantAd
     try { await ensureArcChain(window.ethereum!); } catch { toast.error("Arc Testnet must be selected."); return; }
     setLoading(true); setStatus("Requesting withdrawal approval…");
     try {
-      const publicClient = createPublicClient({ chain: arcTestnet, transport: custom(window.ethereum!) });
-      const walletClient = createWalletClient({ chain: arcTestnet, transport: custom(window.ethereum!) });
+      const publicClient = createPublicClient({ chain: ARC_VIEM_CHAIN, transport: custom(window.ethereum!) });
+      const walletClient = createWalletClient({ chain: ARC_VIEM_CHAIN, transport: custom(window.ethereum!) });
       const balanceWei   = await publicClient.readContract({ address: PACTUM_CONTRACT_ADDRESS, abi: PACTUM_ABI, functionName: "merchantBalances", args: [address as `0x${string}`] }) as bigint;
       const withdrawHash = await walletClient.writeContract({ account: address as `0x${string}`, address: PACTUM_CONTRACT_ADDRESS, abi: PACTUM_ABI, functionName: "withdrawMerchant", args: [balanceWei] });
       setStatus("Waiting for confirmation…");

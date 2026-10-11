@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { getSessionCookie } from "@/lib/auth";
-import { ARC_TESTNET } from "@/lib/arc/config";
+import { ARC_CHAIN, ARC_NETWORK } from "@/lib/arc/config";
 import { SealBadge } from "@/components/ui/SealBadge";
 import { LandingNav } from "@/components/landing/LandingNav";
 import { ReceiptStub } from "@/components/landing/ReceiptStub";
@@ -18,12 +18,12 @@ const SPECIMEN_LINES = [
 ];
 
 const NETWORK_FACTS = [
-  { term: "Network",          value: "Arc Testnet",            note: `chain ID ${ARC_TESTNET.chainId}` },
-  { term: "Settlement asset", value: "USDC",                   note: `ERC-20, ${ARC_TESTNET.usdcDecimals} decimals — ${ARC_TESTNET.usdc}` },
+  { term: "Network",          value: ARC_NETWORK === "mainnet" ? "Arc Mainnet" : "Arc Testnet", note: `chain ID ${ARC_CHAIN.chainId}` },
+  { term: "Settlement asset", value: "USDC",                   note: `ERC-20, ${ARC_CHAIN.usdcDecimals} decimals — ${ARC_CHAIN.usdc}` },
   { term: "Batching",         value: "Multicall3From",         note: "many settlements in one tx, msg.sender preserved" },
-  { term: "Explorer",         value: ARC_TESTNET.explorer.replace("https://", ""), note: "every settlement resolves to a public tx" },
-  { term: "CCTP domain",      value: String(ARC_TESTNET.cctpDomain), note: "for bridging USDC in and out of Arc" },
-  { term: "Testnet funds",    value: ARC_TESTNET.faucet.replace("https://", ""),   note: "Circle faucet — no mainnet value at stake" },
+  { term: "Explorer",         value: ARC_CHAIN.explorer.replace("https://", ""), note: "every settlement resolves to a public tx" },
+  { term: "CCTP domain",      value: String(ARC_CHAIN.cctpDomain), note: "for bridging USDC in and out of Arc" },
+  ...(ARC_CHAIN.faucet ? [{ term: "Testnet funds", value: ARC_CHAIN.faucet.replace("https://", ""), note: "Circle faucet — no mainnet value at stake" }] : []),
 ];
 
 const SOCIAL_PROOF = [
@@ -85,7 +85,7 @@ export default async function LandingPage() {
               </div>
 
               <p className="font-mono mt-10 text-xs text-white/30">
-                Arc Testnet · chain {ARC_TESTNET.chainId}
+                Arc {ARC_CHAIN.network === "mainnet" ? "Mainnet" : "Testnet"} · chain {ARC_CHAIN.chainId}
               </p>
             </div>
 
@@ -243,7 +243,7 @@ export default async function LandingPage() {
                 <p className="font-mono text-center text-xs leading-relaxed text-[#939393]">
                   Specimen seal.
                   <br />Real ones link to
-                  <br />{ARC_TESTNET.explorer.replace("https://", "")}.
+                  <br />{ARC_CHAIN.explorer.replace("https://", "")}.
                 </p>
               </div>
             </div>
@@ -295,7 +295,7 @@ export default async function LandingPage() {
                   { label: "Try Live Demo",       href: "https://aura-ai.rizzgm.xyz", external: true },
                   { label: "Read Documentation",  href: "/docs" },
                   { label: "Sign in",             href: "/login" },
-                  { label: "Arc explorer",        href: ARC_TESTNET.explorer, external: true },
+                  { label: "Arc explorer",        href: ARC_CHAIN.explorer, external: true },
                 ].map(({ label, href, external }) => (
                   <a key={label} href={href} target={external ? "_blank" : undefined} rel={external ? "noopener noreferrer" : undefined}
                     className="text-sm font-semibold text-white/60 underline-offset-4 hover:text-white hover:underline transition-all">
@@ -334,10 +334,10 @@ export default async function LandingPage() {
                   { label: "Live Demo ↗",       href: "https://aura-ai.rizzgm.xyz", external: true },
                 ]},
                 { title: "Network", links: [
-                  { label: "Arc Explorer ↗",              href: ARC_TESTNET.explorer, external: true },
-                  { label: "Circle Faucet ↗",             href: ARC_TESTNET.faucet,   external: true },
-                  { label: `Chain ${ARC_TESTNET.chainId}`, href: "#" },
-                  { label: `CCTP ${ARC_TESTNET.cctpDomain}`, href: "#" },
+                  { label: "Arc Explorer ↗",              href: ARC_CHAIN.explorer, external: true },
+                  ...(ARC_CHAIN.faucet ? [{ label: "Circle Faucet ↗", href: ARC_CHAIN.faucet, external: true }] : []),
+                  { label: `Chain ${ARC_CHAIN.chainId}`, href: "#" },
+                  { label: `CCTP ${ARC_CHAIN.cctpDomain}`, href: "#" },
                 ]},
               ].map(({ title, links }) => (
                 <div key={title}>

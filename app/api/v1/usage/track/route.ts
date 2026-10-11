@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { hashApiKey, isValidKeyFormat } from "@/lib/api-keys";
 import { parseUnits, formatUnits } from "viem";
-import { ARC_TESTNET } from "@/lib/arc/config";
+import { ARC_CHAIN } from "@/lib/arc/config";
 import { getPublicClient } from "@/lib/arc/clients";
 import { evaluatePolicy } from "@/lib/policy";
 import { validateUsageEvent } from "@/lib/money";
@@ -89,17 +89,17 @@ async function assertChannelAvailable(
       .eq("status", USAGE_STATUS.PENDING);
 
     const pendingUnits = (pendingUsageData || []).reduce(
-      (sum, e) => sum + parseUnits(String(e.cost ?? "0"), ARC_TESTNET.usdcDecimals),
+      (sum, e) => sum + parseUnits(String(e.cost ?? "0"), ARC_CHAIN.usdcDecimals),
       0n
     );
-    const costUnits = parseUnits(costString, ARC_TESTNET.usdcDecimals);
+    const costUnits = parseUnits(costString, ARC_CHAIN.usdcDecimals);
     const availableUnits = onChainBalanceWei - pendingUnits;
 
     if (availableUnits < costUnits) {
       return NextResponse.json(
         {
           error: "Insufficient funds in State Channel.",
-          details: `On-chain: ${formatUnits(onChainBalanceWei, ARC_TESTNET.usdcDecimals)} USDC, Pending: ${formatUnits(pendingUnits, ARC_TESTNET.usdcDecimals)} USDC, Required: ${formatUnits(costUnits, ARC_TESTNET.usdcDecimals)} USDC`,
+          details: `On-chain: ${formatUnits(onChainBalanceWei, ARC_CHAIN.usdcDecimals)} USDC, Pending: ${formatUnits(pendingUnits, ARC_CHAIN.usdcDecimals)} USDC, Required: ${formatUnits(costUnits, ARC_CHAIN.usdcDecimals)} USDC`,
         },
         { status: 402 }
       );

@@ -1,15 +1,15 @@
-import { ARC_TESTNET } from "./config";
+import { ARC_CHAIN } from "./config";
 
 /**
  * Arc Testnet parameters for wallet_addEthereumChain.
  * Native currency is USDC with 18 decimals on Arc (native view).
  */
 export const ARC_CHAIN_PARAMS = {
-  chainId: "0x4CEF52", // 5042002
-  chainName: "Arc Testnet",
+  chainId: "0x" + ARC_CHAIN.chainId.toString(16),
+  chainName: ARC_CHAIN.network === "mainnet" ? "Arc" : "Arc Testnet",
   nativeCurrency: { name: "USDC", symbol: "USDC", decimals: 18 },
-  rpcUrls: [ARC_TESTNET.rpc],
-  blockExplorerUrls: [ARC_TESTNET.explorer],
+  rpcUrls: [ARC_CHAIN.rpc],
+  blockExplorerUrls: [ARC_CHAIN.explorer],
 };
 
 interface Eip1193Provider {

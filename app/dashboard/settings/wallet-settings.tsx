@@ -4,7 +4,7 @@ import { useState } from "react";
 import { updateWalletAddress } from "./actions";
 import { CopyButton } from "@/components/ui/CopyButton";
 import { CheckCircle2, XCircle, ExternalLink, Loader2 } from "lucide-react";
-import { ARC_TESTNET } from "@/lib/arc/config";
+import { ARC_CHAIN } from "@/lib/arc/config";
 
 function isValidEvm(addr: string) { return /^0x[a-fA-F0-9]{40}$/.test(addr); }
 
@@ -63,7 +63,7 @@ export function WalletSettings({ initialWallet, projectId }: { initialWallet: st
 
       {/* Explorer link */}
       {initialWallet && isValidEvm(initialWallet) && (
-        <a href={`${ARC_TESTNET.explorer}/address/${initialWallet}`} target="_blank" rel="noopener noreferrer"
+        <a href={`${ARC_CHAIN.explorer}/address/${initialWallet}`} target="_blank" rel="noopener noreferrer"
           className="inline-flex items-center gap-1.5 text-xs text-[#676f7b] hover:text-[#030303] transition-colors">
           <ExternalLink className="w-3 h-3" /> View on Arc explorer
         </a>

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Wallet, Coins, ArrowDownLeft, Loader2, Info, RotateCw } from "lucide-react";
-import { ARC_TESTNET } from "@/lib/arc/config";
+import { ARC_CHAIN } from "@/lib/arc/config";
 import { useChannelWallet } from "@/components/wallet/useChannelWallet";
 
 const PRESETS = [10, 25, 50, 100];
@@ -203,7 +203,7 @@ export default function WalletPage() {
         )}
 
         <p className="font-mono mt-8 text-center text-xs text-[#939393]">
-          Arc Testnet · chain {ARC_TESTNET.chainId} · settlement in USDC
+          Arc Testnet · chain {ARC_CHAIN.chainId} · settlement in USDC
         </p>
       </div>
     </div>

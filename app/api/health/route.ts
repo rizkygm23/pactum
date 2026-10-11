@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
-import { arcTestnet } from "viem/chains";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { ARC_TESTNET } from "@/lib/arc/config";
+import { ARC_CHAIN } from "@/lib/arc/config";
 import { getPublicClient } from "@/lib/arc/clients";
 
 export const dynamic = "force-dynamic";

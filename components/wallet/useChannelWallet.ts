@@ -2,8 +2,8 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { createPublicClient, createWalletClient, custom, http, parseUnits, formatUnits } from "viem";
-import { arcTestnet } from "viem/chains";
-import { ARC_TESTNET, ERC20_ABI } from "@/lib/arc/config";
+import { ARC_CHAIN, ERC20_ABI } from "@/lib/arc/config";
+import { ARC_VIEM_CHAIN } from "@/lib/arc/clients";
 import { ensureArcChain, ARC_CHAIN_PARAMS } from "@/lib/arc/chain-switch";
 
 const PACTUM_CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_PACTUM_CONTRACT_ADDRESS as `0x${string}`;
@@ -39,7 +39,7 @@ const FAILURE_MESSAGE = (e: unknown) =>
 
 function getInjectedWalletClient() {
   if (typeof window === "undefined" || !window.ethereum) return null;
-  return createWalletClient({ chain: arcTestnet, transport: custom(window.ethereum) });
+  return createWalletClient({ chain: ARC_VIEM_CHAIN, transport: custom(window.ethereum) });
 }
 
 /**
@@ -57,7 +57,7 @@ export function useChannelWallet() {
 
   const fetchBalances = useCallback(async (userAddress: string) => {
     try {
-      const publicClient = createPublicClient({ chain: arcTestnet, transport: http() });
+      const publicClient = createPublicClient({ chain: ARC_VIEM_CHAIN, transport: http() });
       const balanceWei = (await publicClient.readContract({
         address: PACTUM_CONTRACT_ADDRESS,
         abi: PACTUM_ABI,
@@ -190,11 +190,11 @@ export function useChannelWallet() {
       try {
         await ensureArcChain(window.ethereum!);
         const amountWei = parseUnits(amount, 6);
-        const publicClient = createPublicClient({ chain: arcTestnet, transport: custom(window.ethereum!) });
+        const publicClient = createPublicClient({ chain: ARC_VIEM_CHAIN, transport: custom(window.ethereum!) });
 
         const approveHash = await signer.writeContract({
           account: address as `0x${string}`,
-          address: ARC_TESTNET.usdc,
+          address: ARC_CHAIN.usdc as `0x${string}`,
           abi: ERC20_ABI,
           functionName: "approve",
           args: [PACTUM_CONTRACT_ADDRESS, amountWei],
@@ -237,7 +237,7 @@ export function useChannelWallet() {
       try {
         await ensureArcChain(window.ethereum!);
         const amountWei = parseUnits(amount, 6);
-        const publicClient = createPublicClient({ chain: arcTestnet, transport: custom(window.ethereum!) });
+        const publicClient = createPublicClient({ chain: ARC_VIEM_CHAIN, transport: custom(window.ethereum!) });
 
         const hash = await signer.writeContract({
           account: address as `0x${string}`,

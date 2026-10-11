@@ -123,7 +123,11 @@ Tone: warm, concise, no corporate fluff.` }
 
     // 3.5 Pre-check balance on-chain to prevent free-riding AI API
     try {
-      const ARC_RPC_URL = process.env.ARC_TESTNET_RPC_URL || "https://rpc.testnet.arc.io";
+      const NETWORK = process.env.ARC_NETWORK || "testnet";
+      const ARC_RPC_URL =
+        (NETWORK === "mainnet"
+          ? process.env.ARC_MAINNET_RPC_URL
+          : process.env.ARC_TESTNET_RPC_URL) || "https://rpc.testnet.arc.io";
       const PACTUM_CONTRACT = process.env.PACTUM_CONTRACT_ADDRESS;
       if (!PACTUM_CONTRACT) throw new Error("PACTUM_CONTRACT_ADDRESS is not configured");
       const provider = new ethers.JsonRpcProvider(ARC_RPC_URL);

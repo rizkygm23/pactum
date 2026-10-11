@@ -17,7 +17,6 @@ export function KeysClient({ initialKeys }: { initialKeys: ApiKey[] }) {
 
   useEffect(() => {
     if (!newKey) return;
-    setCountdown(60);
     timerRef.current = setInterval(() => {
       setCountdown((c) => {
         if (c <= 1) { clearInterval(timerRef.current!); setNewKey(null); return 60; }
@@ -34,6 +33,7 @@ export function KeysClient({ initialKeys }: { initialKeys: ApiKey[] }) {
       if (res.ok) {
         const data = await res.json();
         setNewKey(data.key);
+        setCountdown(60);
         setKeys((prev) => [{ id: data.id, key_prefix: data.key_prefix, name: data.name, status: data.status, created_at: data.created_at }, ...prev]);
       }
     } catch (err) { console.error("Failed to generate key", err); }

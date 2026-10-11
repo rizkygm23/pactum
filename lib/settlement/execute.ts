@@ -1,8 +1,8 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { parseUnits, getAddress, type HttpTransport, type PublicClient, type WalletClient } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
-import { arcTestnet } from "viem/chains";
-import { ARC_TESTNET } from "@/lib/arc/config";
+import { ARC_VIEM_CHAIN } from "@/lib/arc/clients";
+import { ARC_CHAIN } from "@/lib/arc/config";
 import { getPublicClient, getWalletClient } from "@/lib/arc/clients";
 import { USAGE_STATUS } from "@/lib/usage-status";
 import { log } from "@/lib/obs";
@@ -162,7 +162,7 @@ function aggregateGroups(
       group = { user, merchant, amount: 0n, eventIds: [] };
       groups.set(key, group);
     }
-    group.amount += parseUnits(String(ev.cost ?? "0"), ARC_TESTNET.usdcDecimals);
+    group.amount += parseUnits(String(ev.cost ?? "0"), ARC_CHAIN.usdcDecimals);
     group.eventIds.push(ev.id);
   }
 
@@ -171,7 +171,7 @@ function aggregateGroups(
 
 /* ── Stage 3 — per-group on-chain balance pre-check ──────────────────────── */
 async function preCheckBalances(
-  publicClient: PublicClient<HttpTransport, typeof arcTestnet>,
+  publicClient: PublicClient<HttpTransport, typeof ARC_VIEM_CHAIN>,
   contractAddress: `0x${string}`,
   groups: Map<string, Group>
 ): Promise<{ payable: Group[]; skipped: SettlementResult["skipped"]; releaseIds: string[] }> {
@@ -217,8 +217,8 @@ async function preCheckBalances(
 /* ── Stage 4 — chunked batch transactions + DB finalisation ──────────────── */
 async function settleChunks(
   supabase: Supabase,
-  walletClient: WalletClient<HttpTransport, typeof arcTestnet, PrivateKeyAccountShape>,
-  publicClient: PublicClient<HttpTransport, typeof arcTestnet>,
+  walletClient: WalletClient<HttpTransport, typeof ARC_VIEM_CHAIN, PrivateKeyAccountShape>,
+  publicClient: PublicClient<HttpTransport, typeof ARC_VIEM_CHAIN>,
   contractAddress: `0x${string}`,
   payable: Group[]
 ): Promise<{ txHashes: string[]; settledEvents: number }> {
